@@ -66,6 +66,27 @@ function getServiceInstanceBaaS (instance_id, cb) {
   // })
 }
 
+function deleteServiceInstanceBaaS (instance_id, cb) {
+  var options = {
+    type: 'cf-service',
+    qs: { ql: "select * where name='" + instance_id + "'" }
+  }
+  client.createCollection(options, function (err, bindings) {
+    if (err) {
+      cb('error', err)
+    } else {
+      var binding = bindings.getFirstEntity()
+      binding.destroy(function (err) {
+        if (err) {
+          cb('error', err)
+        } else {
+          cb(null, {})
+        }
+      })
+    }
+  })
+}
+
 function deleteBindingBaaS (route, cb) {
   var options = {
     type: 'cf-binding',
@@ -156,10 +177,18 @@ function getServiceInstanceKVM (instance_id, callback) {
   })
 }
 
-function deleteServiceInstanceKVM () {
+function deleteServiceInstanceKVM (instance_id, callback) {
   var options = {
-    key: 'thing'
+    key: instance_id
   }
+  mgmt_api.deleteKVM(options, function (err, data) {
+    if (err) {
+      console.error('error deleting kvm', err)
+      callback(err, null)
+    } else {
+      callback(null, data)
+    }
+  })
 }
 
 function putBindingKVM (route, callback) {
@@ -185,7 +214,7 @@ function deleteBindingKVM (route, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      console.err('error deleting kvm', err)
+      console.error('error deleting kvm', err)
       callback(err, null)
     } else {
       callback(null, data)
@@ -198,7 +227,7 @@ module.exports = {
     saveServiceInstance: saveServiceInstanceBaaS,
     getServiceInstance: getServiceInstanceBaaS,
     // updateServiceInstance: updateServiceInstanceBaaS,
-    // deleteServiceInstance: deleteServiceInstanceBaaS,
+    deleteServiceInstance: deleteServiceInstanceBaaS,
     saveBinding: saveBindingBaaS,
     getBinding: getBindingBaaS,
     updateBinding: updateBindingBaaS,

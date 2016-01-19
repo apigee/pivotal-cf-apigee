@@ -6,6 +6,7 @@ service instance provisioning
 var config = require('../helpers/config')
 var saveServiceInstance = require('./datastore')[config.get('cf_broker').datastore].saveServiceInstance
 var getServiceInstance = require('./datastore')[config.get('cf_broker').datastore].getServiceInstance
+var deleteServiceInstance = require('./datastore')[config.get('cf_broker').datastore].deleteServiceInstance
 
 // TODO: should probably validate the org/env info. Could be mgmt_api function.
 function create (instance, callback) {
@@ -22,7 +23,19 @@ function create (instance, callback) {
 function get (instance_id, callback) {
   getServiceInstance(instance_id, function (err, data) {
     if (err) {
-      callback('Error getting service instance from datastore. ' + err, null)
+      console.error('error getting service instance from datastore', err)
+      callback(err, null)
+    } else {
+      callback(null, data)
+    }
+  })
+}
+
+function deleteInstance (instance_id, callback) {
+  deleteServiceInstance(instance_id, function (err, data) {
+    if (err) {
+      console.error('error deleting service instance', err)
+      callback(err, null)
     } else {
       callback(null, data)
     }
@@ -31,5 +44,6 @@ function get (instance_id, callback) {
 
 module.exports = {
   create: create,
-  get: get
+  get: get,
+  del: deleteInstance
 }

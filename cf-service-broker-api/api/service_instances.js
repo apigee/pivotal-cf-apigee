@@ -53,8 +53,14 @@ router.patch('/:instance_id', function (req, res) {
 
 // deprovision a service instance
 router.delete('/:instance_id', function (req, res) {
-  res.json({description: 'not yet implemented.'}) // TODO: implement
-  // service_instance.delete()
+  service_instance.del(req.params.instance_id, function (err, data) {
+    if (err) {
+      console.error('error in service_instance.del', err)
+      res.status(500).json({description: 'Failure: ' + JSON.stringify(err)})
+    } else {
+      res.json({})
+    }
+  })
 })
 
 // create binding
