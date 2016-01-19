@@ -1,0 +1,28 @@
+{
+  "cf_broker": {
+    "auth": {
+      "method": "apigeeauth",
+      "host": "https://amer-demo6-test.apigee.net"
+   },
+   "datastore": "kvm",
+   "dashboard_url_host": "https://enterprise.apigee.com/platform/#/"
+ },
+  "usergrid": {
+    "baseUrl": "https://amer-apibaas-prod.apigee.net/appservices",
+    "orgId": "amer-demo6",
+    "appId": "sandbox",
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "apigee_edge": {
+    "org": "amer-demo6",
+    "proxy_host": "apigee.net",
+    "proxy_host_pattern": "${org}-${env}.${proxyHost}",
+    "proxy_name_pattern": "cf-${routeName}",
+    "mgmt_api_url": "https://api.enterprise.apigee.com/v1",
+    "authvault": "cf-broker",
+    "key_value_map": "cf-service-broker",
+    "username": "use vault {authvault}",
+    "password": "use vault {authvault}"
+  }
+}
