@@ -1,5 +1,5 @@
-# cf-apigee-broker
-service broker implementation
+# cf-service-broker-api
+Service broker API implementation. To be deployed to Edge.
 
 # sample cf console usage
 // register service broker
