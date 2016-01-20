@@ -13,7 +13,7 @@ router.use(auth)
 router.get('/', function (req, res) {
   // var conf = config.get()
   // conf.apigee_edge.password = '********' TODO: mask the password. Can't do it this way.
-  res.json({ message: 'This is the cf-apigee-broker CF Service Broker API.', configuration: config.get() })
+  res.json({ message: 'This is the cf-apigee-broker CF Service Broker API.', configuration: 'blocked' })
 })
 
 module.exports = router
