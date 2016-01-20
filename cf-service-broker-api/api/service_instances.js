@@ -24,6 +24,7 @@ var service_binding = require('../helpers/service_binding')
 router.use(auth)
 
 // provising a service instance
+// TODO: Need to authenticate user for target org
 router.put('/:instance_id', validate({body: instanceSchema.create}), function (req, res) {
   var instance = {
     instance_id: req.params.instance_id,
