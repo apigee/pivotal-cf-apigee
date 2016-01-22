@@ -175,10 +175,39 @@ function setKVM (keyOptions, callback) {
   })
 }
 
-function createKVM (options, callback) {
-  request.post(options, function (err, res, body) {
+// // TODO: complete
+// function createKVM (keyOptions, callback) {
+//   var config = require('../helpers/config')
+//   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+//   var options = {
+//     url: mgmtUrl
+//   }
+//   request.post(options, function (err, res, body) {
+//     if (err) {
+//       console.log(err)
+//     }
+//   })
+// }
+
+function authenticate (authOptions, callback) {
+  var config = require('../helpers/config')
+  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var options = {
+    url: mgmtUrl + '/organizations/' + authOptions.org,
+    auth: {
+      user: authOptions.user,
+      pass: authOptions.pass
+    }
+  }
+  request.get(options, function (err, res, body) {
     if (err) {
-      console.log(err)
+      console.error('mgmt_api.authenticate error', err)
+      callback(err)
+    } else if (res.statusCode !== 200) {
+      console.error('mgmt_api.authenticate non-200', res)
+      callback('mgmt_api.authenticate returned non-200. ' + res.statusCode + ': ' + res.statusMessage)
+    } else {
+      callback(null, body)
     }
   })
 }
@@ -189,5 +218,6 @@ module.exports = {
   deployProxy: deployProxy,
   setKVM: setKVM,
   getKVM: getKVM,
-  deleteKVM: deleteKVM
+  deleteKVM: deleteKVM,
+  authenticate: authenticate
 }

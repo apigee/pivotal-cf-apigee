@@ -9,6 +9,7 @@ router.use(auth)
 // CF sends basic auth with every request
 var basicAuth = require('basic-auth')
 var request = require('request')
+var mgmt_api = require('./mgmt_api')
 
 // hardcoded admin/password - testing only
 var staticauth = function (req, res, next) {
@@ -26,6 +27,43 @@ var staticauth = function (req, res, next) {
     return next()
   } else {
     return unauthorized(res)
+  }
+}
+
+// any user/pass as basic auth
+// simply enforce basic auth header but not validate user/pass
+var anybasicauth = function (req, res, next) {
+  function unauthorized (res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
+    return res.sendStatus(401)
+  }
+  var user = basicAuth(req)
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res)
+  } else {
+    return next()
+  }
+}
+
+// apigee user auth
+// basic auth will be apigee user/pass to validate against target org
+var apigeeuserauth = function (req, res, next) {
+  function unauthorized (res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
+    return res.sendStatus(401)
+  }
+  var user = basicAuth(req)
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res)
+  } else {
+    // validate user and pass against target edge org
+    mgmt_api.authenticate({org: 'needorg', user: user.name, pass: user.pass}, function (err, data) {
+      if (err) {
+        return unauthorized(res)
+      } else {
+        return next()
+      }
+    })
   }
 }
 
@@ -116,7 +154,9 @@ module.exports = function (options) {
     staticauth: staticauth,
     clientcredentials: clientcredentials,
     basicauth: basicauth,
-    apigeeauth: apigeeauth
+    apigeeauth: apigeeauth,
+    anybasicauth: anybasicauth,
+    apigeeuserauth: apigeeuserauth
   }
   if (options === 'staticauth') console.log('WARNING: using static authentication.')
   return auths[options]
