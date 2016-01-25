@@ -4,6 +4,32 @@ Edge management API calls
 */
 var request = require('request')
 
+function getProxyRevision (proxyData, callback) {
+  var config = require('../helpers/config')
+  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var adminUser = config.get('apigee_edge').username
+  var adminPass = config.get('apigee_edge').password
+  var options = {
+    url: mgmtUrl + '/organizations/' + proxyData.org + '/apis/' + proxyData.proxyname,
+    auth: {
+      user: adminUser,
+      pass: adminPass
+    }
+  }
+  console.log('get proxy details: ' + options.url)
+  request.get(options, function (err, res, body) {
+    if (err) {
+      callback('retrieving proxy revision failed: ' + err)
+    } else if (res.statusCode !== 200) {
+      callback('proxy do not exist: ' + err)
+    } else {
+      var body = JSON.parse(body);
+      var revision = body.revision.slice(-1).pop()
+      callback(null, revision)
+    }
+  })
+}
+
 function importProxy (proxyData, data, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
@@ -45,23 +71,29 @@ function importProxy (proxyData, data, callback) {
 }
 
 function deployProxy (proxyData, callback) {
-  // TODO: should get latest version and deploy that
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
   var adminUser = config.get('apigee_edge').username
   var adminPass = config.get('apigee_edge').password
-  var options = {
-    url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/1/deployments', // TODO: unbrittle this
-    auth: {
-      user: adminUser,
-      pass: adminPass
-    }
-  }
-  request.post(options, function (err, res, body) {
+  //should get latest version and deploy that
+  getProxyRevision(proxyData, function(err, revision) {
     if (err) {
-      callback('proxy deployment failed.', err)
+      callback('getting revision info failed.', err)
     } else {
-      callback(null, res)
+      var options = {
+        url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + revision + '/deployments', // TODO: unbrittle this
+        auth: {
+          user: adminUser,
+          pass: adminPass
+        }
+      }
+      request.post(options, function (err, res, body) {
+        if (err) {
+          callback('proxy deployment failed.', err)
+        } else {
+          callback(null, res)
+        }
+      })
     }
   })
 }

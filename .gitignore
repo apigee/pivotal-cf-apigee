@@ -30,3 +30,5 @@ node_modules
 cloud-config.json
 config.json
 private-config.json
+# Webstorm ide
+.idea/
