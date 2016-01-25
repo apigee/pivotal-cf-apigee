@@ -23,7 +23,7 @@ function getProxyRevision (proxyData, callback) {
     } else if (res.statusCode !== 200) {
       callback('proxy do not exist: ' + err)
     } else {
-      var body = JSON.parse(body);
+      body = JSON.parse(body)
       var revision = body.revision.slice(-1).pop()
       callback(null, revision)
     }
@@ -75,8 +75,8 @@ function deployProxy (proxyData, callback) {
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
   var adminUser = config.get('apigee_edge').username
   var adminPass = config.get('apigee_edge').password
-  //should get latest version and deploy that
-  getProxyRevision(proxyData, function(err, revision) {
+  // should get latest version and deploy that
+  getProxyRevision(proxyData, function (err, revision) {
     if (err) {
       callback('getting revision info failed.', err)
     } else {
@@ -90,6 +90,34 @@ function deployProxy (proxyData, callback) {
       request.post(options, function (err, res, body) {
         if (err) {
           callback('proxy deployment failed.', err)
+        } else {
+          callback(null, res)
+        }
+      })
+    }
+  })
+}
+
+function undeployProxy (proxyData, callback) {
+  var config = require('../helpers/config')
+  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var adminUser = config.get('apigee_edge').username
+  var adminPass = config.get('apigee_edge').password
+  // should get latest version and undeploy that
+  getProxyRevision(proxyData, function (err, revision) {
+    if (err) {
+      callback('getting revision info failed.', err)
+    } else {
+      var options = {
+        url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + revision + '/deployments',
+        auth: {
+          user: adminUser,
+          pass: adminPass
+        }
+      }
+      request.del(options, function (err, res, body) {
+        if (err) {
+          callback('proxy un-deployment failed.', err)
         } else {
           callback(null, res)
         }
@@ -248,6 +276,7 @@ module.exports = {
   importProxy: importProxy,
   getVirtualHosts: getVirtualHosts,
   deployProxy: deployProxy,
+  undeployProxy: undeployProxy,
   setKVM: setKVM,
   getKVM: getKVM,
   deleteKVM: deleteKVM,

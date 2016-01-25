@@ -9,6 +9,7 @@ var proxy = require('./edge_proxy')
 var template = require('es6-template-strings')
 var saveBinding = require('./datastore')[config.get('cf_broker').datastore].saveBinding
 var deleteBinding = require('./datastore')[config.get('cf_broker').datastore].deleteBinding
+var mgmt_api = require('./mgmt_api')
 
 function create (route, callback) {
   async.waterfall([function (cb) {
@@ -104,13 +105,29 @@ function deleteServiceBinding (route, callback) {
     plan_id: req.query.plan_id
   }
   */
-  // TODO: delete proxy
-  // delete data
-  deleteBinding(route, function (err, result) {
+  async.series([function (cb) {
+    mgmt_api.undeployProxy(route, function (err, result) {
+      if (err) {
+        cb(err)
+      } else {
+        cb(null)
+      }
+    })
+  }, function (cb) {
+    // delete data
+    deleteBinding(route, function (err, result) {
+      if (err) {
+        cb(err)
+      } else {
+        cb(null, {})
+      }
+    })
+  }], function (err, result) {
     if (err) {
-      callback(err)
+      callback(new Error('Route Un-binding Failure: ' + err.message), null)
     } else {
-      callback(null, {})
+      // need to call back with URL details for forwarding
+      callback(null, result)
     }
   })
 }
