@@ -2,12 +2,11 @@
 /*
  CRUD datastore functions for provisioning and binding
 */
-var config = require('./config')
 var mgmt_api = require('./mgmt_api')
 var redis = require('redis')
 
 // redis client
-// parsing rediscloud credentials
+// parsing redis cloud credentials
 var vcap_services = process.env.VCAP_SERVICES
 var credentials = JSON.parse(vcap_services)['p-redis'][0].credentials
 var options = {
@@ -20,7 +19,6 @@ rclient.on('error', function (err) {
   console.error('redis error', err)
 })
 rclient.auth(credentials.password)
-
 
 // KVM storage functions
 function putServiceInstanceKVM (instance, callback) {

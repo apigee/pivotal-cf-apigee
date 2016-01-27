@@ -1,9 +1,8 @@
 'use strict'
 /*
-Authentication middleware
-Usage ex:
-var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
-router.use(auth)
+Authentication middleware: Usage example:
+  var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
+  router.use(auth)
 */
 
 // CF sends basic auth with every request

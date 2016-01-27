@@ -2,7 +2,6 @@
 // TODO: write tests!
 var chai = require('chai')
 chai.use(require('chai-things'))
-var should = chai.should()
 var expect = chai.expect
 var supertest = require('supertest')
 
@@ -27,6 +26,7 @@ describe('Catalog', function () {
     .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
     .expect(200)
     .end(function (err, res) {
+      expect(err).equal(null)
       expect(res.body).to.have.property('services')
       res.body.services.should.all.have.property('id')
       res.body.services.should.all.have.property('name')
@@ -44,11 +44,3 @@ describe('Catalog', function () {
     })
   })
 })
-
-// describe('Service Instance', function() {
-//   it('should return a 200 response', function (done) {
-//     api.get('/v2/service_instances')
-//     .set('Accept', 'application/json')
-//     .expect(200, done)
-//   })
-// })

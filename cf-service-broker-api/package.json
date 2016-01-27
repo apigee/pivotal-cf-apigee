@@ -4,7 +4,7 @@
   "description": "apigee service broker for cloud foundry",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "standard"
   },
   "repository": {
     "type": "git",
@@ -33,6 +33,14 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-things": "^0.2.0",
-    "supertest": "^1.1.0"
+    "supertest": "^1.1.0",
+    "standard": "^5.4.1"
+  },
+  "standard": {
+    "ignore": [
+      "proxy-resources/apiproxy/resources/jsc/cf-get-target-url.js",
+      "proxy-resources/apiproxy/resources/jsc/cf-set-target-url.js"
+    ],
+    "globals": [ "describe", "it" ]
   }
 }

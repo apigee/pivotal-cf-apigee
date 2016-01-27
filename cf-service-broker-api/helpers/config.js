@@ -2,9 +2,6 @@
 var nconf = require('nconf')
 var apigee = require('apigee-access')
 
-// any manual overides
-// nconf.overrides({"foo": "alwaysfoo"})
-
 // arguments, environment vars, then file
 nconf.argv()
   .env()

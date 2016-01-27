@@ -12,7 +12,7 @@ var deleteBinding = require('./datastore')[config.get('cf_broker').datastore].de
 var mgmt_api = require('./mgmt_api')
 
 function create (route, callback) {
-  async.waterfall([function (cb) {
+  async.waterfall([ function (cb) {
     // retrieve service instance details
     getServiceInstanceOrg(route, function (err, data) {
       if (err) {
@@ -105,7 +105,7 @@ function deleteServiceBinding (route, callback) {
     plan_id: req.query.plan_id
   }
   */
-  async.series([function (cb) {
+  async.series([ function (cb) {
     mgmt_api.undeployProxy(route, function (err, result) {
       if (err) {
         cb(err)

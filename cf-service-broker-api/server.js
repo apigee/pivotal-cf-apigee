@@ -1,5 +1,4 @@
 'use strict'
-// TODO: CONSISTENT ERROR HANDLING
 
 var express = require('express')
 var api = require('./api/api')

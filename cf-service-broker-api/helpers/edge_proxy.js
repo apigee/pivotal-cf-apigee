@@ -4,7 +4,6 @@
 
 var JSZip = require('jszip')
 var fs = require('fs')
-// var request = require('request')
 var importProxy = require('./mgmt_api').importProxy
 var getVirtualHosts = require('./mgmt_api').getVirtualHosts
 
