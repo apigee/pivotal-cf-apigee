@@ -97,8 +97,8 @@ function deleteBindingKVM (route, callback) {
 // Redis storage
 function putServiceInstanceRedis (instance, callback) {
   var key = instance.instance_id
-  var instance = JSON.stringify(instance)
-  rclient.hset("serviceInstance", key, instance, function (err, result) {
+  instance = JSON.stringify(instance)
+  rclient.hset('serviceInstance', key, instance, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -109,7 +109,7 @@ function putServiceInstanceRedis (instance, callback) {
 
 function getServiceInstanceRedis (instance_id, callback) {
   var key = instance_id
-  rclient.hget("serviceInstance", key, function (err, result) {
+  rclient.hget('serviceInstance', key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -121,7 +121,7 @@ function getServiceInstanceRedis (instance_id, callback) {
 function deleteServiceInstanceRedis (instance_id, callback) {
   // delete from redis
   var key = instance_id
-  rclient.hdel("serviceInstance", key, function (err, result) {
+  rclient.hdel('serviceInstance', key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -132,8 +132,8 @@ function deleteServiceInstanceRedis (instance_id, callback) {
 
 function putBindingRedis (route, callback) {
   var key = route.binding_id
-  var route = JSON.stringify(route)
-  rclient.hset("routeBinding", key, route, function (err, result) {
+  route = JSON.stringify(route)
+  rclient.hset('routeBinding', key, route, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -145,7 +145,7 @@ function putBindingRedis (route, callback) {
 function getBindingRedis (binding_id, callback) {
   // get from redis
   var key = binding_id
-  rclient.hget("routeBinding", key, function (err, result) {
+  rclient.hget('routeBinding', key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
