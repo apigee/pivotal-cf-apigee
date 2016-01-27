@@ -5,9 +5,11 @@
 var config = require('./config')
 var usergrid = require('usergrid')
 var mgmt_api = require('./mgmt_api')
+var redis = require('redis')
 
 // this is susceptible to 'require' caching issue if config is dynamically changed
-var client = new usergrid.client(
+// usergrid client
+var ugclient = new usergrid.client(
   {
     orgName: config.get('usergrid').orgId, // required
     appName: config.get('usergrid').appId, // required
@@ -17,13 +19,28 @@ var client = new usergrid.client(
   }
 )
 
+// redis client
+// parsing rediscloud credentials
+var vcap_services = process.env.VCAP_SERVICES
+var credentials = JSON.parse(vcap_services)['p-redis'][0].credentials
+var options = {
+  port: credentials.port,
+  host: credentials.host,
+  no_ready_check: true
+}
+var rclient = redis.createClient(options)
+rclient.on('error', function (err) {
+  console.error('redis error', err)
+})
+rclient.auth(credentials.password)
+
 // BaaS storage functions
 function saveServiceInstanceBaaS (instance, callback) {
   var options = {
     type: 'cf-service',
     name: instance.instance_id
   }
-  client.createEntity(options, function (err, service) {
+  ugclient.createEntity(options, function (err, service) {
     if (err) {
       callback('error', err)
     } else {
@@ -44,7 +61,7 @@ function getServiceInstanceBaaS (instance_id, cb) {
     type: 'cf-service',
     qs: { ql: "select * where name='" + instance_id + "'" }
   }
-  client.createCollection(options, function (err, instances) {
+  ugclient.createCollection(options, function (err, instances) {
     if (err) {
       cb(err, null)
     } else {
@@ -59,7 +76,7 @@ function deleteServiceInstanceBaaS (instance_id, cb) {
     type: 'cf-service',
     qs: { ql: "select * where name='" + instance_id + "'" }
   }
-  client.createCollection(options, function (err, bindings) {
+  ugclient.createCollection(options, function (err, bindings) {
     if (err) {
       cb('error', err)
     } else {
@@ -80,7 +97,7 @@ function deleteBindingBaaS (route, cb) {
     type: 'cf-binding',
     qs: { ql: "select * where name='" + route.binding_id + "'" }
   }
-  client.createCollection(options, function (err, bindings) {
+  ugclient.createCollection(options, function (err, bindings) {
     if (err) {
       cb('error', err)
     } else {
@@ -101,7 +118,7 @@ function saveBindingBaaS (route, cb) {
     type: 'cf-binding',
     name: route.binding_id
   }
-  client.createEntity(options, function (err, service) {
+  ugclient.createEntity(options, function (err, service) {
     if (err) {
       cb('error', err)
     } else {
@@ -127,7 +144,7 @@ function getBindingBaaS (route, cb) {
     type: 'cf-binding',
     qs: { ql: "select * where name='" + route.binding_id + "'" }
   }
-  client.createCollection(options, function (err, bindings) {
+  ugclient.createCollection(options, function (err, bindings) {
     if (err) {
       cb('error', err)
     } else {
@@ -196,6 +213,7 @@ function putBindingKVM (route, callback) {
 function getBindingKVM () {
 
 }
+
 function deleteBindingKVM (route, callback) {
   var options = {
     key: route.binding_id
@@ -206,6 +224,67 @@ function deleteBindingKVM (route, callback) {
       callback(err, null)
     } else {
       callback(null, data)
+    }
+  })
+}
+
+// Redis storage
+function putServiceInstanceRedis (instance, callback) {
+  var key = 'serviceinstance:' + instance.instance_id
+  rclient.hset(key, instance, function (err, result) {
+    if (err) {
+      callback(err, null)
+    } else {
+      callback(null, result)
+    }
+  })
+}
+
+function getServiceInstanceRedis (instance_id, callback) {
+  var key = 'serviceinstance:' + instance_id
+  rclient.hgetall(key, function (err, result) {
+    if (err) {
+      callback(err, null)
+    } else {
+      callback(null, result)
+    }
+  })
+}
+
+function deleteServiceInstanceRedis (instance_id, callback) {
+  // delete from redis
+  var key = 'serviceinstance:' + instance_id
+  rclient.del(key, function (err, result) {
+    if (err) {
+      callback(err, null)
+    } else {
+      callback(null, result)
+    }
+  })
+}
+
+function putBindingRedis (route, callback) {
+  var key = 'routebinding:' + route.binding_id
+  rclient.hset(key, route, function (err, result) {
+    if (err) {
+      callback(err, null)
+    } else {
+      callback(null, result)
+    }
+  })
+}
+
+function getBindingRedis (binding_id, callback) {
+  // get from redis
+}
+
+function deleteBindingRedis (route, callback) {
+  var key = 'routebinding:' + route.binding_id
+  rclient.del(key, function (err, result) {
+    if (err) {
+      callback(err, null)
+    } else {
+      callback(null, result)
     }
   })
 }
@@ -330,6 +409,17 @@ module.exports = {
     getBinding: getBindingKVM,
     updateBinding: putBindingKVM,
     deleteBinding: deleteBindingKVM,
+    getServiceCatalog: getServiceCatalog
+  },
+  redis: {
+    saveServiceInstance: putServiceInstanceRedis,
+    getServiceInstance: getServiceInstanceRedis,
+    updateServiceInstance: putServiceInstanceRedis,
+    deleteServiceInstance: deleteServiceInstanceRedis,
+    saveBinding: putBindingRedis,
+    getBinding: getBindingRedis,
+    updateBinding: putBindingRedis,
+    deleteBinding: deleteBindingRedis,
     getServiceCatalog: getServiceCatalog
   }
 }
