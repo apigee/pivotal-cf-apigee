@@ -1,0 +1,6 @@
+---
+applications:
+- name: apigee-cf-service-broker
+command: node server.js
+services:
+- apigee-redis
