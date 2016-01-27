@@ -7,13 +7,6 @@
    "datastore": "kvm",
    "dashboard_url_host": "https://enterprise.apigee.com/platform/#/"
  },
-  "usergrid": {
-    "baseUrl": "https://amer-apibaas-prod.apigee.net/appservices",
-    "orgId": "amer-demo6",
-    "appId": "sandbox",
-    "clientId": "",
-    "clientSecret": ""
-  },
   "apigee_edge": {
     "org": "amer-demo6",
     "proxy_host": "apigee.net",

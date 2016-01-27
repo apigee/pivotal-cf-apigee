@@ -1,6 +1,6 @@
 'use strict'
 // TODO: refactor
-// TODO: provide options for persistence? KVM? BaaS?
+// TODO: provide options for persistence? KVM?
 
 var config = require('../helpers/config')
 var service_instance = require('./service_instance')

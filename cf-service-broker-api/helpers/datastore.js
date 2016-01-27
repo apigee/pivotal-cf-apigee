@@ -3,21 +3,8 @@
  CRUD datastore functions for provisioning and binding
 */
 var config = require('./config')
-var usergrid = require('usergrid')
 var mgmt_api = require('./mgmt_api')
 var redis = require('redis')
-
-// this is susceptible to 'require' caching issue if config is dynamically changed
-// usergrid client
-var ugclient = new usergrid.client(
-  {
-    orgName: config.get('usergrid').orgId, // required
-    appName: config.get('usergrid').appId, // required
-    URI: config.get('usergrid').baseUrl,
-    logging: true,
-    buildCurl: true
-  }
-)
 
 // redis client
 // parsing rediscloud credentials
@@ -34,125 +21,6 @@ rclient.on('error', function (err) {
 })
 rclient.auth(credentials.password)
 
-// BaaS storage functions
-function saveServiceInstanceBaaS (instance, callback) {
-  var options = {
-    type: 'cf-service',
-    name: instance.instance_id
-  }
-  ugclient.createEntity(options, function (err, service) {
-    if (err) {
-      callback('error', err)
-    } else {
-      service.set(instance)
-      service.save(function (err) {
-        if (err) {
-          callback('error', err)
-        } else {
-          callback(null, instance)
-        }
-      })
-    }
-  })
-}
-
-function getServiceInstanceBaaS (instance_id, cb) {
-  var options = {
-    type: 'cf-service',
-    qs: { ql: "select * where name='" + instance_id + "'" }
-  }
-  ugclient.createCollection(options, function (err, instances) {
-    if (err) {
-      cb(err, null)
-    } else {
-      var serviceInstance = instances.getFirstEntity()
-      cb(null, serviceInstance.get())
-    }
-  })
-}
-
-function deleteServiceInstanceBaaS (instance_id, cb) {
-  var options = {
-    type: 'cf-service',
-    qs: { ql: "select * where name='" + instance_id + "'" }
-  }
-  ugclient.createCollection(options, function (err, bindings) {
-    if (err) {
-      cb('error', err)
-    } else {
-      var binding = bindings.getFirstEntity()
-      binding.destroy(function (err) {
-        if (err) {
-          cb('error', err)
-        } else {
-          cb(null, {})
-        }
-      })
-    }
-  })
-}
-
-function deleteBindingBaaS (route, cb) {
-  var options = {
-    type: 'cf-binding',
-    qs: { ql: "select * where name='" + route.binding_id + "'" }
-  }
-  ugclient.createCollection(options, function (err, bindings) {
-    if (err) {
-      cb('error', err)
-    } else {
-      var binding = bindings.getFirstEntity()
-      binding.destroy(function (err) {
-        if (err) {
-          cb('error', err)
-        } else {
-          cb(null, {})
-        }
-      })
-    }
-  })
-}
-
-function saveBindingBaaS (route, cb) {
-  var options = {
-    type: 'cf-binding',
-    name: route.binding_id
-  }
-  ugclient.createEntity(options, function (err, service) {
-    if (err) {
-      cb('error', err)
-    } else {
-      service.set(route)
-      service.save(function (err) {
-        if (err) {
-          cb('error', err)
-        } else {
-          cb(null, route)
-        }
-      })
-    }
-  })
-}
-
-function updateBindingBaaS (route, cb) {
-  // noop
-  cb(null)
-}
-
-function getBindingBaaS (route, cb) {
-  var options = {
-    type: 'cf-binding',
-    qs: { ql: "select * where name='" + route.binding_id + "'" }
-  }
-  ugclient.createCollection(options, function (err, bindings) {
-    if (err) {
-      cb('error', err)
-    } else {
-      var bindingInstance = bindings.getFirstEntity()
-      cb(null, bindingInstance.get())
-    }
-  })
-}
 
 // KVM storage functions
 function putServiceInstanceKVM (instance, callback) {
@@ -389,17 +257,6 @@ function getServiceCatalog () {
 }
 
 module.exports = {
-  baas: {
-    saveServiceInstance: saveServiceInstanceBaaS,
-    getServiceInstance: getServiceInstanceBaaS,
-    // updateServiceInstance: updateServiceInstanceBaaS,
-    deleteServiceInstance: deleteServiceInstanceBaaS,
-    saveBinding: saveBindingBaaS,
-    getBinding: getBindingBaaS,
-    updateBinding: updateBindingBaaS,
-    deleteBinding: deleteBindingBaaS,
-    getServiceCatalog: getServiceCatalog
-  },
   kvm: {
     saveServiceInstance: putServiceInstanceKVM,
     getServiceInstance: getServiceInstanceKVM,
