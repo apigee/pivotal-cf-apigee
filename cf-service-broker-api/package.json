@@ -1,5 +1,5 @@
 {
-  "name": "cf-apigee-broker",
+  "name": "apigee-cf-service-broker",
   "version": "0.0.1",
   "description": "apigee service broker for cloud foundry",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/carloseberhardt/cf-apigee-broker.git"
+    "url": "git+https://github.com/apigee/pivotal-cf-apigee.git"
   },
-  "author": "carlos eberhardt <@carloseberhardt>",
-  "license": "MIT",
+  "author": "apigee <@apigee>",
+  "license": "APACHE 2.0",
   "bugs": {
-    "url": "https://github.com/carloseberhardt/cf-apigee-broker/issues"
+    "url": "https://github.com/apigee/pivotal-cf-apigee/issues"
   },
-  "homepage": "https://github.com/carloseberhardt/cf-apigee-broker#readme",
+  "homepage": "https://github.com/apigee/pivotal-cf-apigee#readme",
   "dependencies": {
     "apigee-access": "^1.3.0",
     "async": "^1.5.0",
