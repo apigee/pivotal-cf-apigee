@@ -96,8 +96,9 @@ function deleteBindingKVM (route, callback) {
 
 // Redis storage
 function putServiceInstanceRedis (instance, callback) {
-  var key = 'serviceinstance:' + instance.instance_id
-  rclient.hset(key, instance, function (err, result) {
+  var key = instance.instance_id
+  var instance = JSON.stringify(instance)
+  rclient.hset("serviceInstance", key, instance, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -107,20 +108,20 @@ function putServiceInstanceRedis (instance, callback) {
 }
 
 function getServiceInstanceRedis (instance_id, callback) {
-  var key = 'serviceinstance:' + instance_id
-  rclient.hgetall(key, function (err, result) {
+  var key = instance_id
+  rclient.hget("serviceInstance", key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
-      callback(null, result)
+      callback(null, JSON.parse(result))
     }
   })
 }
 
 function deleteServiceInstanceRedis (instance_id, callback) {
   // delete from redis
-  var key = 'serviceinstance:' + instance_id
-  rclient.del(key, function (err, result) {
+  var key = instance_id
+  rclient.hdel("serviceInstance", key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -130,8 +131,9 @@ function deleteServiceInstanceRedis (instance_id, callback) {
 }
 
 function putBindingRedis (route, callback) {
-  var key = 'routebinding:' + route.binding_id
-  rclient.hset(key, route, function (err, result) {
+  var key = route.binding_id
+  var route = JSON.stringify(route)
+  rclient.hset("routeBinding", key, route, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
@@ -142,11 +144,19 @@ function putBindingRedis (route, callback) {
 
 function getBindingRedis (binding_id, callback) {
   // get from redis
+  var key = binding_id
+  rclient.hget("routeBinding", key, function (err, result) {
+    if (err) {
+      callback(err, null)
+    } else {
+      callback(null, JSON.parse(result))
+    }
+  })
 }
 
 function deleteBindingRedis (route, callback) {
-  var key = 'routebinding:' + route.binding_id
-  rclient.del(key, function (err, result) {
+  var key = route.binding_id
+  rclient.hdel("routeBinding", key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
