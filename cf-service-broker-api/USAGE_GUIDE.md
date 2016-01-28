@@ -1,5 +1,5 @@
 # cf-service-broker-api
-Service broker API implementation. To be deployed to Edge.
+Service broker API implementation. To be deployed to Cloud Foundry.
 
 # sample cf console usage
 // register service broker

@@ -26,14 +26,10 @@ function uploadProxy (proxyData, callback) {
   })
 }
 
-// TODO: this only works in edge (due to readFile path below.. fix this)
-// TODO: this assumes default and secure virtual hosts. If they are not so, proxy will not deploy.
 // TODO: cf route services requires TLS. This needs to be documented somewhere for users.
-// TODO: jsZIP doesn't work in certain opdk environment. confirm version. Uint8Array issue. Possible to monkeypatch jsZIP
 function getZip (proxyData, callback) {
   console.log('dir: ' + __dirname)
-  // from file - TODO: this path should be able to be ../proxy-resources/apiproxy.zip
-  fs.readFile('/organization/environment/api/proxy-resources/apiproxy.zip', function (err, data) {
+  fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
     if (err) {
       console.log('readFile error: ' + err)
       callback(err, null)
