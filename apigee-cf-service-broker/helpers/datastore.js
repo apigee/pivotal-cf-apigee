@@ -137,9 +137,9 @@ function putBindingRedis (route, callback) {
     if (err) {
       callback(err, null)
     } else {
-      callback(null, result)
+      callback(null, JSON.parse(this.route))
     }
-  })
+  }.bind( { route: route } ))
 }
 
 function getBindingRedis (binding_id, callback) {
