@@ -156,7 +156,7 @@ function getBindingRedis (binding_id, callback) {
 
 function deleteBindingRedis (route, callback) {
   var key = route.binding_id
-  rclient.hdel("routeBinding", key, function (err, result) {
+  rclient.hdel('routeBinding', key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
