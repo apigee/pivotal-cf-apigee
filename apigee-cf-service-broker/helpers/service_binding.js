@@ -9,6 +9,7 @@ var proxy = require('./edge_proxy')
 var template = require('es6-template-strings')
 var saveBinding = require('./datastore')[config.get('cf_broker').datastore].saveBinding
 var deleteBinding = require('./datastore')[config.get('cf_broker').datastore].deleteBinding
+var getBinding = require('./datastore')[config.get('cf_broker').datastore].getBinding
 var mgmt_api = require('./mgmt_api')
 
 function create (route, callback) {
@@ -21,6 +22,7 @@ function create (route, callback) {
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
+        console.log('service_binding get org: ' + JSON.stringify(data))
         cb(null, data)
       }
     }) },
@@ -44,6 +46,7 @@ function create (route, callback) {
           cb(new Error('Failed saving binding details.'))
           return
         } else {
+          console.log('sevice_binding saveBinding: ' + JSON.stringify(result))
           cb(null, result)
         }
       })
@@ -72,7 +75,8 @@ function createProxy (data, cb) {
     } else {
       var proxyHost = config.get('apigee_edge').proxy_host
       var proxyUrlRoot = template(config.get('apigee_edge').proxy_host_pattern, { org: org, env: env, proxyHost: proxyHost })
-      route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id // TODO: this should use URL lib
+      route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
+      route.proxyname = proxyName
       console.log('route proxy url: ' + route.proxyURL)
       cb(null, route)
     }
@@ -105,17 +109,39 @@ function deleteServiceBinding (route, callback) {
     plan_id: req.query.plan_id
   }
   */
-  async.series([ function (cb) {
-    mgmt_api.undeployProxy(route, function (err, result) {
+  console.log('service_binding delete: ' + JSON.stringify(route))
+  async.waterfall([ function (cb) {
+    // retrieve service instance details
+    getServiceInstanceOrg(route, function (err, data) {
       if (err) {
-        cb(err)
+        cb(new Error('Failed to retrieve service instance details.'))
       } else {
-        cb(null)
+        // data is {org: 'orgname', env: 'envname'}
+        data.route = route
+        console.log('service_binding get org: ' + JSON.stringify(data))
+        cb(null, data)
+      }
+    }) },
+  function (data, cb) {
+    getBinding(data.route.binding_id, function (err, binding) {
+      if (err) {
+        cb(new Error('Failed to retrieve binding details.'))
+      } else {
+        cb(null, {org: data.org, env: data.env, proxyname: binding.proxyname, route: data.route})
       }
     })
-  }, function (cb) {
+  },
+  function (data, cb) {
+    mgmt_api.undeployProxy(data, function (err, result) {
+      if (err) {
+        cb(err, null)
+      } else {
+        cb(null, data)
+      }
+    })
+  }, function (data, cb) {
     // delete data
-    deleteBinding(route, function (err, result) {
+    deleteBinding(data.route, function (err, result) {
       if (err) {
         cb(err)
       } else {
