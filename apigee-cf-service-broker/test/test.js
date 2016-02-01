@@ -98,3 +98,25 @@ describe('Create Service', function () {
   //   .expect(201, done)
   // })
 })
+describe('Delete Service', function () {
+  it('should require basic auth', function (done) {
+    api.del('/v2/service_instances/:instance_id')
+    .set('Accept', 'application/json')
+    .expect(401, done)
+  })
+  // TODO: should we worry about this?
+  // it('should return a 410 response', function (done) {
+  //   var serviceInstance = 'Non-Exist'
+  //   api.del('/v2/service_instances/' + serviceInstance.instance_id)
+  //   .set('Accept', 'application/json')
+  //   .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+  //   .expect(410, done)
+  // })
+  it('should delete the instance and return 200', function (done) {
+    var serviceInstance = 'instance_guid_here'
+    api.del('/v2/service_instances/' + serviceInstance)
+    .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+    .expect(200, done)
+  })
+  // TODO: figure out how to validate data deletion
+})
