@@ -4,3 +4,4 @@ applications:
 command: node server.js
 services:
 - apigee-redis
+buildpack: nodejs_buildpack

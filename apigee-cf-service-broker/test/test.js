@@ -3,6 +3,7 @@
 var chai = require('chai')
 chai.use(require('chai-things'))
 var expect = chai.expect
+var should = require('should')
 var supertest = require('supertest')
 
 var port = process.env.PORT || 8888
@@ -28,12 +29,12 @@ describe('Catalog', function () {
     .end(function (err, res) {
       expect(err).equal(null)
       expect(res.body).to.have.property('services')
-      res.body.services.should.all.have.property('id')
-      res.body.services.should.all.have.property('name')
-      res.body.services.should.all.have.property('description')
-      res.body.services.should.all.have.property('bindable')
-      res.body.services.should.all.have.property('plans')
       res.body.services.forEach(function (service) {
+        service.should.have.property('name')
+        service.should.have.property('id')
+        service.should.have.property('description')
+        service.should.have.property('bindable')
+        service.should.have.property('plans')
         service.plans.forEach(function (plan) {
           plan.should.have.property('id')
           plan.should.have.property('name')

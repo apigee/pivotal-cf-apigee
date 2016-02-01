@@ -29,8 +29,8 @@ if (apigee.getMode() === apigee.APIGEE_MODE) {
 } else {
   // TODO: fix this - temporary just to validate
   // get auth from cf environment
-  var creds = JSON.parse(process.env.apigee_credentials)
-  nconf.set('apigee_edge:username', creds.user)
-  nconf.set('apigee_edge:password', creds.pass)
+//  var creds = JSON.parse(process.env.apigee_credentials)
+//  nconf.set('apigee_edge:username', creds.user)
+//  nconf.set('apigee_edge:password', creds.pass)
 }
 module.exports = nconf

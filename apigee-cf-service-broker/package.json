@@ -4,14 +4,19 @@
   "description": "apigee service broker for cloud foundry",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "test": "mocha test/test.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apigee/pivotal-cf-apigee.git"
   },
   "author": "apigee <@apigee>",
-  "license": "APACHE 2.0",
+  "license": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/apigee/pivotal-cf-apigee/issues"
   },
@@ -33,14 +38,18 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-things": "^0.2.0",
-    "supertest": "^1.1.0",
-    "standard": "^5.4.1"
+    "should": "^8.2.1",
+    "standard": "^5.4.1",
+    "supertest": "^1.1.0"
   },
   "standard": {
     "ignore": [
       "proxy-resources/apiproxy/resources/jsc/cf-get-target-url.js",
       "proxy-resources/apiproxy/resources/jsc/cf-set-target-url.js"
     ],
-    "globals": [ "describe", "it" ]
+    "globals": [
+      "describe",
+      "it"
+    ]
   }
 }
