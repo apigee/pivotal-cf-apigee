@@ -6,6 +6,7 @@ var expect = chai.expect
 var should = require('should')
 var supertest = require('supertest')
 
+// TODO: determine way to launch server.js for testing.
 var port = process.env.PORT || 8888
 var api = supertest('http://localhost:' + port)
 
@@ -44,4 +45,56 @@ describe('Catalog', function () {
       done()
     })
   })
+})
+describe('Create Service', function () {
+  it('should require basic auth', function (done) {
+    api.put('/v2/service_instances/:instance_id')
+    .set('Accept', 'application/json')
+    .expect(401, done)
+  })
+  it('should return a 401 response', function (done) {
+    var serviceInstance = {
+      instance_id: 'instance-guid-here',
+      payload: {
+        organization_guid: 'org-guid-here',
+        plan_id: 'plan-guid-here',
+        service_id: 'service-guid-here',
+        space_guid: 'space-guid-here',
+        parameters: {
+          org: 'org-name-here',
+          env: 'env-name-here',
+          user: 'apigee-user-here',
+          pass: 'apigee-pass-here'
+        }
+      }
+    }
+    api.put('/v2/service_instances/' + serviceInstance.instance_id)
+    .send(serviceInstance.payload)
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+    .expect(401, done)
+  })
+  // TODO: figure out this without revealing any real credentials
+  // it('should return a 201 response', function (done) {
+  //   var serviceInstance = {
+  //     instance_id: 'instance-guid-here',
+  //     payload: {
+  //       organization_guid: 'org-guid-here',
+  //       plan_id: 'plan-guid-here',
+  //       service_id: 'service-guid-here',
+  //       space_guid: 'space-guid-here',
+  //       parameters: {
+  //         org: 'cdmo',
+  //         env: 'test',
+  //         user: 'carlos@apigee.com',
+  //         pass: ''
+  //       }
+  //     }
+  //   }
+  //   api.put('/v2/service_instances/' + serviceInstance.instance_id)
+  //   .send(serviceInstance.payload)
+  //   .set('Accept', 'application/json')
+  //   .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+  //   .expect(201, done)
+  // })
 })

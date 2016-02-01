@@ -7,15 +7,25 @@ var config = require('../helpers/config')
 var saveServiceInstance = require('./datastore')[config.get('cf_broker').datastore].saveServiceInstance
 var getServiceInstance = require('./datastore')[config.get('cf_broker').datastore].getServiceInstance
 var deleteServiceInstance = require('./datastore')[config.get('cf_broker').datastore].deleteServiceInstance
+var mgmt_api = require('./mgmt_api')
 
 // TODO: should probably validate the org/env info. Could be mgmt_api function.
 function create (instance, callback) {
   // console.log('service_instance.create: ' + JSON.stringify(instance))
-  saveServiceInstance(instance, function (err, data) {
+  // validate user has access to provided apigee org-guid-here
+  mgmt_api.authenticate({org: instance.apigee_org, user: instance.apigee_user, pass: instance.apigee_pass}, function (err, data) {
     if (err) {
-      callback('Error saving service instance to datastore. ' + err, null)
+      // problem
+      console.error('Auth to apigee failed.', err, data)
+      callback('401', null)
     } else {
-      callback(null, data)
+      saveServiceInstance(instance, function (err, data) {
+        if (err) {
+          callback('Error saving service instance to datastore. ' + err, null)
+        } else {
+          callback(null, data)
+        }
+      })
     }
   })
 }

@@ -1,6 +1,13 @@
 # cf-service-broker-api
 Service broker API implementation. To be deployed to Cloud Foundry.
 
+# pre-requisites
+#### Redis service
+Used for data persistence for service broker
+#### User-Provided Service Instance
+Used for Apigee Edge credentials
+
+
 # sample cf console usage
 // register service broker
 cf create-service-broker apigee 5zbjHdfw9fJzAMnN3xY0xJMacHX63UKA 6JnPeXyR7FljuPDb http://amer-demo6-test.apigee.net/cf-apigee-broker

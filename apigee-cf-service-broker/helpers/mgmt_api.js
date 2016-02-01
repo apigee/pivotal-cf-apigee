@@ -250,7 +250,7 @@ function authenticate (authOptions, callback) {
       console.error('mgmt_api.authenticate error', err)
       callback(err)
     } else if (res.statusCode !== 200) {
-      console.error('mgmt_api.authenticate non-200', res)
+      console.error('mgmt_api.authenticate non-200', res.body)
       callback('mgmt_api.authenticate returned non-200. ' + res.statusCode + ': ' + res.statusMessage)
     } else {
       callback(null, body)

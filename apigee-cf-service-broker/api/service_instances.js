@@ -33,11 +33,17 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
     organization_guid: req.body.organization_guid,
     space_guid: req.body.space_guid,
     apigee_org: req.body.parameters.org,
-    apigee_env: req.body.parameters.env
+    apigee_env: req.body.parameters.env,
+    apigee_user: req.body.parameters.user,
+    apigee_pass: req.body.parameters.pass
   }
   service_instance.create(instance, function (err, data) {
     if (err) {
-      res.status(400).json({description: 'Failure: ' + JSON.stringify(err)})
+      if (err === '401') {
+        res.status(401).json({description: 'There was an error authenticating to Apigee Edge.'})
+      } else {
+        res.status(400).json({description: 'Failure: ' + JSON.stringify(err)})
+      }
     } else {
       var r = {dashboard_url: config.get('cf_broker').dashboard_url_host + instance.apigee_org}
       console.log('create service instance response: ' + JSON.stringify(r))
