@@ -7,8 +7,8 @@ var request = require('request')
 function getProxyRevision (proxyData, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
+  var adminUser = proxyData.user
+  var adminPass = proxyData.pass
   var options = {
     url: mgmtUrl + '/organizations/' + proxyData.org + '/apis/' + proxyData.proxyname,
     auth: {
@@ -19,9 +19,11 @@ function getProxyRevision (proxyData, callback) {
   console.log('get proxy details: ' + options.url)
   request.get(options, function (err, res, body) {
     if (err) {
+      // console.log(err)
       callback('retrieving proxy revision failed: ' + err)
     } else if (res.statusCode !== 200) {
-      callback('proxy do not exist: ' + err)
+      // console.log('getProxyRevision statusCode: ' + res.statusCode)
+      callback('proxy does not exist: ' + err)
     } else {
       body = JSON.parse(body)
       var revision = body.revision.slice(-1).pop()
@@ -33,8 +35,8 @@ function getProxyRevision (proxyData, callback) {
 function importProxy (proxyData, data, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
+  var adminUser = proxyData.user
+  var adminPass = proxyData.pass
   var formData = {
     // Pass data via Buffers
     file: data
@@ -73,8 +75,8 @@ function importProxy (proxyData, data, callback) {
 function deployProxy (proxyData, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
+  var adminUser = proxyData.user
+  var adminPass = proxyData.pass
   // should get latest version and deploy that
   getProxyRevision(proxyData, function (err, revision) {
     if (err) {
@@ -129,8 +131,8 @@ function undeployProxy (proxyData, callback) {
 function getVirtualHosts (proxyData, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
+  var adminUser = proxyData.user
+  var adminPass = proxyData.pass
   var options = {
     url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/virtualhosts',
     auth: {

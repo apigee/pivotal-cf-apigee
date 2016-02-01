@@ -91,7 +91,7 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
     } else {
       var r = {route_service_url: result.proxyURL}
       console.log('create service binding response: ' + JSON.stringify(r))
-      res.json(r)
+      res.status(201).json(r)
     }
   })
 })

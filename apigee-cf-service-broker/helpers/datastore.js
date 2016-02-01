@@ -10,7 +10,16 @@ var redis = require('redis')
 // TODO: fix this to be right
 var rclient
 if (process.env.NODE_ENV === 'TEST') {
-  rclient = require('fakeredis').createClient('serviceredis')
+  // rclient = require('fakeredis').createClient('serviceredis')
+  var options = {
+    port: 6379,
+    host: '127.0.0.1',
+    no_ready_check: true
+  }
+  rclient = redis.createClient(options)
+  rclient.on('error', function (err) {
+    console.error('redis error', err)
+  })
 } else {
   var vcap_services = process.env.VCAP_SERVICES
   var credentials = JSON.parse(vcap_services)['p-redis'][0].credentials
@@ -119,6 +128,7 @@ function getServiceInstanceRedis (instance_id, callback) {
     if (err) {
       callback(err, null)
     } else {
+      console.log('getServiceInstanceRedis: ' + result)
       callback(null, JSON.parse(result))
     }
   })

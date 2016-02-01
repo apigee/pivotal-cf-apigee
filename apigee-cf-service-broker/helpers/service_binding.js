@@ -69,7 +69,7 @@ function createProxy (data, cb) {
   // TODO: this is brittle. Refactor. Goal is to support some configurability, but the code needs to match the template, or the avaliable variables need to be documented
   var routeName = route.bind_resource.route
   var proxyName = template(config.get('apigee_edge').proxy_name_pattern, { routeName: routeName })
-  proxy.upload({org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
+  proxy.upload({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
       cb('proxy failure.', err)
     } else {
@@ -93,9 +93,7 @@ function getServiceInstanceOrg (route, cb) {
     } else {
       // get org and environment and continue
       console.log('service_binding.getServiceInstanceOrg: ' + JSON.stringify(data))
-      var org = data.apigee_org
-      var env = data.apigee_env
-      cb(null, {org: org, env: env})
+      cb(null, {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass})
     }
   })
 }
