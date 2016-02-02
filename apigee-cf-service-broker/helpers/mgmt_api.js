@@ -103,8 +103,8 @@ function deployProxy (proxyData, callback) {
 function undeployProxy (proxyData, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
+  var adminUser = proxyData.user
+  var adminPass = proxyData.pass
   // should get latest version and undeploy that
   getProxyRevision(proxyData, function (err, revision) {
     if (err) {

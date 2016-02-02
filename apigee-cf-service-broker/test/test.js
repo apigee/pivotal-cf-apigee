@@ -129,13 +129,13 @@ describe('Create Binding', function () {
     .expect(201, done)
   })
 })
-describe('Delete Binding', function () {
+describe('Delete Binding & Delete Service', function () {
   it('should require basic auth', function (done) {
     api.put('/v2/service_instances/:instance_id/service_bindings/:binding_id')
     .set('Accept', 'application/json')
     .expect(401, done)
   })
-  it('should delete the instance and return 200', function (done) {
+  it('should delete the binding and return 200', function (done) {
     var bindingInstance = {
       instance_id: 'instance-guid-here',
       binding_id: 'binding-guid-here'
@@ -145,13 +145,10 @@ describe('Delete Binding', function () {
     .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
     .expect(200, done)
   })
-  // TODO: figure out how to validate data deletion
-})
-describe('Delete Service', function () {
   it('should require basic auth', function (done) {
     api.del('/v2/service_instances/:instance_id')
-    .set('Accept', 'application/json')
-    .expect(401, done)
+      .set('Accept', 'application/json')
+      .expect(401, done)
   })
   // TODO: should we worry about this?
   // it('should return a 410 response', function (done) {
@@ -162,10 +159,10 @@ describe('Delete Service', function () {
   //   .expect(410, done)
   // })
   it('should delete the instance and return 200', function (done) {
-    var serviceInstance = 'instance_guid_here'
+    var serviceInstance = 'instance-guid-here'
     api.del('/v2/service_instances/' + serviceInstance)
-    .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
-    .expect(200, done)
+      .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+      .expect(200, done)
   })
   // TODO: figure out how to validate data deletion
 })
