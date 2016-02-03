@@ -35,7 +35,8 @@ if (process.env.NODE_ENV === 'TEST') {
   rclient.auth(credentials.password)
 }
 
-// KVM storage functions
+// KVM storage functions - We are not using
+/* istanbul ignore next */
 function putServiceInstanceKVM (instance, callback) {
   var options = {
     key: instance.instance_id,
@@ -50,6 +51,7 @@ function putServiceInstanceKVM (instance, callback) {
   })
 }
 
+/* istanbul ignore next */
 function getServiceInstanceKVM (instance_id, callback) {
   var options = {
     key: instance_id
@@ -63,6 +65,7 @@ function getServiceInstanceKVM (instance_id, callback) {
   })
 }
 
+/* istanbul ignore next */
 function deleteServiceInstanceKVM (instance_id, callback) {
   var options = {
     key: instance_id
@@ -77,6 +80,7 @@ function deleteServiceInstanceKVM (instance_id, callback) {
   })
 }
 
+/* istanbul ignore next */
 function putBindingKVM (route, callback) {
   var options = {
     key: route.binding_id,
@@ -91,10 +95,12 @@ function putBindingKVM (route, callback) {
   })
 }
 
+/* istanbul ignore next */
 function getBindingKVM () {
 
 }
 
+/* istanbul ignore next */
 function deleteBindingKVM (route, callback) {
   var options = {
     key: route.binding_id

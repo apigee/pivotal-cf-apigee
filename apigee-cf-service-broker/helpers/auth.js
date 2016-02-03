@@ -31,6 +31,8 @@ var staticauth = function (req, res, next) {
 
 // any user/pass as basic auth
 // simply enforce basic auth header but not validate user/pass
+// Not using below code anywhere
+/* istanbul ignore next */
 var anybasicauth = function (req, res, next) {
   function unauthorized (res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
@@ -46,6 +48,8 @@ var anybasicauth = function (req, res, next) {
 
 // apigee user auth
 // basic auth will be apigee user/pass to validate against target org
+// Not using below code anywhere
+/* istanbul ignore next */
 var apigeeuserauth = function (req, res, next) {
   function unauthorized (res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
@@ -67,6 +71,8 @@ var apigeeuserauth = function (req, res, next) {
 }
 
 // validate client_id/secret against edge (url dictates which org)
+// Not using below code anywhere
+/* istanbul ignore next */
 var clientcredentials = function (req, res, next) {
   function unauthorized (res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
@@ -112,6 +118,8 @@ var basicauth = function (req, res, next) {
 }
 
 // internal call using apigee-access module (requires running in edge)
+// Not using below code anywhere
+/* istanbul ignore next */
 var apigeeauth = function (req, res, next) {
   var apigee = require('apigee-access')
   if (apigee.getMode() === apigee.APIGEE_MODE) {

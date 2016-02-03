@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "istanbul cover --report cobertura _mocha -- test/test.js -R spec"
+    "test": "istanbul cover --report cobertura --report html _mocha -- test/test.js -R spec"
   },
   "repository": {
     "type": "git",

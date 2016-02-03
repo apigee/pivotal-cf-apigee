@@ -18,6 +18,25 @@ describe('Starting Tests..', function () {
   before(function () {
     app = server.listen(8000)
   })
+  describe('EndPoint', function() {
+    it('should return 200', function (done) {
+      api.get('/')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+        .expect(200)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('message')
+          done()
+        })
+    })
+    it('Invalid Auth should return 401', function (done) {
+      api.get('/')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Basic YWRtaW46cGFzc3dcmQ=')
+        .expect(401, done)
+    })
+  })
   describe('Catalog', function () {
     it('should require basic auth', function (done) {
       api.get('/v2/catalog')
@@ -59,6 +78,12 @@ describe('Starting Tests..', function () {
       api.put('/v2/service_instances/:instance_id')
         .set('Accept', 'application/json')
         .expect(401, done)
+    })
+    it('patch should return 422', function (done) {
+      api.patch('/v2/service_instances/:instance_id')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+        .expect(422, done)
     })
     it('should return a 401 response', function (done) {
       var serviceInstance = {
@@ -117,8 +142,20 @@ describe('Starting Tests..', function () {
         .set('Accept', 'application/json')
         .expect(401, done)
     })
+    it('should return validation failed - JSON Schema Validation', function (done) {
+      api.put('/v2/service_instances/12345')
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
+        .send("{'invalidJSON")
+        .expect(400)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('jsonSchemaValidation')
+          expect(res.body.jsonSchemaValidation).to.equal(true)
+          done()
+        })
+    })
     it('should return a 201 response', function (done) {
-      this.timeout(0)
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',

@@ -152,6 +152,7 @@ function getVirtualHosts (proxyData, callback) {
   })
 }
 
+/* istanbul ignore next */
 function getKVM (keyOptions, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
@@ -177,6 +178,7 @@ function getKVM (keyOptions, callback) {
   })
 }
 
+/* istanbul ignore next */
 function deleteKVM (keyOptions, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
@@ -204,6 +206,7 @@ function deleteKVM (keyOptions, callback) {
   })
 }
 
+/* istanbul ignore next */
 function setKVM (keyOptions, callback) {
   var config = require('../helpers/config')
   var mgmtUrl = config.get('apigee_edge').mgmt_api_url
