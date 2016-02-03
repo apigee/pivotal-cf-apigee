@@ -39,6 +39,7 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-things": "^0.2.0",
+    "istanbul": "^0.4.2",
     "should": "^8.2.1",
     "standard": "^5.4.1",
     "supertest": "^1.1.0"
