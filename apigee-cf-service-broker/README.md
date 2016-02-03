@@ -1,8 +1,6 @@
 # cf-service-broker-api
 Service broker API implementation. To be deployed to Cloud Foundry.
 
-[![Coverage Status](https://raw.githubusercontent.com/apigee/pivotal-cf-apigee/master/apigee-cf-service-broker/test/coverage.svg)](https://github.com/apigee/pivotal-cf-apigee)
-
 # pre-requisites
 #### Redis service
 Used for data persistence for service broker
