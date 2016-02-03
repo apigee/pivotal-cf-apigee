@@ -9,9 +9,10 @@ var redis = require('redis')
 // parsing redis cloud credentials
 // TODO: fix this to be right
 var rclient
+var options
 if (process.env.NODE_ENV === 'TEST') {
   // rclient = require('fakeredis').createClient('serviceredis')
-  var options = {
+  options = {
     port: 6379,
     host: '127.0.0.1',
     no_ready_check: true
@@ -23,7 +24,7 @@ if (process.env.NODE_ENV === 'TEST') {
 } else {
   var vcap_services = process.env.VCAP_SERVICES
   var credentials = JSON.parse(vcap_services)['p-redis'][0].credentials
-  var options = {
+  options = {
     port: credentials.port,
     host: credentials.host,
     no_ready_check: true
@@ -161,7 +162,7 @@ function putBindingRedis (route, callback) {
     } else {
       callback(null, JSON.parse(this.route))
     }
-  }.bind( { route: route } ))
+  }.bind({ route: route }))
 }
 
 function getBindingRedis (binding_id, callback) {
