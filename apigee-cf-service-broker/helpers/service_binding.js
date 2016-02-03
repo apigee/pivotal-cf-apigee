@@ -125,6 +125,8 @@ function deleteServiceBinding (route, callback) {
       if (err) {
         cb(new Error('Failed to retrieve binding details.'))
       } else {
+        data.proxyname = binding.proxyname
+        console.log('delete binding getBinding: ' + JSON.stringify(data))
         cb(null, {org: data.org, env: data.env, proxyname: binding.proxyname, route: data.route, user: data.user, pass: data.pass})
       }
     })
