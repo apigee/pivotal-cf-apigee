@@ -4,9 +4,6 @@ Service broker API implementation. To be deployed to Cloud Foundry.
 # pre-requisites
 #### Redis service
 Used for data persistence for service broker
-#### User-Provided Service Instance
-Used for Apigee Edge credentials
-
 
 # sample cf console usage
 // register service broker
