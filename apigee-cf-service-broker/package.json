@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha test/test.js"
+    "test": "mocha test/test.js",
+    "cover": "istanbul cover _mocha -- test/test.js -R spec"
   },
   "repository": {
     "type": "git",
@@ -39,7 +40,7 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-things": "^0.2.0",
-    "istanbul": "^0.4.2",
+    "istanbul": "^0.3.20",
     "should": "^8.2.1",
     "standard": "^5.4.1",
     "supertest": "^1.1.0"
