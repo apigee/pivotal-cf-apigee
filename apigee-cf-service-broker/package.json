@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "istanbul cover --report cobertura --report html _mocha -- test/test.js -R spec"
+    "test": "istanbul cover --report cobertura --report html _mocha -- --recursive test/test.js -R spec",
+    "posttest": "node scripts/genCoverageBadge.js"
   },
   "repository": {
     "type": "git",
