@@ -1,0 +1,10 @@
+---
+platform: linux
+
+image: docker:///node#4.2.6
+
+inputs:
+- name: git-source
+
+run:
+  path: git-source/ci/test.sh

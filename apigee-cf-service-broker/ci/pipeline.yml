@@ -1,0 +1,17 @@
+---
+resources:
+- name: git-source
+  type: git
+  source:
+    uri: https://github.com/apigee/pivotal-cf-apigee
+    branch: master
+    private_key: {{git-key}}
+
+jobs:
+- name: test-dev
+  serial: true
+  plan:
+  - get: git-source
+    trigger: true
+  - task: test
+    file: source/ci/test.yml

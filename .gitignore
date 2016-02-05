@@ -32,3 +32,4 @@ config.json
 private-config.json
 # Webstorm ide
 .idea/
+credentials.yml
