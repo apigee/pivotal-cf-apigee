@@ -14,4 +14,4 @@ jobs:
   - get: git-source
     trigger: true
   - task: test
-    file: git-source/ci/test.yml
+    file: git-source/apigee-cf-service-broker/ci/test.yml

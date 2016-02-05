@@ -7,4 +7,4 @@ inputs:
 - name: git-source
 
 run:
-  path: git-source/ci/test.sh
+  path: git-source/apigee-cf-service-broker/ci/test.sh
