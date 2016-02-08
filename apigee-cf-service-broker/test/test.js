@@ -6,13 +6,85 @@ var expect = chai.expect
 var should = require('should')
 var supertest = require('supertest')
 var server = require('../server')
+var nock = require('nock')
 // Using Port 8000 to start test server
 var port = 8000
 var api = supertest('http://localhost:' + port)
 var app
+var config = require('../helpers/config')
+
+
+
+
+/* Mock Apigee API Calls using NOCK for testing */
+/* As per NOCK - works only once per API call */
+
+var authFailApigee = nock(config.get('apigee_edge').mgmt_api_url)
+  .get('/organizations/org-name-here')
+  .reply(401);
+var authSuccessApigee = nock(config.get('apigee_edge').mgmt_api_url)
+  .get('/organizations/cdmo')
+  .reply(200, {
+    "createdAt": 1416395731939,
+    "createdBy": "noreply_admin@apigee.com",
+    "displayName": "cdmo",
+    "environments": [
+      "test",
+      "prod"
+    ],
+    "lastModifiedAt": 1454446553950,
+    "lastModifiedBy": "noreply_cpsadmin@apigee.com",
+    "name": "cdmo",
+    "properties": {
+      "property": [
+        {
+          "name": "features.isCpsEnabled",
+          "value": "true"
+        }
+      ]
+    },
+    "type": "trial"
+  })
+var apigeeGetVirtualHosts = nock(config.get('apigee_edge').mgmt_api_url)
+  .get('/organizations/cdmo/environments/test/virtualhosts')
+  .reply(200, [
+    "default",
+    "secure"
+  ])
+
+var apigeeUploadProxy = nock(config.get('apigee_edge').mgmt_api_url)
+  .post('/organizations/cdmo/apis?action=import&name=cf-route-url-here', /.*/)
+  .reply(201, [
+    "default",
+    "secure"
+  ])
+
+var apigeeGetProxy = nock(config.get('apigee_edge').mgmt_api_url)
+  .get('/organizations/cdmo/apis/cf-route-url-here')
+  .times(2)
+  .reply(200, {
+    "metaData": {
+      "createdAt": 1453098892108,
+      "createdBy": "xx@xx.com",
+      "lastModifiedAt": 1453099158391,
+      "lastModifiedBy": "xx@xx.com"
+    },
+    "name": "cf-route-url-here",
+    "revision": [
+      "1"
+    ]
+  })
+
+var apigeeDeployProxy = nock(config.get('apigee_edge').mgmt_api_url)
+  .post('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
+  .reply(200)
+
+var apigeeUnDeployProxy = nock(config.get('apigee_edge').mgmt_api_url)
+  .delete('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
+  .reply(200)
 
 describe('Starting Tests..', function () {
-  this.timeout(0);
+  this.timeout(0)
   before(function () {
     app = server.listen(8000)
   })
@@ -105,7 +177,6 @@ describe('Starting Tests..', function () {
         .set('Authorization', 'Basic YWRtaW46cGFzc3dvcmQ=')
         .expect(401, done)
     })
-    // TODO: figure out this without revealing any real credentials
     it('should return a 201 response', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
@@ -117,8 +188,8 @@ describe('Starting Tests..', function () {
           parameters: {
             org: 'cdmo',
             env: 'test',
-            user: 'carlos@apigee.com',
-            pass: '***REMOVED***'
+            user: 'XXXXX',
+            pass: 'XXXXXXX'
           }
         }
       }
