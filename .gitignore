@@ -33,3 +33,7 @@ private-config.json
 # Webstorm ide
 .idea/
 credentials.yml
+#redis
+dump.rdb
+#mac
+.DS_Store
