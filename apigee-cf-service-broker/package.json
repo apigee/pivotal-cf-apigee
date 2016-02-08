@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "NODE_ENV=TEST istanbul cover --report cobertura --report html _mocha -- --recursive test/test.js -R spec",
+    "test": "cp sample-config.json config.json; NODE_ENV=TEST istanbul cover --report cobertura --report html _mocha -- --recursive test/test.js -R spec",
     "posttest": "node scripts/genCoverageBadge.js"
   },
   "repository": {
