@@ -1,6 +1,5 @@
 'use strict'
 var nconf = require('nconf')
-var apigee = require('apigee-access')
 
 // arguments, environment vars, then file
 nconf.argv()
