@@ -42,6 +42,7 @@
     "istanbul-cobertura-badger": "^1.2.1",
     "mocha": "^2.4.5",
     "nock": "^7.0.2",
+    "redis-mock": "^0.5.1",
     "should": "^8.2.1",
     "standard": "^5.4.1",
     "supertest": "^1.1.0"

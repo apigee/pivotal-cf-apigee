@@ -11,16 +11,7 @@ var redis = require('redis')
 var rclient
 var options
 if (process.env.NODE_ENV === 'TEST') {
-  // rclient = require('fakeredis').createClient('serviceredis')
-  options = {
-    port: 6379,
-    host: '127.0.0.1',
-    no_ready_check: true
-  }
-  rclient = redis.createClient(options)
-  rclient.on('error', function (err) {
-    console.error('redis error', err)
-  })
+  rclient = require('redis-mock').createClient()
 } else {
   var vcap_services = process.env.VCAP_SERVICES
   var credentials = JSON.parse(vcap_services)['p-redis'][0].credentials
