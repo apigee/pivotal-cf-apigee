@@ -20,7 +20,6 @@ var services = getServiceCatalog()
 router.use(auth)
 
 router.get('/', function (req, res) {
-  // console.log({services: services})
   res.json({services: services})
 })
 

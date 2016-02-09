@@ -3,6 +3,7 @@
 Edge management API calls
 */
 var request = require('request')
+var log = require('bunyan').createLogger({name: "apigee",src: true})
 
 function getProxyRevision (proxyData, callback) {
   var config = require('../helpers/config')
@@ -16,13 +17,11 @@ function getProxyRevision (proxyData, callback) {
       pass: adminPass
     }
   }
-  console.log('get proxy details: ' + options.url)
+  log.debug('get proxy details: ', options.url)
   request.get(options, function (err, res, body) {
     if (err) {
-      // console.log(err)
       callback('retrieving proxy revision failed: ' + err)
     } else if (res.statusCode !== 200) {
-      // console.log('getProxyRevision statusCode: ' + res.statusCode)
       callback('proxy does not exist: ' + err)
     } else {
       body = JSON.parse(body)
@@ -51,13 +50,12 @@ function importProxy (proxyData, data, callback) {
     qs: {action: 'import',
         name: proxyData.proxyname}
   }
-  // console.log(require('util').inspect(options, { depth: null }))
   request.post(options, function (err, httpResponse, body) {
     if (err) {
-      console.log('Mgmt API error: ' + err)
+      log.error({err: err}, "Management API Error")
       callback('API error. Upload failed.', err)
     } else if (httpResponse.statusCode !== 201) {
-      console.log('API response ' + JSON.stringify({statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body}))
+      log.debug({response: {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body}}, "API Response")
       callback('Proxy upload failed.', {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body})
     } else {
       // deploy proxy
@@ -140,7 +138,7 @@ function getVirtualHosts (proxyData, callback) {
       pass: adminPass
     }
   }
-  console.log('get virtual hosts url: ' + options.url)
+  log.debug('get virtual hosts url: ', options.url)
   request.get(options, function (err, res, body) {
     if (err) {
       callback('retrieving vhosts failed: ' + err)
@@ -195,10 +193,10 @@ function deleteKVM (keyOptions, callback) {
   }
   request.del(options, function (err, res, body) {
     if (err) {
-      console.error('deleting kvm key failed.', err)
+      log.error({err: err}, "deleting kvm key failed")
       callback(err)
     } else if (res.statusCode !== 200) {
-      console.error('deleting kvm key failed.', res.statusCode + ': ' + res.statusMessage)
+      log.error({err: res.statusMessage}, "deleting kvm key failed")
       callback('deleting KVM key failed: ' + res.statusCode + ' - ' + res.statusMessage)
     } else {
       callback(null, body)
@@ -223,16 +221,15 @@ function setKVM (keyOptions, callback) {
     body: {'name': kvmName, 'entry': [{'name': keyOptions.key, 'value': JSON.stringify(keyOptions.value)}]},
     json: true
   }
-  console.log('set kvm options: ' + JSON.stringify(options))
   request.post(options, function (err, res, body) {
     if (err) {
-      console.error('setting KVM key failed.', err)
+      log.error({err: err}, "setting KVM key failed")
       callback('setting KVM key failed: ' + err.toString())
     } else if (res.statusCode === 404) {
       // create KVM, try once more.
-      console.log('KVM not found')
+      log.error('KVM not found')
     } else if (res.statusCode !== 200 && res.statusCode !== 201) {
-      console.error('setting KVM key returned non-200.', res.statusCode + ': ' + res.statusMessage)
+      log.error('setting KVM key returned non-200.', res.statusCode + ': ' + res.statusMessage)
       callback('setting KVM key returned non-200. HTTP ' + res.statusCode + ': ' + res.statusMessage)
     } else {
       callback(null, body)
@@ -252,10 +249,10 @@ function authenticate (authOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      console.error('mgmt_api.authenticate error', err)
+      log.error({err: err}, "mgmt_api.authenticate error")
       callback(err)
     } else if (res.statusCode !== 200) {
-      console.error('mgmt_api.authenticate non-200', res.body)
+      log.error({err: res.body}, "mgmt_api.authenticate non-200")
       callback('mgmt_api.authenticate returned non-200. ' + res.statusCode + ': ' + res.statusMessage)
     } else {
       callback(null, body)

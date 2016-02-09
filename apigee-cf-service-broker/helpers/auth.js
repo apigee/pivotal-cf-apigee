@@ -9,6 +9,7 @@ Authentication middleware: Usage example:
 var basicAuth = require('basic-auth')
 var request = require('request')
 var mgmt_api = require('./mgmt_api')
+var log = require('bunyan').createLogger({name: "apigee",src: true})
 
 // hardcoded admin/password - testing only
 var staticauth = function (req, res, next) {
@@ -21,7 +22,6 @@ var staticauth = function (req, res, next) {
   if (!user || !user.name || !user.pass) {
     return unauthorized(res)
   }
-  console.log('user: ' + user.name)
   if (user.name === 'admin' && user.pass === 'password') {
     return next()
   } else {
@@ -125,6 +125,8 @@ module.exports = function (options) {
     anybasicauth: anybasicauth,
     apigeeuserauth: apigeeuserauth
   }
-  if (options === 'staticauth') console.log('WARNING: using static authentication.')
+  if (options === 'staticauth') {
+    log.warn('WARNING: using static authentication.')
+  }
   return auths[options]
 }

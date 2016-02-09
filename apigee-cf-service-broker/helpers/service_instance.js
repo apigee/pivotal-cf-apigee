@@ -8,15 +8,14 @@ var saveServiceInstance = require('./datastore')[config.get('cf_broker').datasto
 var getServiceInstance = require('./datastore')[config.get('cf_broker').datastore].getServiceInstance
 var deleteServiceInstance = require('./datastore')[config.get('cf_broker').datastore].deleteServiceInstance
 var mgmt_api = require('./mgmt_api')
+var log = require('bunyan').createLogger({name: "apigee",src: true})
 
 // TODO: should probably validate the org/env info. Could be mgmt_api function.
 function create (instance, callback) {
-  // console.log('service_instance.create: ' + JSON.stringify(instance))
   // validate user has access to provided apigee org-guid-here
   mgmt_api.authenticate({org: instance.apigee_org, user: instance.apigee_user, pass: instance.apigee_pass}, function (err, data) {
     if (err) {
-      // problem
-      console.error('Auth to apigee failed.', err, data)
+      log.error({err: err, data: data}, "Auth to apigee failed")
       callback('401', null)
     } else {
       saveServiceInstance(instance, function (err, data) {
@@ -33,7 +32,7 @@ function create (instance, callback) {
 function get (instance_id, callback) {
   getServiceInstance(instance_id, function (err, data) {
     if (err) {
-      console.error('error getting service instance from datastore', err)
+      log.error({err: err}, "error getting service instance from datastore")
       callback(err, null)
     } else {
       callback(null, data)
@@ -44,7 +43,7 @@ function get (instance_id, callback) {
 function deleteInstance (instance_id, callback) {
   deleteServiceInstance(instance_id, function (err, data) {
     if (err) {
-      console.error('error deleting service instance', err)
+      log.error({err: err}, "error deleting service instance")
       callback(err, null)
     } else {
       callback(null, data)
