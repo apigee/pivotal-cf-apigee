@@ -7,11 +7,11 @@ var service_instance = require('./service_instance')
 var async = require('async')
 var proxy = require('./edge_proxy')
 var template = require('es6-template-strings')
+var mgmt_api = require('./mgmt_api')
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var saveBinding = require('./datastore')[config.get('cf_broker').datastore].saveBinding
 var deleteBinding = require('./datastore')[config.get('cf_broker').datastore].deleteBinding
 var getBinding = require('./datastore')[config.get('cf_broker').datastore].getBinding
-var mgmt_api = require('./mgmt_api')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
 
 function create (route, callback) {
   async.waterfall([ function (cb) {
@@ -23,7 +23,7 @@ function create (route, callback) {
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
-        log.info({data: data}, "service binding get org")
+        log.info({data: data}, 'service binding get org')
         cb(null, data)
       }
     }) },
@@ -31,7 +31,7 @@ function create (route, callback) {
     function (data, cb) {
       createProxy(data, function (err, result) {
         if (err) {
-          log.error({err: err}, "create proxy error")
+          log.error({err: err}, 'create proxy error')
           cb(new Error('Failed creating proxy in org.'))
           return
         } else {
@@ -47,7 +47,7 @@ function create (route, callback) {
           cb(new Error('Failed saving binding details.'))
           return
         } else {
-          log.info({result: result}, "Service Binding Save Binding")
+          log.info({result: result}, 'Service Binding Save Binding')
           cb(null, result)
         }
       })
@@ -89,11 +89,11 @@ function getServiceInstanceOrg (route, cb) {
   service_instance.get(route.instance_id, function (err, data) {
     if (err) {
       // error retrieving details of service instance
-      log.error({err: err}, "Service Binding Get Service Instance ORg")
+      log.error({err: err}, 'Service Binding Get Service Instance ORg')
       cb(err, data)
     } else {
       // get org and environment and continue
-      log.info({data: data}, "Service Binding get service instance org")
+      log.info({data: data}, 'Service Binding get service instance org')
       cb(null, {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass})
     }
   })
@@ -116,7 +116,7 @@ function deleteServiceBinding (route, callback) {
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
-        log.info({data: data}, "service bidning get org")
+        log.info({data: data}, 'service bidning get org')
         cb(null, data)
       }
     }) },
@@ -126,7 +126,7 @@ function deleteServiceBinding (route, callback) {
         cb(new Error('Failed to retrieve binding details.'))
       } else {
         data.proxyname = binding.proxyname
-        log.info({data: data}, "delete binding getBinding")
+        log.info({data: data}, 'delete binding getBinding')
         cb(null, {org: data.org, env: data.env, proxyname: binding.proxyname, route: data.route, user: data.user, pass: data.pass})
       }
     })

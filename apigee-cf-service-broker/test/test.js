@@ -3,7 +3,7 @@
 var chai = require('chai')
 chai.use(require('chai-things'))
 var expect = chai.expect
-var should = require('should')
+var should = require('should')  // eslint-disable-line
 var supertest = require('supertest')
 var server = require('../server')
 var nock = require('nock')
@@ -13,82 +13,83 @@ var api = supertest('http://localhost:' + port)
 var app
 var config = require('../helpers/config')
 
-
-
-
 /* Mock Apigee API Calls using NOCK for testing */
 /* As per NOCK - works only once per API call */
 
-var authFailApigee = nock(config.get('apigee_edge').mgmt_api_url)
+// Auth Fail Apigee - Nock Interceptor
+nock(config.get('apigee_edge').mgmt_api_url)
   .get('/organizations/org-name-here')
-  .reply(401);
-var authSuccessApigee = nock(config.get('apigee_edge').mgmt_api_url)
+  .reply(401)
+// Auth Success Apigee - Nock Interceptor
+nock(config.get('apigee_edge').mgmt_api_url)
   .get('/organizations/cdmo')
   .reply(200, {
-    "createdAt": 1416395731939,
-    "createdBy": "noreply_admin@apigee.com",
-    "displayName": "cdmo",
-    "environments": [
-      "test",
-      "prod"
+    createdAt: '1416395731939',
+    createdBy: 'noreply_admin@apigee.com',
+    displayName: 'cdmo',
+    environments: [
+      'test',
+      'prod'
     ],
-    "lastModifiedAt": 1454446553950,
-    "lastModifiedBy": "noreply_cpsadmin@apigee.com",
-    "name": "cdmo",
-    "properties": {
-      "property": [
+    lastModifiedAt: 1454446553950,
+    lastModifiedBy: 'noreply_cpsadmin@apigee.com',
+    name: 'cdmo',
+    properties: {
+      property: [
         {
-          "name": "features.isCpsEnabled",
-          "value": "true"
+          name: 'features.isCpsEnabled',
+          value: 'true'
         }
       ]
     },
-    "type": "trial"
+    type: 'trial'
   })
-var apigeeGetVirtualHosts = nock(config.get('apigee_edge').mgmt_api_url)
+// Apigee Get VirtiaHosts Nock
+nock(config.get('apigee_edge').mgmt_api_url)
   .get('/organizations/cdmo/environments/test/virtualhosts')
   .reply(200, [
-    "default",
-    "secure"
+    'default',
+    'secure'
   ])
 
-var apigeeUploadProxy = nock(config.get('apigee_edge').mgmt_api_url)
+// Apigee Upload Proxy nock
+nock(config.get('apigee_edge').mgmt_api_url)
   .post('/organizations/cdmo/apis?action=import&name=cf-route-url-here', /.*/)
   .reply(201, [
-    "default",
-    "secure"
+    'default',
+    'secure'
   ])
-
-var apigeeGetProxy = nock(config.get('apigee_edge').mgmt_api_url)
+// Apigee Get Proxy Details Nock
+nock(config.get('apigee_edge').mgmt_api_url)
   .get('/organizations/cdmo/apis/cf-route-url-here')
   .times(2)
   .reply(200, {
-    "metaData": {
-      "createdAt": 1453098892108,
-      "createdBy": "xx@xx.com",
-      "lastModifiedAt": 1453099158391,
-      "lastModifiedBy": "xx@xx.com"
+    metaData: {
+      createdAt: 1453098892108,
+      createdBy: 'xx@xx.com',
+      lastModifiedAt: 1453099158391,
+      lastModifiedBy: 'xx@xx.com'
     },
-    "name": "cf-route-url-here",
-    "revision": [
-      "1"
+    name: 'cf-route-url-here',
+    revision: [
+      '1'
     ]
   })
-
-var apigeeDeployProxy = nock(config.get('apigee_edge').mgmt_api_url)
+// Apigee Deploy Proxy Details Nock
+nock(config.get('apigee_edge').mgmt_api_url)
   .post('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
   .reply(200)
-
-var apigeeUnDeployProxy = nock(config.get('apigee_edge').mgmt_api_url)
+// Apigee UnDeploy Proxy Details Nock
+nock(config.get('apigee_edge').mgmt_api_url)
   .delete('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
   .reply(200)
 
 describe('Starting Tests..', function () {
   this.timeout(0)
-  before(function () {
+  before(function () {  // eslint-disable-line
     app = server.listen(8000)
   })
-  describe('EndPoint', function() {
+  describe('EndPoint', function () {
     it('should return 200', function (done) {
       api.get('/')
         .set('Accept', 'application/json')
@@ -280,7 +281,7 @@ describe('Starting Tests..', function () {
     })
     // TODO: figure out how to validate data deletion
   })
-  after(function (done) {
+  after(function (done) {   // eslint-disable-line
     this.timeout(0)
     app.close()
     done()

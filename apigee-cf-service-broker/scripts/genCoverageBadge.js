@@ -1,10 +1,9 @@
 var badger = require('istanbul-cobertura-badger')
 var path = require('path')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var opts = {
-  //badgeFileName: "cobertura", // No extension, Defaults to "coverage"
-  destinationDir: path.resolve(__dirname, "..", "test"), // REQUIRED PARAMETER!
-  istanbulReportFile: path.resolve(__dirname, "..", "coverage", "cobertura-coverage.xml"),
+  destinationDir: path.resolve(__dirname, '..', 'test'), // REQUIRED PARAMETER!
+  istanbulReportFile: path.resolve(__dirname, '..', 'coverage', 'cobertura-coverage.xml'),
   thresholds: {
     // overall percent >= excellent, green badge
     excellent: 90,
@@ -15,9 +14,9 @@ var opts = {
 }
 
 // Load the badge for the report$
-badger(opts, function parsingResults(err, badgeStatus) {
+badger(opts, function parsingResults (err, badgeStatus) {
   if (err) {
-    log.error({err: err}, "Code coverage badge generate error")
+    log.error({err: err}, 'Code coverage badge generate error')
   }
-  log.info("Badge successfully generated at " + badgeStatus.badgeFile.file)
+  log.info('Badge successfully generated at ' + badgeStatus.badgeFile.file)
 })

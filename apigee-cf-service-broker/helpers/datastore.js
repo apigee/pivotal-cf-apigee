@@ -4,7 +4,7 @@
 */
 var mgmt_api = require('./mgmt_api')
 var redis = require('redis')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 // redis client
 // parsing redis cloud credentials
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'TEST') {
   }
   rclient = redis.createClient(options)
   rclient.on('error', function (err) {
-    log.error({err: err}, "redis error")
+    log.error({err: err}, 'redis error')
   })
   rclient.auth(credentials.password)
 }
@@ -65,7 +65,7 @@ function deleteServiceInstanceKVM (instance_id, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      log.error({err: err}, "error deleting KVM")
+      log.error({err: err}, 'error deleting KVM')
       callback(err, null)
     } else {
       callback(null, data)
@@ -100,7 +100,7 @@ function deleteBindingKVM (route, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      log.error({err: err}, "error deleting KVM")
+      log.error({err: err}, 'error deleting KVM')
       callback(err, null)
     } else {
       callback(null, data)
@@ -127,7 +127,7 @@ function getServiceInstanceRedis (instance_id, callback) {
     if (err) {
       callback(err, null)
     } else {
-      log.info({redis: result}, "Service Instance Details in Redis")
+      log.info({redis: result}, 'Service Instance Details in Redis')
       callback(null, JSON.parse(result))
     }
   })
