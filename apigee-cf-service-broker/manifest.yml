@@ -5,3 +5,5 @@ command: node server.js
 services:
 - apigee-redis
 buildpack: nodejs_buildpack
+env:
+  APIGEE_BROKER_PASSPHRASE: set passphrase here
