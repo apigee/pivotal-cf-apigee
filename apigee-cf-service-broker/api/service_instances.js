@@ -20,7 +20,7 @@ var instanceSchema = require('../schemas/service_instance')
 var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
 var service_instance = require('../helpers/service_instance')
 var service_binding = require('../helpers/service_binding')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 router.use(auth)
 

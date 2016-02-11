@@ -9,7 +9,7 @@ Authentication middleware: Usage example:
 var basicAuth = require('basic-auth')
 var request = require('request')
 var mgmt_api = require('./mgmt_api')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 // hardcoded admin/password - testing only
 var staticauth = function (req, res, next) {

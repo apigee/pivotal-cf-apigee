@@ -3,7 +3,7 @@
 Edge management API calls
 */
 var request = require('request')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 function getProxyRevision (proxyData, callback) {
   var config = require('../helpers/config')
@@ -52,10 +52,10 @@ function importProxy (proxyData, data, callback) {
   }
   request.post(options, function (err, httpResponse, body) {
     if (err) {
-      log.error({err: err}, "Management API Error")
+      log.error({err: err}, 'Management API Error')
       callback('API error. Upload failed.', err)
     } else if (httpResponse.statusCode !== 201) {
-      log.debug({response: {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body}}, "API Response")
+      log.debug({response: {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body}}, 'API Response')
       callback('Proxy upload failed.', {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body})
     } else {
       // deploy proxy
@@ -193,10 +193,10 @@ function deleteKVM (keyOptions, callback) {
   }
   request.del(options, function (err, res, body) {
     if (err) {
-      log.error({err: err}, "deleting kvm key failed")
+      log.error({err: err}, 'deleting kvm key failed')
       callback(err)
     } else if (res.statusCode !== 200) {
-      log.error({err: res.statusMessage}, "deleting kvm key failed")
+      log.error({err: res.statusMessage}, 'deleting kvm key failed')
       callback('deleting KVM key failed: ' + res.statusCode + ' - ' + res.statusMessage)
     } else {
       callback(null, body)
@@ -223,7 +223,7 @@ function setKVM (keyOptions, callback) {
   }
   request.post(options, function (err, res, body) {
     if (err) {
-      log.error({err: err}, "setting KVM key failed")
+      log.error({err: err}, 'setting KVM key failed')
       callback('setting KVM key failed: ' + err.toString())
     } else if (res.statusCode === 404) {
       // create KVM, try once more.
@@ -249,10 +249,10 @@ function authenticate (authOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      log.error({err: err}, "mgmt_api.authenticate error")
+      log.error({err: err}, 'mgmt_api.authenticate error')
       callback(err)
     } else if (res.statusCode !== 200) {
-      log.error({err: res.body}, "mgmt_api.authenticate non-200")
+      log.error({err: res.body}, 'mgmt_api.authenticate non-200')
       callback('mgmt_api.authenticate returned non-200. ' + res.statusCode + ': ' + res.statusMessage)
     } else {
       callback(null, body)

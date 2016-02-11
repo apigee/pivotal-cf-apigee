@@ -6,14 +6,14 @@ var JSZip = require('jszip')
 var fs = require('fs')
 var importProxy = require('./mgmt_api').importProxy
 var getVirtualHosts = require('./mgmt_api').getVirtualHosts
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 // proxyData is {org: org, env: env, proxyname: name, basepath: path}
 // should just get route details here, so we have access to parameters (add features)
 function uploadProxy (proxyData, callback) {
   getZip(proxyData, function (err, data) {
     if (err) {
-      log.error({err: err}, "getZip error")
+      log.error({err: err}, 'getZip error')
       callback(err)
     } else {
       importProxy(proxyData, data, function (err, result) {
@@ -31,7 +31,7 @@ function uploadProxy (proxyData, callback) {
 function getZip (proxyData, callback) {
   fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
     if (err) {
-      log.error({err: err}, "readFile error")
+      log.error({err: err}, 'readFile error')
       callback(err, null)
     } else {
       var zip = new JSZip(data)
