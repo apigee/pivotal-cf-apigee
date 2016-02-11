@@ -4,7 +4,9 @@
 */
 var mgmt_api = require('./mgmt_api')
 var redis = require('redis')
-var log = require('bunyan').createLogger({name: "apigee",src: true})
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var crypto = require('crypto')
+var config = require('../helpers/config')
 
 // redis client
 // parsing redis cloud credentials
@@ -23,7 +25,7 @@ if (process.env.NODE_ENV === 'TEST') {
   }
   rclient = redis.createClient(options)
   rclient.on('error', function (err) {
-    log.error({err: err}, "redis error")
+    log.error({err: err}, 'redis error')
   })
   rclient.auth(credentials.password)
 }
@@ -65,7 +67,7 @@ function deleteServiceInstanceKVM (instance_id, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      log.error({err: err}, "error deleting KVM")
+      log.error({err: err}, 'error deleting KVM')
       callback(err, null)
     } else {
       callback(null, data)
@@ -100,7 +102,7 @@ function deleteBindingKVM (route, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      log.error({err: err}, "error deleting KVM")
+      log.error({err: err}, 'error deleting KVM')
       callback(err, null)
     } else {
       callback(null, data)
@@ -110,8 +112,10 @@ function deleteBindingKVM (route, callback) {
 
 // Redis storage
 function putServiceInstanceRedis (instance, callback) {
+  var cipher = crypto.createCipher('aes192', config.get('APIGEE_BROKER_PASSPHRASE'))
   var key = instance.instance_id
-  instance = JSON.stringify(instance)
+  instance = cipher.update(JSON.stringify(instance), 'utf-8', 'hex')
+  instance += cipher.final('hex')
   rclient.hset('serviceInstance', key, instance, function (err, result) {
     if (err) {
       callback(err, null)
@@ -122,13 +126,16 @@ function putServiceInstanceRedis (instance, callback) {
 }
 
 function getServiceInstanceRedis (instance_id, callback) {
+  var decipher = crypto.createDecipher('aes192', config.get('APIGEE_BROKER_PASSPHRASE'))
   var key = instance_id
   rclient.hget('serviceInstance', key, function (err, result) {
     if (err) {
       callback(err, null)
     } else {
-      log.info({redis: result}, "Service Instance Details in Redis")
-      callback(null, JSON.parse(result))
+      log.info({redis: result}, 'Service Instance Details in Redis')
+      var decrypted = decipher.update(result, 'hex', 'utf-8')
+      decrypted += decipher.final('utf-8')
+      callback(null, JSON.parse(decrypted))
     }
   })
 }
