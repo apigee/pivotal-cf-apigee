@@ -7,13 +7,31 @@ var service_instances = require('./api/service_instances')
 var bodyParser = require('body-parser')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
+// restrict to SSL in CF
+function enforceTLS (req, res, next) {
+  var proto = req.get('X-forwarded-proto')
+  if (process.env.NODE_ENV === 'TEST') {
+    // TODO: would be nice to really test ssl locally
+    // if (req.secure) proto = 'https'
+    proto = 'https'
+  }
+  log.error(proto, 'Protocol.')
+  if (proto !== 'https') {
+    res.status(403)
+    res.end('TLS required.')
+  } else {
+    next()
+  }
+}
+
 var app = express()
 app.use(bodyParser.json())
 
 app.use('/', api)
-app.use('/v2/catalog', catalog)
-app.use('/v2/service_instances/', service_instances)
+app.use('/v2/catalog', enforceTLS, catalog)
+app.use('/v2/service_instances/', enforceTLS, service_instances)
 
+// schema validation
 app.use(function (err, req, res, next) {
   var responseData
   if (err.name === 'JsonSchemaValidation') {
@@ -34,6 +52,6 @@ app.use(function (err, req, res, next) {
 
 var port = process.env.PORT || 8888
 app.listen(port)
-log.info('listening on port ', port)
+log.info('listening on port', port)
 
 module.exports = app
