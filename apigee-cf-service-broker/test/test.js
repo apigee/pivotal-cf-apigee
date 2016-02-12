@@ -17,11 +17,11 @@ var config = require('../helpers/config')
 /* As per NOCK - works only once per API call */
 
 // Auth Fail Apigee - Nock Interceptor
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .get('/organizations/org-name-here')
   .reply(401)
 // Auth Success Apigee - Nock Interceptor
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .get('/organizations/cdmo')
   .reply(200, {
     createdAt: '1416395731939',
@@ -45,7 +45,7 @@ nock(config.get('apigee_edge').mgmt_api_url)
     type: 'trial'
   })
 // Apigee Get VirtiaHosts Nock
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .get('/organizations/cdmo/environments/test/virtualhosts')
   .reply(200, [
     'default',
@@ -53,14 +53,14 @@ nock(config.get('apigee_edge').mgmt_api_url)
   ])
 
 // Apigee Upload Proxy nock
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .post('/organizations/cdmo/apis?action=import&name=cf-route-url-here', /.*/)
   .reply(201, [
     'default',
     'secure'
   ])
 // Apigee Get Proxy Details Nock
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .get('/organizations/cdmo/apis/cf-route-url-here')
   .times(2)
   .reply(200, {
@@ -76,11 +76,11 @@ nock(config.get('apigee_edge').mgmt_api_url)
     ]
   })
 // Apigee Deploy Proxy Details Nock
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .post('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
   .reply(200)
 // Apigee UnDeploy Proxy Details Nock
-nock(config.get('apigee_edge').mgmt_api_url)
+nock(config.get('APIGEE_MGMT_API_URL'))
   .delete('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
   .reply(200)
 
@@ -287,4 +287,3 @@ describe('Starting Tests..', function () {
     done()
   })
 })
-

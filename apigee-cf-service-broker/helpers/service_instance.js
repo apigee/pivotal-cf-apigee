@@ -4,9 +4,9 @@ service instance provisioning
 */
 
 var config = require('../helpers/config')
-var saveServiceInstance = require('./datastore')[config.get('cf_broker').datastore].saveServiceInstance
-var getServiceInstance = require('./datastore')[config.get('cf_broker').datastore].getServiceInstance
-var deleteServiceInstance = require('./datastore')[config.get('cf_broker').datastore].deleteServiceInstance
+var saveServiceInstance = require('./datastore')['redis'].saveServiceInstance
+var getServiceInstance = require('./datastore')['redis'].getServiceInstance
+var deleteServiceInstance = require('./datastore')['redis'].deleteServiceInstance
 var mgmt_api = require('./mgmt_api')
 var logger = require('./logger')
 
