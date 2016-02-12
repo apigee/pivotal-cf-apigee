@@ -9,9 +9,9 @@ var proxy = require('./edge_proxy')
 var template = require('es6-template-strings')
 var mgmt_api = require('./mgmt_api')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
-var saveBinding = require('./datastore')[config.get('cf_broker').datastore].saveBinding
-var deleteBinding = require('./datastore')[config.get('cf_broker').datastore].deleteBinding
-var getBinding = require('./datastore')[config.get('cf_broker').datastore].getBinding
+var saveBinding = require('./datastore')['redis'].saveBinding
+var deleteBinding = require('./datastore')['redis'].deleteBinding
+var getBinding = require('./datastore')['redis'].getBinding
 
 function create (route, callback) {
   async.waterfall([ function (cb) {
@@ -69,13 +69,17 @@ function createProxy (data, cb) {
   var route = data.route
   // TODO: this is brittle. Refactor. Goal is to support some configurability, but the code needs to match the template, or the avaliable variables need to be documented
   var routeName = route.bind_resource.route
-  var proxyName = template(config.get('apigee_edge').proxy_name_pattern, { routeName: routeName })
+  var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
+  proxyNameTemplate = proxyNameTemplate.replace(/#/g, '$')
+  var proxyHostTemplate = config.get('APIGEE_PROXY_HOST_PATTERN')
+  proxyHostTemplate = proxyHostTemplate.replace(/#/g, '$')
+  var proxyName = template(proxyNameTemplate, { routeName: routeName })
   proxy.upload({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
       cb('proxy failure.', err)
     } else {
-      var proxyHost = config.get('apigee_edge').proxy_host
-      var proxyUrlRoot = template(config.get('apigee_edge').proxy_host_pattern, { org: org, env: env, proxyHost: proxyHost })
+      var proxyHost = config.get('APIGEE_PROXY_HOST')
+      var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
       route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
       route.proxyname = proxyName
       log.info('route proxy url: ', route.proxyURL)

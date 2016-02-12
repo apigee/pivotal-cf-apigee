@@ -7,7 +7,7 @@ var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
 
-var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
+var auth = require('../helpers/auth')(config.get('APIGEE_AUTH_METHOD'))
 
 router.use(auth)
 router.get('/', function (req, res) {

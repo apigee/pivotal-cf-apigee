@@ -7,7 +7,7 @@ var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 function getProxyRevision (proxyData, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = proxyData.user
   var adminPass = proxyData.pass
   var options = {
@@ -33,7 +33,7 @@ function getProxyRevision (proxyData, callback) {
 
 function importProxy (proxyData, data, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = proxyData.user
   var adminPass = proxyData.pass
   var formData = {
@@ -72,7 +72,7 @@ function importProxy (proxyData, data, callback) {
 
 function deployProxy (proxyData, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = proxyData.user
   var adminPass = proxyData.pass
   // should get latest version and deploy that
@@ -100,7 +100,7 @@ function deployProxy (proxyData, callback) {
 
 function undeployProxy (proxyData, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = proxyData.user
   var adminPass = proxyData.pass
   // should get latest version and undeploy that
@@ -128,7 +128,7 @@ function undeployProxy (proxyData, callback) {
 
 function getVirtualHosts (proxyData, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = proxyData.user
   var adminPass = proxyData.pass
   var options = {
@@ -153,7 +153,7 @@ function getVirtualHosts (proxyData, callback) {
 /* istanbul ignore next */
 function getKVM (keyOptions, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = config.get('apigee_edge').username
   var adminPass = config.get('apigee_edge').password
   var kvmName = config.get('apigee_edge').key_value_map
@@ -179,7 +179,7 @@ function getKVM (keyOptions, callback) {
 /* istanbul ignore next */
 function deleteKVM (keyOptions, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = config.get('apigee_edge').username
   var adminPass = config.get('apigee_edge').password
   var kvmName = config.get('apigee_edge').key_value_map
@@ -207,7 +207,7 @@ function deleteKVM (keyOptions, callback) {
 /* istanbul ignore next */
 function setKVM (keyOptions, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var adminUser = config.get('apigee_edge').username
   var adminPass = config.get('apigee_edge').password
   var kvmName = config.get('apigee_edge').key_value_map
@@ -239,7 +239,7 @@ function setKVM (keyOptions, callback) {
 
 function authenticate (authOptions, callback) {
   var config = require('../helpers/config')
-  var mgmtUrl = config.get('apigee_edge').mgmt_api_url
+  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var options = {
     url: mgmtUrl + '/organizations/' + authOptions.org,
     auth: {
