@@ -20,7 +20,7 @@ var instanceSchema = require('../schemas/service_instance')
 var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
 var service_instance = require('../helpers/service_instance')
 var service_binding = require('../helpers/service_binding')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var logger = require('../helpers/logger')
 
 router.use(auth)
 
@@ -40,14 +40,9 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
   }
   service_instance.create(instance, function (err, data) {
     if (err) {
-      if (err === '401') {
-        res.status(401).json({description: 'There was an error authenticating to Apigee Edge.'})
-      } else {
-        res.status(400).json({description: 'Failure: ' + JSON.stringify(err)})
-      }
+      res.status(401).json({msg: data.message})
     } else {
       var r = {dashboard_url: config.get('cf_broker').dashboard_url_host + instance.apigee_org}
-      log.info({response: r}, 'create service instance response')
       res.status(201).json(r)
     }
   })
@@ -63,7 +58,7 @@ router.patch('/:instance_id', function (req, res) {
 router.delete('/:instance_id', function (req, res) {
   service_instance.del(req.params.instance_id, function (err, data) {
     if (err) {
-      res.status(500).json({description: 'Failure: ' + JSON.stringify(err)})
+      res.status(500).json({msg: data.message, description: 'Failure: ' + JSON.stringify(err)})
     } else {
       res.json({})
     }
@@ -87,10 +82,9 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
   // create proxy in org that handles the url and dynamically sets target (bind_resource.route)
   service_binding.create(route, function (err, result) {
     if (err) {
-      res.status(400).json({description: err.message})
+      res.status(400).json({msg: result.message})
     } else {
       var r = {route_service_url: result.proxyURL}
-      log.info({response: r}, 'create service binding response')
       res.status(201).json(r)
     }
   })
@@ -106,7 +100,7 @@ router.delete('/:instance_id/service_bindings/:binding_id', function (req, res) 
   }
   service_binding.delete(route, function (err, result) {
     if (err) {
-      res.status(400).json({description: err.message})
+      res.status(400).json({msg: result.message})
     } else {
       res.json({})
     }

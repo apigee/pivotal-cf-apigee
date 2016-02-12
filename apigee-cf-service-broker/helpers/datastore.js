@@ -118,7 +118,8 @@ function putServiceInstanceRedis (instance, callback) {
   instance += cipher.final('hex')
   rclient.hset('serviceInstance', key, instance, function (err, result) {
     if (err) {
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_SERVICE_SAVE_FAIL', err)
+      callback(true, loggerError)
     } else {
       callback(null, result)
     }
