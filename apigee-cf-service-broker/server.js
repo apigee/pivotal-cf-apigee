@@ -5,7 +5,8 @@ var api = require('./api/api')
 var catalog = require('./api/catalog')
 var service_instances = require('./api/service_instances')
 var bodyParser = require('body-parser')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var logger = require('./helpers/logger')
+var util = require('util')
 
 // restrict to SSL in CF
 function enforceTLS (req, res, next) {
@@ -15,10 +16,13 @@ function enforceTLS (req, res, next) {
     // if (req.secure) proto = 'https'
     proto = 'https'
   }
-  log.error(proto, 'Protocol.')
   if (proto !== 'https') {
     res.status(403)
-    res.end('TLS required.')
+    var loggerError = logger.handle_error('ERR_REQ_INVALID_PROTOCOL', null)
+    var responseData = {
+      msg: loggerError.message
+    }
+    res.json(responseData)
   } else {
     next()
   }
@@ -27,7 +31,7 @@ function enforceTLS (req, res, next) {
 var app = express()
 app.use(bodyParser.json())
 
-app.use('/', api)
+app.use('/', enforceTLS, api)
 app.use('/v2/catalog', enforceTLS, catalog)
 app.use('/v2/service_instances/', enforceTLS, service_instances)
 
@@ -35,13 +39,12 @@ app.use('/v2/service_instances/', enforceTLS, service_instances)
 app.use(function (err, req, res, next) {
   var responseData
   if (err.name === 'JsonSchemaValidation') {
-    log.error(err.message, 'JSON Schema Validation error, Invalid JSON')
+    var loggerError = logger.handle_error('ERR_REQ_JSON_SCHEMA_FAIL', err)
     res.status(400)
     responseData = {
-      statusText: 'Bad Request',
-      description: 'Validation failed. Details: ' + JSON.stringify(err.validations) + ' For additional help, please contact support at http://support.apigee.com/.',
+      msg: loggerError.message,
       jsonSchemaValidation: true,
-      validations: err.validations  // All of your validation information
+      description: err.validations  // All of your validation information
     }
     res.json(responseData)
   } else {
@@ -52,6 +55,5 @@ app.use(function (err, req, res, next) {
 
 var port = process.env.PORT || 8888
 app.listen(port)
-log.info('listening on port', port)
-
+logger.info(util.format('Listening on port %s', port))
 module.exports = app

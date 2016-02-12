@@ -4,6 +4,7 @@ Edge management API calls
 */
 var request = require('request')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var logger = require('./logger')
 
 function getProxyRevision (proxyData, callback) {
   var config = require('../helpers/config')
@@ -249,11 +250,11 @@ function authenticate (authOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      log.error({err: err}, 'mgmt_api.authenticate error')
-      callback(err)
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (res.statusCode !== 200) {
-      log.error({err: res.body}, 'mgmt_api.authenticate non-200')
-      callback('mgmt_api.authenticate returned non-200. ' + res.statusCode + ': ' + res.statusMessage)
+      var loggerError = logger.handle_error('ERR_APIGEE_AUTH', err)
+      callback(true, loggerError)
     } else {
       callback(null, body)
     }

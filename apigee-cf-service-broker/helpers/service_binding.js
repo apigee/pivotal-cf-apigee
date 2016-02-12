@@ -9,6 +9,7 @@ var proxy = require('./edge_proxy')
 var template = require('es6-template-strings')
 var mgmt_api = require('./mgmt_api')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var logger = require('./logger')
 var saveBinding = require('./datastore')['redis'].saveBinding
 var deleteBinding = require('./datastore')['redis'].deleteBinding
 var getBinding = require('./datastore')['redis'].getBinding
@@ -18,12 +19,12 @@ function create (route, callback) {
     // retrieve service instance details
     getServiceInstanceOrg(route, function (err, data) {
       if (err) {
-        cb(new Error('Failed to retrieve service instance details.'))
+        var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
+        cb(loggerError)
         return
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
-        log.info({data: data}, 'service binding get org')
         cb(null, data)
       }
     }) },
@@ -31,8 +32,8 @@ function create (route, callback) {
     function (data, cb) {
       createProxy(data, function (err, result) {
         if (err) {
-          log.error({err: err}, 'create proxy error')
-          cb(new Error('Failed creating proxy in org.'))
+          var loggerError = logger.handle_error('ERR_PROXY_CREATION_FAILED', err)
+          cb(loggerError)
           return
         } else {
           // result needs to have URL details in it
@@ -44,7 +45,8 @@ function create (route, callback) {
     function (data, cb) {
       saveBinding(data, function (err, result) {
         if (err) {
-          cb(new Error('Failed saving binding details.'))
+          var loggerError = logger.handle_error('ERR_BINDING_SAVE_FAILED', err)
+          cb(loggerError)
           return
         } else {
           log.info({result: result}, 'Service Binding Save Binding')
@@ -54,7 +56,7 @@ function create (route, callback) {
     }],
     function (err, result) {
       if (err) {
-        callback(new Error('Route Binding Failure: ' + err.message), null)
+        callback(true, err)
       } else {
         // need to call back with URL details for forwarding
         callback(null, result)
@@ -93,8 +95,8 @@ function getServiceInstanceOrg (route, cb) {
   service_instance.get(route.instance_id, function (err, data) {
     if (err) {
       // error retrieving details of service instance
-      log.error({err: err}, 'Service Binding Get Service Instance ORg')
-      cb(err, data)
+      var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
+      cb(loggerError)
     } else {
       // get org and environment and continue
       log.info({data: data}, 'Service Binding get service instance org')
@@ -116,7 +118,8 @@ function deleteServiceBinding (route, callback) {
     // retrieve service instance details
     getServiceInstanceOrg(route, function (err, data) {
       if (err) {
-        cb(new Error('Failed to retrieve service instance details.'))
+        var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
+        cb(loggerError)
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
@@ -127,7 +130,8 @@ function deleteServiceBinding (route, callback) {
   function (data, cb) {
     getBinding(data.route.binding_id, function (err, binding) {
       if (err) {
-        cb(new Error('Failed to retrieve binding details.'))
+        var loggerError = logger.handle_error('ERR_BINDING_GET_FAIL', err)
+        cb(loggerError)
       } else {
         data.proxyname = binding.proxyname
         log.info({data: data}, 'delete binding getBinding')
@@ -154,7 +158,7 @@ function deleteServiceBinding (route, callback) {
     })
   }], function (err, result) {
     if (err) {
-      callback(new Error('Route Un-binding Failure: ' + err.message), null)
+      callback(true, err)
     } else {
       // need to call back with URL details for forwarding
       callback(null, result)
