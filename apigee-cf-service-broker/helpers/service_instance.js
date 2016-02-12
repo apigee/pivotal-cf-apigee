@@ -3,7 +3,6 @@
 service instance provisioning
 */
 
-var config = require('../helpers/config')
 var saveServiceInstance = require('./datastore')['redis'].saveServiceInstance
 var getServiceInstance = require('./datastore')['redis'].getServiceInstance
 var deleteServiceInstance = require('./datastore')['redis'].deleteServiceInstance

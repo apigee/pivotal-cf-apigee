@@ -21,6 +21,7 @@ var auth = require('../helpers/auth')(config.get('APIGEE_AUTH_METHOD'))
 var service_instance = require('../helpers/service_instance')
 var service_binding = require('../helpers/service_binding')
 var logger = require('../helpers/logger')
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 router.use(auth)
 
