@@ -8,7 +8,7 @@ var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
 // we only validate that user/pass was supplied
-var auth = require('../helpers/auth')('anybasicauth')
+var auth = require('../helpers/auth')('staticauth')
 var getServiceCatalog = require('../helpers/datastore')['redis'].getServiceCatalog
 
 // TODO - populate services object from a data store.. CPS?

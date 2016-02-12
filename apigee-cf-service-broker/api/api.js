@@ -7,11 +7,11 @@ var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
 
-var auth = require('../helpers/auth')(config.get('APIGEE_AUTH_METHOD'))
+var auth = require('../helpers/auth')('staticauth')
 
 router.use(auth)
 router.get('/', function (req, res) {
-  res.json({ message: 'This is the cf-apigee-broker CF Service Broker API.', configuration: 'blocked' })
+  res.json({ message: 'This is the cf-apigee-broker CF Service Broker API.', configuration: 'Blocked' })
 })
 
 module.exports = router
