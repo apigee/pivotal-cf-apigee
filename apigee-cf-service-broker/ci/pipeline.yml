@@ -7,6 +7,16 @@ resources:
     branch: master
     private_key: {{git-key}}
 
+- name: resource-deploy-broker
+  type: cf
+  source:
+    api: https://api.pcfaas-slot8.pez.pivotal.io
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: apigee
+    space: development
+    skip_cert_check: true
+
 jobs:
 - name: test-dev
   serial: true
@@ -15,3 +25,14 @@ jobs:
     trigger: true
   - task: test
     file: git-source/apigee-cf-service-broker/ci/test.yml
+
+- name: job-deploy-broker
+  public: true
+  serial: true
+  plan:
+  - get: git-source
+    passed: [test-dev]
+  - put: resource-deploy-broker
+    params:
+      manifest: git-source/apigee-cf-service-broker/manifest.yml
+      path: git-source/apigee-cf-service-broker
