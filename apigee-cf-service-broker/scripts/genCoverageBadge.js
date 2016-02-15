@@ -1,6 +1,6 @@
 var badger = require('istanbul-cobertura-badger')
 var path = require('path')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var logger = require('../helpers/logger')
 var opts = {
   destinationDir: path.resolve(__dirname, '..', 'test'), // REQUIRED PARAMETER!
   istanbulReportFile: path.resolve(__dirname, '..', 'coverage', 'cobertura-coverage.xml'),
@@ -18,9 +18,9 @@ console.log(opts)
 // Load the badge for the report$
 badger(opts, function parsingResults (err, badgeStatus) {
   if (err) {
-    log.error({err: err}, 'Code coverage badge generate error')
+    logger.handle_error('ERR_CODE_COVERAGE_BADGE', err)
   }
   else {
-    log.info('Badge successfully generated at ' + badgeStatus.badgeFile.file)
+    logger.log.info('Badge successfully generated')
   }
 })

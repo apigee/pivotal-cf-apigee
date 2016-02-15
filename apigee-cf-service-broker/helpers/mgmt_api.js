@@ -18,12 +18,13 @@ function getProxyRevision (proxyData, callback) {
       pass: adminPass
     }
   }
-  log.debug('get proxy details: ', options.url)
   request.get(options, function (err, res, body) {
     if (err) {
-      callback('retrieving proxy revision failed: ' + err)
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (res.statusCode !== 200) {
-      callback('proxy does not exist: ' + err)
+      var loggerError = logger.handle_error('ERR_APIGEE_GET_PROXY_REV_FAILED', err)
+      callback(true, loggerError)
     } else {
       body = JSON.parse(body)
       var revision = body.revision.slice(-1).pop()
@@ -53,16 +54,16 @@ function importProxy (proxyData, data, callback) {
   }
   request.post(options, function (err, httpResponse, body) {
     if (err) {
-      log.error({err: err}, 'Management API Error')
-      callback('API error. Upload failed.', err)
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (httpResponse.statusCode !== 201) {
-      log.debug({response: {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body}}, 'API Response')
-      callback('Proxy upload failed.', {statusCode: httpResponse.statusCode, statusMessage: httpResponse.statusMessage, body: httpResponse.body})
+      var loggerError = logger.handle_error('ERR_APIGEE_PROXY_UPLOAD', err)
+      callback(true, loggerError)
     } else {
       // deploy proxy
       deployProxy(proxyData, function (err, result) {
         if (err) {
-          callback('proxy deployment failed.', result)
+          callback(true, result)
         } else {
           callback(null, result)
         }
@@ -77,12 +78,12 @@ function deployProxy (proxyData, callback) {
   var adminUser = proxyData.user
   var adminPass = proxyData.pass
   // should get latest version and deploy that
-  getProxyRevision(proxyData, function (err, revision) {
+  getProxyRevision(proxyData, function (err, result) {
     if (err) {
-      callback('getting revision info failed.', err)
+      callback(true, result)
     } else {
       var options = {
-        url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + revision + '/deployments', // TODO: unbrittle this
+        url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + result + '/deployments', // TODO: unbrittle this
         auth: {
           user: adminUser,
           pass: adminPass
@@ -90,7 +91,8 @@ function deployProxy (proxyData, callback) {
       }
       request.post(options, function (err, res, body) {
         if (err) {
-          callback('proxy deployment failed.', err)
+          var loggerError = logger.handle_error('ERR_APIGEE_DEPLOY_PROXY', err)
+          callback(true, loggerError)
         } else {
           callback(null, res)
         }
@@ -118,7 +120,8 @@ function undeployProxy (proxyData, callback) {
       }
       request.del(options, function (err, res, body) {
         if (err) {
-          callback('proxy un-deployment failed.', err)
+          var loggerError = logger.handle_error('ERR_APIGEE_UNDEPLOY_PROXY_FAILED', err)
+          callback(true, loggerError)
         } else {
           callback(null, res)
         }
@@ -142,9 +145,11 @@ function getVirtualHosts (proxyData, callback) {
   log.debug('get virtual hosts url: ', options.url)
   request.get(options, function (err, res, body) {
     if (err) {
-      callback('retrieving vhosts failed: ' + err)
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (res.statusCode !== 200) {
-      callback('retrieving vhosts failed. HTTP ' + res.statusCode + ': ' + res.statusMessage)
+      var loggerError = logger.handle_error('ERR_PROXY_VHOSTS_NON200_RES', err)
+      callback(true, loggerError)
     } else {
       callback(null, body)
     }
@@ -168,9 +173,11 @@ function getKVM (keyOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      callback('retrieving KVM key failed.', err)
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (res.statusCode !== 200) {
-      callback('retrieving KVM key failed.', res.statusCode + ': ' + res.statusMessage)
+      var loggerError = logger.handle_error('ERR_APIGEE_GET_KVM', res)
+      callback(true, loggerError)
     } else {
       callback(null, JSON.parse(body))
     }
@@ -194,11 +201,11 @@ function deleteKVM (keyOptions, callback) {
   }
   request.del(options, function (err, res, body) {
     if (err) {
-      log.error({err: err}, 'deleting kvm key failed')
-      callback(err)
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (res.statusCode !== 200) {
-      log.error({err: res.statusMessage}, 'deleting kvm key failed')
-      callback('deleting KVM key failed: ' + res.statusCode + ' - ' + res.statusMessage)
+      var loggerError = logger.handle_error('ERR_APIGEE_DELETE_KVM', res)
+      callback(true, loggerError)
     } else {
       callback(null, body)
     }
@@ -224,14 +231,14 @@ function setKVM (keyOptions, callback) {
   }
   request.post(options, function (err, res, body) {
     if (err) {
-      log.error({err: err}, 'setting KVM key failed')
-      callback('setting KVM key failed: ' + err.toString())
+      var loggerError = logger.handle_error('ERR_APIGEE_REQ_FAILED', err)
+      callback(true, loggerError)
     } else if (res.statusCode === 404) {
       // create KVM, try once more.
-      log.error('KVM not found')
+      var loggerError = logger.handle_error('ERR_APIGEE_KVM_NOT_FOUND', res)
     } else if (res.statusCode !== 200 && res.statusCode !== 201) {
-      log.error('setting KVM key returned non-200.', res.statusCode + ': ' + res.statusMessage)
-      callback('setting KVM key returned non-200. HTTP ' + res.statusCode + ': ' + res.statusMessage)
+      var loggerError = logger.handle_error('ERR_APIGEE_KVM_SET_ERROR', res)
+      callback(true, loggerError)
     } else {
       callback(null, body)
     }

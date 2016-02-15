@@ -15,11 +15,11 @@ function uploadProxy (proxyData, callback) {
   getZip(proxyData, function (err, data) {
     if (err) {
       var loggerError = logger.handle_error('ERR_PROXY_ZIP', err)
-      callback(err)
+      callback(true, loggerError)
     } else {
       importProxy(proxyData, data, function (err, result) {
         if (err) {
-          callback(err, result)
+          callback(true, result)
         } else {
           callback(null, result)
         }
@@ -32,8 +32,8 @@ function uploadProxy (proxyData, callback) {
 function getZip (proxyData, callback) {
   fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
     if (err) {
-      log.error({err: err}, 'readFile error')
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_PROXY_READ_FAILED', err)
+      callback(true, loggerError)
     } else {
       var zip = new JSZip(data)
       var re1 = /%BASEPATH%/g
@@ -42,7 +42,7 @@ function getZip (proxyData, callback) {
       // get virtual hosts for org/env
       getVirtualHosts(proxyData, function (err, data) {
         if (err) {
-          callback(err, data)
+          callback(true, data)
         } else {
           var vHostString = JSON.parse(data).map(function (val) { return '<VirtualHost>' + val + '</VirtualHost>' }).join('\n')
           var proxyDefTemplate = zip.folder('apiproxy/proxies').file('default.xml')

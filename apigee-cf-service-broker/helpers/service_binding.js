@@ -31,7 +31,7 @@ function create (route, callback) {
       createProxy(data, function (err, result) {
         if (err) {
           var loggerError = logger.handle_error('ERR_PROXY_CREATION_FAILED', err)
-          cb(loggerError)
+          cb(true, loggerError)
           return
         } else {
           // result needs to have URL details in it
@@ -54,7 +54,7 @@ function create (route, callback) {
     }],
     function (err, result) {
       if (err) {
-        callback(true, err)
+        callback(true, result)
       } else {
         // need to call back with URL details for forwarding
         callback(null, result)
@@ -76,7 +76,8 @@ function createProxy (data, cb) {
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
   proxy.upload({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
-      cb('proxy failure.', err)
+      var loggerError = logger.handle_error('ERR_PROXY_UPLOAD_FAILED', err)
+      cb(true, loggerError)
     } else {
       var proxyHost = config.get('APIGEE_PROXY_HOST')
       var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
@@ -115,6 +116,7 @@ function deleteServiceBinding (route, callback) {
     getServiceInstanceOrg(route, function (err, data) {
       if (err) {
         cb(true, data)
+        return
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
@@ -125,8 +127,8 @@ function deleteServiceBinding (route, callback) {
   function (data, cb) {
     getBinding(data.route.binding_id, function (err, binding) {
       if (err) {
-        var loggerError = logger.handle_error('ERR_BINDING_GET_FAIL', err)
-        cb(true, loggerError)
+        cb(true, binding)
+        return
       } else {
         data.proxyname = binding.proxyname
         logger.log.info({data: data}, 'delete binding getBinding')
@@ -137,7 +139,8 @@ function deleteServiceBinding (route, callback) {
   function (data, cb) {
     mgmt_api.undeployProxy(data, function (err, result) {
       if (err) {
-        cb(true, err)
+        cb(true, result)
+        return
       } else {
         cb(null, data)
       }
@@ -146,7 +149,8 @@ function deleteServiceBinding (route, callback) {
     // delete data
     deleteBinding(data.route, function (err, result) {
       if (err) {
-        cb(true, err)
+        cb(true, result)
+        return
       } else {
         cb(null, {})
       }

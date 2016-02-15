@@ -70,8 +70,8 @@ function deleteServiceInstanceKVM (instance_id, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      log.error({err: err}, 'error deleting KVM')
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_KVM_SERVICE_DELETE_FAIL', err)
+      callback(true, loggerError)
     } else {
       callback(null, data)
     }
@@ -105,8 +105,8 @@ function deleteBindingKVM (route, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      log.error({err: err}, 'error deleting KVM')
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_KVM_BINDING_DELETE_FAIL', err)
+      callback(true, loggerError)
     } else {
       callback(null, data)
     }
@@ -121,7 +121,7 @@ function putServiceInstanceRedis (instance, callback) {
   instance += cipher.final('hex')
   rclient.hset('serviceInstance', key, instance, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_SERVICE_SAVE_FAIL', err)
+      var loggerError = logger.handle_error('ERR_REDIS_SERVICE_SAVE_FAIL', err)
       callback(true, loggerError)
     } else {
       callback(null, result)
@@ -155,7 +155,7 @@ function deleteServiceInstanceRedis (instance_id, callback) {
   var key = instance_id
   rclient.hdel('serviceInstance', key, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_SERVICE_DELETE_FAIL', err)
+      var loggerError = logger.handle_error('ERR_REDIS_SERVICE_DELETE_FAIL', err)
       callback(true, loggerError)
     } else {
       callback(null, result)
@@ -168,7 +168,8 @@ function putBindingRedis (route, callback) {
   route = JSON.stringify(route)
   rclient.hset('routeBinding', key, route, function (err, result) {
     if (err) {
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_REDIS_BINDING_SAVE_FAIL', err)
+      callback(true, loggerError)
     } else {
       callback(null, JSON.parse(this.route))
     }
@@ -180,7 +181,12 @@ function getBindingRedis (binding_id, callback) {
   var key = binding_id
   rclient.hget('routeBinding', key, function (err, result) {
     if (err) {
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_REDIS', err)
+      callback(true, loggerError)
+    }
+    else if (result == null) {
+      var loggerError = logger.handle_error('ERR_REDIS_BINDING_GET_KEY_MISSING', err)
+      callback(true, loggerError)
     } else {
       callback(null, JSON.parse(result))
     }
@@ -191,7 +197,8 @@ function deleteBindingRedis (route, callback) {
   var key = route.binding_id
   rclient.hdel('routeBinding', key, function (err, result) {
     if (err) {
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_REDIS_BINDING_DELETE_FAIL', err)
+      callback(true, loggerError)
     } else {
       callback(null, result)
     }
