@@ -13,10 +13,14 @@ var opts = {
   }
 }
 
+console.log(opts)
+
 // Load the badge for the report$
 badger(opts, function parsingResults (err, badgeStatus) {
   if (err) {
     log.error({err: err}, 'Code coverage badge generate error')
   }
-  log.info('Badge successfully generated at ' + badgeStatus.badgeFile.file)
+  else {
+    log.info('Badge successfully generated at ' + badgeStatus.badgeFile.file)
+  }
 })

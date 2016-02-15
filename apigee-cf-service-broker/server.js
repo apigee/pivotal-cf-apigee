@@ -55,5 +55,5 @@ app.use(function (err, req, res, next) {
 
 var port = process.env.PORT || 8888
 app.listen(port)
-logger.info(util.format('Listening on port %s', port))
+logger.log.info(util.format('Listening on port %s', port))
 module.exports = app

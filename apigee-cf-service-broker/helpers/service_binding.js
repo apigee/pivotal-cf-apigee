@@ -19,11 +19,9 @@ function create (route, callback) {
     // retrieve service instance details
     getServiceInstanceOrg(route, function (err, data) {
       if (err) {
-        var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
-        cb(loggerError)
+        cb(true, data)
         return
       } else {
-        // data is {org: 'orgname', env: 'envname'}
         data.route = route
         cb(null, data)
       }
@@ -49,7 +47,7 @@ function create (route, callback) {
           cb(loggerError)
           return
         } else {
-          log.info({result: result}, 'Service Binding Save Binding')
+          logger.log.info({result: result}, 'Service Binding Save Binding')
           cb(null, result)
         }
       })
@@ -80,7 +78,7 @@ function createProxy (data, cb) {
       var proxyUrlRoot = template(config.get('apigee_edge').proxy_host_pattern, { org: org, env: env, proxyHost: proxyHost })
       route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
       route.proxyname = proxyName
-      log.info('route proxy url: ', route.proxyURL)
+      logger.log.info('route proxy url: ', route.proxyURL)
       cb(null, route)
     }
   })
@@ -90,12 +88,10 @@ function createProxy (data, cb) {
 function getServiceInstanceOrg (route, cb) {
   service_instance.get(route.instance_id, function (err, data) {
     if (err) {
-      // error retrieving details of service instance
-      var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
-      cb(loggerError)
+      cb(true, data)
     } else {
       // get org and environment and continue
-      log.info({data: data}, 'Service Binding get service instance org')
+      logger.log.info({data: data}, 'Service Binding get service instance org')
       cb(null, {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass})
     }
   })
@@ -114,12 +110,11 @@ function deleteServiceBinding (route, callback) {
     // retrieve service instance details
     getServiceInstanceOrg(route, function (err, data) {
       if (err) {
-        var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
-        cb(loggerError)
+        cb(true, data)
       } else {
         // data is {org: 'orgname', env: 'envname'}
         data.route = route
-        log.info({data: data}, 'service bidning get org')
+        logger.log.info({data: data}, 'service bidning get org')
         cb(null, data)
       }
     }) },
@@ -127,10 +122,10 @@ function deleteServiceBinding (route, callback) {
     getBinding(data.route.binding_id, function (err, binding) {
       if (err) {
         var loggerError = logger.handle_error('ERR_BINDING_GET_FAIL', err)
-        cb(loggerError)
+        cb(true, loggerError)
       } else {
         data.proxyname = binding.proxyname
-        log.info({data: data}, 'delete binding getBinding')
+        logger.log.info({data: data}, 'delete binding getBinding')
         cb(null, {org: data.org, env: data.env, proxyname: binding.proxyname, route: data.route, user: data.user, pass: data.pass})
       }
     })
@@ -138,7 +133,7 @@ function deleteServiceBinding (route, callback) {
   function (data, cb) {
     mgmt_api.undeployProxy(data, function (err, result) {
       if (err) {
-        cb(err, null)
+        cb(true, err)
       } else {
         cb(null, data)
       }
@@ -147,14 +142,14 @@ function deleteServiceBinding (route, callback) {
     // delete data
     deleteBinding(data.route, function (err, result) {
       if (err) {
-        cb(err)
+        cb(true, err)
       } else {
         cb(null, {})
       }
     })
   }], function (err, result) {
     if (err) {
-      callback(true, err)
+      callback(true, result)
     } else {
       // need to call back with URL details for forwarding
       callback(null, result)

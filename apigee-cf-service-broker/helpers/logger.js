@@ -11,7 +11,9 @@ var codes = {
   ERR_SERVICE_SAVE_FAIL: 'E0042',
   ERR_SERVICE_GET_FAIL: 'E0043',
   ERR_BINDING_SAVE_FAILED: 'E0052',
-  ERR_BINDING_GET_FAILED: 'E0053'
+  ERR_BINDING_GET_FAILED: 'E0053',
+  ERR_REDIS: 'E0060',
+  ERR_REDIS_SERVICE_GET_KEY_MISSING: 'E0061'
 }
 
 var messages = {
@@ -24,7 +26,9 @@ var messages = {
   ERR_SERVICE_SAVE_FAIL: 'Service Instance Saving Failed',
   ERR_SERVICE_GET_FAIL: 'Service Instance Retrieving Failed',
   ERR_BINDING_SAVE_FAILED: 'Route Binding Save Failed',
-  ERR_BINDING_GET_FAILED: 'Route Binding Get Details Failed'
+  ERR_BINDING_GET_FAILED: 'Route Binding Get Details Failed',
+  ERR_REDIS: 'Unable to connect to redis',
+  ERR_REDIS_SERVICE_GET_KEY_MISSING: 'Service instance details not found in redis'
 }
 
 var getMessage = function(code) {
@@ -39,16 +43,10 @@ var handle_error = function(code, err) {
 }
 
 
-var logInfo = function(message) {
-  log.info(message)
-  return
-}
-
-
 module.exports = {
   codes: codes,
   messages: messages,
   getMessage: getMessage,
   handle_error: handle_error,
-  info: logInfo
+  log: log
 }

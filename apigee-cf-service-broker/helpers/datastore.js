@@ -7,6 +7,7 @@ var redis = require('redis')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var crypto = require('crypto')
 var config = require('../helpers/config')
+var logger = require('./logger')
 
 // redis client
 // parsing redis cloud credentials
@@ -21,11 +22,13 @@ if (process.env.NODE_ENV === 'TEST') {
   options = {
     port: credentials.port,
     host: credentials.host,
-    no_ready_check: true
+    no_ready_check: true,
+    max_attempts: 2,
+    connect_timeout: 3000
   }
   rclient = redis.createClient(options)
   rclient.on('error', function (err) {
-    log.error({err: err}, 'redis error')
+    logger.handle_error('ERR_REDIS', err)
   })
   rclient.auth(credentials.password)
 }
@@ -131,9 +134,15 @@ function getServiceInstanceRedis (instance_id, callback) {
   var key = instance_id
   rclient.hget('serviceInstance', key, function (err, result) {
     if (err) {
-      callback(err, null)
-    } else {
-      log.info({redis: result}, 'Service Instance Details in Redis')
+      var loggerError = logger.handle_error('ERR_REDIS', err)
+      callback(true, loggerError)
+    }
+    else if (result == null) {
+      var loggerError = logger.handle_error('ERR_REDIS_SERVICE_GET_KEY_MISSING', err)
+      callback(true, loggerError)
+    }
+    else {
+      logger.log.info({redis: result}, 'Service Instance Details in Redis')
       var decrypted = decipher.update(result, 'hex', 'utf-8')
       decrypted += decipher.final('utf-8')
       callback(null, JSON.parse(decrypted))
@@ -146,7 +155,8 @@ function deleteServiceInstanceRedis (instance_id, callback) {
   var key = instance_id
   rclient.hdel('serviceInstance', key, function (err, result) {
     if (err) {
-      callback(err, null)
+      var loggerError = logger.handle_error('ERR_SERVICE_DELETE_FAIL', err)
+      callback(true, loggerError)
     } else {
       callback(null, result)
     }

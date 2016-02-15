@@ -31,8 +31,7 @@ function create (instance, callback) {
 function get (instance_id, callback) {
   getServiceInstance(instance_id, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_SERVICE_GET_FAIL', err)
-      callback(loggerError, null)
+      callback(true, data)
     } else {
       callback(null, data)
     }
@@ -42,8 +41,7 @@ function get (instance_id, callback) {
 function deleteInstance (instance_id, callback) {
   deleteServiceInstance(instance_id, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_SERVICE_DELETE_FAIL', err)
-      callback(err, loggerError)
+      callback(true, data)
     } else {
       callback(null, data)
     }

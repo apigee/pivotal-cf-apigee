@@ -7,13 +7,14 @@ var fs = require('fs')
 var importProxy = require('./mgmt_api').importProxy
 var getVirtualHosts = require('./mgmt_api').getVirtualHosts
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var logger = require('./logger')
 
 // proxyData is {org: org, env: env, proxyname: name, basepath: path}
 // should just get route details here, so we have access to parameters (add features)
 function uploadProxy (proxyData, callback) {
   getZip(proxyData, function (err, data) {
     if (err) {
-      log.error({err: err}, 'getZip error')
+      var loggerError = logger.handle_error('ERR_PROXY_ZIP', err)
       callback(err)
     } else {
       importProxy(proxyData, data, function (err, result) {
