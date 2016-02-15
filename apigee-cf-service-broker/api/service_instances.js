@@ -17,10 +17,11 @@ var express = require('express')
 var router = express.Router()
 var validate = require('express-jsonschema').validate
 var instanceSchema = require('../schemas/service_instance')
-var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
+var auth = require('../helpers/auth')('staticauth')
 var service_instance = require('../helpers/service_instance')
 var service_binding = require('../helpers/service_binding')
 var logger = require('../helpers/logger')
+var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 router.use(auth)
 
@@ -42,7 +43,8 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
     if (err) {
       res.status(401).json({msg: data.message})
     } else {
-      var r = {dashboard_url: config.get('cf_broker').dashboard_url_host + instance.apigee_org}
+      var r = {dashboard_url: config.get('APIGEE_DASHBOARD_URL') + instance.apigee_org}
+      log.info({response: r}, 'create service instance response')
       res.status(201).json(r)
     }
   })
