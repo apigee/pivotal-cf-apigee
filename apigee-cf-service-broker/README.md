@@ -1,38 +1,86 @@
-# cf-service-broker-api
-Service broker API implementation. To be deployed to Cloud Foundry.
+# cf apigee service broker
+Service broker that provides integration between Apigee Edge and Cloud Foundry.
 
-# pre-requisites
-#### Redis service
+## pre-requisites
+
+### node.js
+instructions for downloading and installing can be found [here](https://nodejs.org/en/).
+
+### Redis service
 Used for data persistence for service broker
+```bash
+cf create-service p-redis shared-vm apigee-redis
+```
 
-# sample cf console usage
-// register service broker
-cf create-service-broker apigee 5zbjHdfw9fJzAMnN3xY0xJMacHX63UKA 6JnPeXyR7FljuPDb http://amer-demo6-test.apigee.net/cf-apigee-broker
+### Elastic Runtime v 1.7
+[Route-Services](http://docs.cloudfoundry.org/services/route-services.html) is required by the Apigee service broker, and is available starting in version 1.7 of Elastic Runtime (beta at time of the POC).
 
-// publish in marketplace
-cf enable-service-access apigee-edge
-cf marketplace
-cf marketplace -s apigee-edge
+### CF CLI
+"Edge" version of the CF [command line interface](https://cli.run.pivotal.io/edge?arch=macosx64&source=github). This version includes required support for route-services operations.
 
-// create service instance in cf org/space
-cf create-service apigee-edge free myapigee -c '{"org":"amer-demo6"}' // FAIL
-cf create-service apigee-edge free myapigee -c '{"org":"amer-demo6", "env":"test"}'
+### An active account on the Apigee Edge site.
+TODO: instructions for doing this....
 
-// list routes
-cf routes
+## usage
+1. check out the project
+ ```bash
+ cd <your working directory>
+ git clone https://github.com/apigee/pivotal-cf-apigee.git
+ cd pivotal-cf-apigee/apigee-cf-service-broker
+ ```
 
-// get route id for app
-cf curl /v2/routes?q=host:rot13
-// copy the guid from metadata.guid
+1. load dependencies and test
+ ```bash
+ npm install
+ npm test
+ ```
 
-// get service instance details
-cf curl /v2/service_instances
-// get apigee service instance details
-cf curl /v2/service_instances/<guid>
-// copy the routes_url
+1. edit manifest to set env variables to appropriate values for your environment and Edge account.
 
-// create route Binding
+1. Deploy the broker to cloud foundry.
+ ```bash
+ cf push
+ ```
 
-cf curl /v2/service_instances/<instanced id>/routes/<app route guid> -X PUT
+1. During deployment, the service broker will create a random unique password and output it to its logs. This password must be used when interacting with the service broker via the cf CLI. Note that it will change each time the service broker restarted or re-deployed.
+ ```bash
+ cf logs apigee-cf-service-broker --recent |grep "Using default"
+ ```
 
-cf curl /v2/service_instances/5a76d1c5-4bc3-455a-98b1-e3c079dc5cb2/routes/a8e387be-68d6-470b-917b-d2429b10507f -X PUT
+1. determine the url of your service broker
+ ```bash
+ cf a |grep apigee-cf-service-broker
+ ```
+ 
+1. register service broker
+ ```bash
+ cf create-service-broker apigee-edge admin <password from previous step> <url of your service broker>
+ ```
+
+1. publish in marketplace
+ ```bash
+ cf enable-service-access apigee-edge
+ cf marketplace
+ cf marketplace -s apigee-edge
+ ```
+
+1. create service instance in cf org/space
+ ```bash
+ cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":",your edge env>","user":"<your edge user id>","pass":"<your edge password>"}'
+ ```
+
+1. push an application that you wish to register an Edge route for, and note its url.
+
+1. use route-services and the broker to bind a route to this application
+ ```bash
+ cf bind-route-service <your domain> myapigee --hostname <hostname of the app you are creating route for>
+ ```
+ 
+1. Log into Edge and not that the route has been created, and that requests to your app are being routed thorugh Edge. TODO: need instructions for this part.
+
+## teardown
+```bash
+cf unbind-route-service <your domain> myapigee --hostname <hostname of the app>
+cf delete-service myapigee 
+delete-service-broker apigee-edge
+```
