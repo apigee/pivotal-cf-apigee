@@ -156,8 +156,12 @@ function deleteServiceInstanceRedis (instance_id, callback) {
   rclient.hdel('serviceInstance', key, function (err, result) {
     if (err) {
       var loggerError = logger.handle_error('ERR_REDIS_SERVICE_DELETE_FAIL', err)
-      callback(true, loggerError)
-    } else {
+      callback(500, loggerError)
+    } else if (result == 0) {
+      var loggerError = logger.handle_error('ERR_REDIS_DELETE_GET_KEY_MISSING', err)
+      callback(410, loggerError)
+    }
+    else {
       callback(null, result)
     }
   })
@@ -199,6 +203,10 @@ function deleteBindingRedis (route, callback) {
     if (err) {
       var loggerError = logger.handle_error('ERR_REDIS_BINDING_DELETE_FAIL', err)
       callback(true, loggerError)
+    }
+    else if (result == 0) {
+      var loggerError = logger.handle_error('ERR_REDIS_DELETE_GET_KEY_MISSING', err)
+      callback(410, loggerError)
     } else {
       callback(null, result)
     }

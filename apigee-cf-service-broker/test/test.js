@@ -1,12 +1,10 @@
 'use strict'
-// TODO: write tests!
 var chai = require('chai')
 chai.use(require('chai-things'))
 var expect = chai.expect
 var should = require('should')  // eslint-disable-line
 var supertest = require('supertest')
 var server = require('../server')
-var nock = require('nock')
 // Using Port 8000 to start test server
 var port = 8000
 var api = supertest('http://localhost:' + port)
@@ -14,75 +12,8 @@ var app
 var config = require('../helpers/config')
 
 /* Mock Apigee API Calls using NOCK for testing */
-/* As per NOCK - works only once per API call */
+require('./helpers/api_mocks.js')
 
-// Auth Fail Apigee - Nock Interceptor
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .get('/organizations/org-name-here')
-  .reply(401)
-// Auth Success Apigee - Nock Interceptor
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .get('/organizations/cdmo')
-  .reply(200, {
-    createdAt: '1416395731939',
-    createdBy: 'noreply_admin@apigee.com',
-    displayName: 'cdmo',
-    environments: [
-      'test',
-      'prod'
-    ],
-    lastModifiedAt: 1454446553950,
-    lastModifiedBy: 'noreply_cpsadmin@apigee.com',
-    name: 'cdmo',
-    properties: {
-      property: [
-        {
-          name: 'features.isCpsEnabled',
-          value: 'true'
-        }
-      ]
-    },
-    type: 'trial'
-  })
-// Apigee Get VirtiaHosts Nock
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .get('/organizations/cdmo/environments/test/virtualhosts')
-  .reply(200, [
-    'default',
-    'secure'
-  ])
-
-// Apigee Upload Proxy nock
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .post('/organizations/cdmo/apis?action=import&name=cf-route-url-here', /.*/)
-  .reply(201, [
-    'default',
-    'secure'
-  ])
-// Apigee Get Proxy Details Nock
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .get('/organizations/cdmo/apis/cf-route-url-here')
-  .times(2)
-  .reply(200, {
-    metaData: {
-      createdAt: 1453098892108,
-      createdBy: 'xx@xx.com',
-      lastModifiedAt: 1453099158391,
-      lastModifiedBy: 'xx@xx.com'
-    },
-    name: 'cf-route-url-here',
-    revision: [
-      '1'
-    ]
-  })
-// Apigee Deploy Proxy Details Nock
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .post('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
-  .reply(200)
-// Apigee UnDeploy Proxy Details Nock
-nock(config.get('APIGEE_MGMT_API_URL'))
-  .delete('/organizations/cdmo/environments/test/apis/cf-route-url-here/revisions/1/deployments')
-  .reply(200)
 
 describe('Starting Tests..', function () {
   this.timeout(0)
@@ -91,8 +22,8 @@ describe('Starting Tests..', function () {
   before(function () {  // eslint-disable-line
     app = server.listen(8000)
   })
-  describe('EndPoint', function () {
-    it('should return 200', function (done) {
+  describe('API Securtiy', function () {
+    it('Valid Auth should return 200', function (done) {
       api.get('/')
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
@@ -110,19 +41,19 @@ describe('Starting Tests..', function () {
         .expect(401, done)
     })
   })
-  describe('Catalog', function () {
-    it('should require basic auth', function (done) {
+  describe('Catalog APIs', function () {
+    it('Invalid Auth should return 401', function (done) {
       api.get('/v2/catalog')
         .set('Accept', 'application/json')
         .expect(401, done)
     })
-    it('should return a 200 response', function (done) {
+    it('Valid Auth should return 200', function (done) {
       api.get('/v2/catalog')
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
         .expect(200, done)
     })
-    it('should be an array of objects', function (done) {
+    it('Catalog API should return list of service plans', function (done) {
       api.get('/v2/catalog')
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
@@ -146,19 +77,19 @@ describe('Starting Tests..', function () {
         })
     })
   })
-  describe('Create Service', function () {
-    it('should require basic auth', function (done) {
+  describe('Service Instance APIs', function () {
+    it('Invalid Auth should return 401', function (done) {
       api.put('/v2/service_instances/:instance_id')
         .set('Accept', 'application/json')
         .expect(401, done)
     })
-    it('patch should return 422', function (done) {
+    it('Patch to Service Instance should return 422', function (done) {
       api.patch('/v2/service_instances/:instance_id')
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
         .expect(422, done)
     })
-    it('should return a 401 response', function (done) {
+    it('Invalid Apigee Credentials on service instance creation should return a 401 response', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
         payload: {
@@ -180,7 +111,7 @@ describe('Starting Tests..', function () {
         .set('Authorization', authHeader)
         .expect(401, done)
     })
-    it('should return a 201 response', function (done) {
+    it('Valid Apigee Credentials on service instance creation should return a 201 response', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
         payload: {
@@ -203,18 +134,14 @@ describe('Starting Tests..', function () {
         .expect(201, done)
     })
   })
-// create binding
-// sample request to PUT /cf-apigee-broker/v2/service_instances/5a76d1c5-4bc3-455a-98b1-e3c079dc5cb2/service_bindings/7ed4c3d3-c3a4-41b6-9acc-72b3a7fa2f39
-// payload {"service_id":"5E3F917B-9225-4BE4-802F-8F1491F714C0","plan_id":"D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F","bind_resource":{"route":"rot13.apigee-cloudfoundry.com"}}
-// response should be route_service_url	string	A URL to which Cloud Foundry should proxy requests for the bound route.
-// router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
-  describe('Create Binding', function () {
-    it('should require basic auth', function (done) {
+
+  describe('Route Binding APIs', function () {
+    it('Invalid Auth should return 401', function (done) {
       api.put('/v2/service_instances/:instance_id/service_bindings/:binding_id')
         .set('Accept', 'application/json')
         .expect(401, done)
     })
-    it('should return validation failed - JSON Schema Validation', function (done) {
+    it('Invalid JSON req payload should return Json Schema Validation error', function (done) {
       api.put('/v2/service_instances/12345')
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
@@ -227,7 +154,7 @@ describe('Starting Tests..', function () {
           done()
         })
     })
-    it('should return a 201 response', function (done) {
+    it('Valid Auth on route binding API should return 201', function (done) {
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',
@@ -246,13 +173,13 @@ describe('Starting Tests..', function () {
         .expect(201, done)
     })
   })
-  describe('Delete Binding & Delete Service', function () {
-    it('should require basic auth', function (done) {
+  describe('Delete Route Binding & Delete Service Instance', function () {
+    it('Invalid Auth should return 401 on route binding deletion', function (done) {
       api.put('/v2/service_instances/:instance_id/service_bindings/:binding_id')
         .set('Accept', 'application/json')
         .expect(401, done)
     })
-    it('should delete the binding and return 200', function (done) {
+    it('Valid Auth on delete binding API call should return 200', function (done) {
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here'
@@ -262,26 +189,24 @@ describe('Starting Tests..', function () {
         .set('Authorization', authHeader)
         .expect(200, done)
     })
-    it('should require basic auth', function (done) {
+    it('Invalid Auth should return 401 on service instance deletion', function (done) {
       api.del('/v2/service_instances/:instance_id')
         .set('Accept', 'application/json')
         .expect(401, done)
     })
-    // TODO: should we worry about this?
-    // it('should return a 410 response', function (done) {
-    //   var serviceInstance = 'Non-Exist'
-    //   api.del('/v2/service_instances/' + serviceInstance.instance_id)
-    //   .set('Accept', 'application/json')
-    //   .set('Authorization', authHeader)
-    //   .expect(410, done)
-    // })
-    it('should delete the instance and return 200', function (done) {
+    it('Invalid Service Instance delete should return a 410 response', function (done) {
+      var serviceInstance = 'Non-Exist'
+      api.del('/v2/service_instances/' + serviceInstance.instance_id)
+        .set('Accept', 'application/json')
+        .set('Authorization', authHeader)
+        .expect(410, done)
+    })
+    it('Valid service instance delete should delete the instance and return 200', function (done) {
       var serviceInstance = 'instance-guid-here'
       api.del('/v2/service_instances/' + serviceInstance)
         .set('Authorization', authHeader)
         .expect(200, done)
     })
-    // TODO: figure out how to validate data deletion
   })
   after(function (done) {   // eslint-disable-line
     this.timeout(0)

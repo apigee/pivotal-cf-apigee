@@ -40,7 +40,7 @@ function get (instance_id, callback) {
 function deleteInstance (instance_id, callback) {
   deleteServiceInstance(instance_id, function (err, data) {
     if (err) {
-      callback(true, data)
+      callback(err, data)
     } else {
       callback(null, data)
     }

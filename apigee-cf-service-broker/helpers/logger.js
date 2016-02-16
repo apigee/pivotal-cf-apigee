@@ -28,6 +28,7 @@ var codes = {
   ERR_REDIS_BINDING_SAVE_FAILED: 'E0064',
   ERR_REDIS_BINDING_GET_KEY_MISSING: 'E0065',
   ERR_REDIS_BINDING_DELETE_FAIL: 'E0066',
+  ERR_REDIS_DELETE_GET_KEY_MISSING: 'E0067',
   ERR_CODE_COVERAGE_BADGE: 'E0070'
 }
 
@@ -58,6 +59,7 @@ var messages = {
   ERR_REDIS_BINDING_SAVE_FAILED: 'Route Binding Save Failed',
   ERR_REDIS_BINDING_GET_KEY_MISSING: 'Service instance details not found in redis',
   ERR_REDIS_BINDING_DELETE_FAIL: "Route Binding Delete failed",
+  ERR_REDIS_DELETE_GET_KEY_MISSING: 'Service instance details not found in redis',
   ERR_CODE_COVERAGE_BADGE: "Error generating code coverage badge"
 }
 

@@ -60,7 +60,7 @@ router.patch('/:instance_id', function (req, res) {
 router.delete('/:instance_id', function (req, res) {
   service_instance.del(req.params.instance_id, function (err, data) {
     if (err) {
-      res.status(500).json({msg: data.message, description: 'Failure: ' + JSON.stringify(err)})
+      res.status(err).json({msg: data.message, description: 'Failure: ' + JSON.stringify(data)})
     } else {
       res.json({})
     }
