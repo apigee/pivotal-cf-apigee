@@ -6,11 +6,10 @@ services:
 - apigee-redis
 buildpack: nodejs_buildpack
 env:
-  APIGEE_AUTH_METHOD: staticauth
   APIGEE_BROKER_PASSPHRASE: set passphrase here
   APIGEE_DASHBOARD_URL: https://enterprise.apigee.com/platform/#/
   APIGEE_PROXY_HOST: apigee.net
   APIGEE_PROXY_HOST_PATTERN: "#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}"
   APIGEE_PROXY_NAME_PATTERN: "cf-#{routeName}"
   APIGEE_MGMT_API_URL: https://api.enterprise.apigee.com/v1
-  APIGEE_ALLOW_CONFIG_OVERRIDE: false
+  

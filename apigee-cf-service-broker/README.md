@@ -18,8 +18,8 @@ cf create-service p-redis shared-vm apigee-redis
 ### CF CLI
 "Edge" version of the CF [command line interface](https://cli.run.pivotal.io/edge?arch=macosx64&source=github). This version includes required support for route-services operations.
 
-### An active account on the Apigee Edge site.
-TODO: instructions for setting this up....
+### An active Apigee Edge account.
+This broker works with both private cloud (OPDK) and SaaS Edge. If you are not an existing Apigee Edge customer you can register for a free SaaS account at [https://accounts.apigee.com/accounts/sign_up](https://accounts.apigee.com/accounts/sign_up).
 
 ## usage
 1. check out the project
@@ -36,6 +36,16 @@ TODO: instructions for setting this up....
  ```
 
 1. edit the manifest to set the listed variables to appropriate values for your environment and Edge account.
+The sample values are appropriate for a SaaS Edge account. For a private cloud (OPDK) Edge installation you will need to adjust the APIGEE_PROXY_HOST, APIGEE_PROXY_HOST_PATTERN, and APIGEE_MGMT_API_URL values.
+
+Item | Purpose | Example
+---- | ---- | ----
+APIGEE_BROKER_PASSPHRASE | passphrase used to encrypt data in Redis store | `correct horse battery staple`
+APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/` for SaaS Edge.
+APIGEE_PROXY_HOST | Hostname for API Proxies. | `apigee.net` for Free SaaS accounts.
+APIGEE_PROXY_HOST_PATTERN | Pattern for generating proxy URL | `#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}` for Free SaaS accounts.
+APIGEE_PROXY_NAME_PATTERN | Pattern for naming API Proxies in Edge | `cf-#{routeName}`
+APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterprise.apigee.com/v1` for SaaS Edge.
 
 1. Deploy the broker to cloud foundry.
  ```bash
@@ -51,7 +61,7 @@ TODO: instructions for setting this up....
  ```bash
  cf a |grep apigee-cf-service-broker
  ```
- 
+
 1. register service broker
  ```bash
  cf create-service-broker apigee-edge admin <password from previous step> <url of your service broker>
@@ -75,12 +85,12 @@ TODO: instructions for setting this up....
  ```bash
  cf bind-route-service <your domain> myapigee --hostname <hostname of the app you are creating route for>
  ```
- 
-1. Log into Edge and note that the route has been created, and that requests to your app are being routed thorugh Edge. TODO: need instructions for this part.
+
+1. Log into Edge and note that the route has been created, and that requests to your app are being routed through Edge. You will find a proxy named using the pattern specified in the APIGEE_PROXY_NAME_PATTERN variable in the manifest.yml and deployed to the environment specified when you created your service instance. Entering trace on that proxy and sending requests to your app will show the traffic routing through the proxy. You can now configure standard Apigee Edge policies on that proxy.
 
 ## teardown
 ```bash
 cf unbind-route-service <your domain> myapigee --hostname <hostname of the app>
-cf delete-service myapigee 
+cf delete-service myapigee
 delete-service-broker apigee-edge
 ```
