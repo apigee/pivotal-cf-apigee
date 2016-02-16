@@ -76,7 +76,7 @@ APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterp
 
 1. create service instance in cf org/space
  ```bash
- cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":",your edge env>","user":"<your edge user id>","pass":"<your edge password>"}'
+ cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>"}'
  ```
 
 1. push an application that you wish to register an Edge route for, and note its url.
