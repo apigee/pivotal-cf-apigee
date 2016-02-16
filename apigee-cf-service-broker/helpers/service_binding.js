@@ -1,6 +1,5 @@
 'use strict'
 // TODO: refactor
-// TODO: provide options for persistence? KVM?
 
 var config = require('../helpers/config')
 var service_instance = require('./service_instance')
@@ -14,7 +13,7 @@ var saveBinding = require('./datastore')['redis'].saveBinding
 var deleteBinding = require('./datastore')['redis'].deleteBinding
 var getBinding = require('./datastore')['redis'].getBinding
 
-function create (route, callback) {
+function createServiceBinding (route, callback) {
   async.waterfall([ function (cb) {
     // retrieve service instance details
     getServiceInstanceOrg(route, function (err, data) {
@@ -91,7 +90,7 @@ function createProxy (data, cb) {
 
 // retrieve org/environment
 function getServiceInstanceOrg (route, cb) {
-  service_instance.get(route.instance_id, function (err, data) {
+  service_instance.fetch(route.instance_id, function (err, data) {
     if (err) {
       cb(true, data)
     } else {
@@ -166,6 +165,6 @@ function deleteServiceBinding (route, callback) {
 }
 
 module.exports = {
-  create: create,
+  create: createServiceBinding,
   delete: deleteServiceBinding
 }

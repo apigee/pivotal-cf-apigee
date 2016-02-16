@@ -26,7 +26,6 @@ var log = require('bunyan').createLogger({name: 'apigee', src: true})
 router.use(auth)
 
 // provising a service instance
-// TODO: Need to authenticate user for target org
 router.put('/:instance_id', validate({body: instanceSchema.create}), function (req, res) {
   var instance = {
     instance_id: req.params.instance_id,
@@ -53,12 +52,11 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
 // update a service instance
 router.patch('/:instance_id', function (req, res) {
   res.status(422).json({description: 'Automatic plan changes are not supported today. Please contact Apigee Support.'})
-  // service_instance.update()
 })
 
 // deprovision a service instance
 router.delete('/:instance_id', function (req, res) {
-  service_instance.del(req.params.instance_id, function (err, data) {
+  service_instance.delete(req.params.instance_id, function (err, data) {
     if (err) {
       res.status(err).json({msg: data.message, description: 'Failure: ' + JSON.stringify(data)})
     } else {

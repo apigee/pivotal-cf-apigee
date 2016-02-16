@@ -9,8 +9,8 @@ var deleteServiceInstance = require('./datastore')['redis'].deleteServiceInstanc
 var mgmt_api = require('./mgmt_api')
 var logger = require('./logger')
 
-// TODO: should probably validate the org/env info. Could be mgmt_api function.
-function create (instance, callback) {
+
+function createInstance (instance, callback) {
   // validate user has access to provided apigee org-guid-here
   mgmt_api.authenticate({org: instance.apigee_org, user: instance.apigee_user, pass: instance.apigee_pass}, function (err, data) {
     if (err) {
@@ -27,7 +27,7 @@ function create (instance, callback) {
   })
 }
 
-function get (instance_id, callback) {
+function getInstance (instance_id, callback) {
   getServiceInstance(instance_id, function (err, data) {
     if (err) {
       callback(true, data)
@@ -48,7 +48,7 @@ function deleteInstance (instance_id, callback) {
 }
 
 module.exports = {
-  create: create,
-  get: get,
-  del: deleteInstance
+  create: createInstance,
+  fetch: getInstance,
+  delete: deleteInstance
 }
