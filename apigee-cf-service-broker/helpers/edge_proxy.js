@@ -2,12 +2,41 @@
 
 // TODO: refactor
 
+var config = require('../helpers/config')
 var JSZip = require('jszip')
 var fs = require('fs')
 var importProxy = require('./mgmt_api').importProxy
 var getVirtualHosts = require('./mgmt_api').getVirtualHosts
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var logger = require('./logger')
+var template = require('es6-template-strings')
+
+// create proxy in edge org
+function createProxy (data, cb) {
+  var org = data.org
+  var env = data.env
+  var route = data.route
+  // TODO: this is brittle. Refactor. Goal is to support some configurability, but the code needs to match the template, or the avaliable variables need to be documented
+  var routeName = route.bind_resource.route
+  var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
+  proxyNameTemplate = proxyNameTemplate.replace(/#/g, '$')
+  var proxyHostTemplate = config.get('APIGEE_PROXY_HOST_PATTERN')
+  proxyHostTemplate = proxyHostTemplate.replace(/#/g, '$')
+  var proxyName = template(proxyNameTemplate, { routeName: routeName })
+  uploadProxy({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
+    if (err) {
+      var loggerError = logger.handle_error('ERR_PROXY_UPLOAD_FAILED', err)
+      cb(true, loggerError)
+    } else {
+      var proxyHost = config.get('APIGEE_PROXY_HOST')
+      var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
+      route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
+      route.proxyname = proxyName
+      logger.log.info('route proxy url: ', route.proxyURL)
+      cb(null, route)
+    }
+  })
+}
 
 // proxyData is {org: org, env: env, proxyname: name, basepath: path}
 // should just get route details here, so we have access to parameters (add features)
@@ -59,5 +88,5 @@ function getZip (proxyData, callback) {
 }
 
 module.exports = {
-  upload: uploadProxy
+  create: createProxy
 }

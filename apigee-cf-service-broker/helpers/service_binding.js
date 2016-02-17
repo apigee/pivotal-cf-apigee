@@ -5,7 +5,7 @@ var config = require('../helpers/config')
 var service_instance = require('./service_instance')
 var async = require('async')
 var proxy = require('./edge_proxy')
-var template = require('es6-template-strings')
+
 var mgmt_api = require('./mgmt_api')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var logger = require('./logger')
@@ -16,18 +16,20 @@ var getBinding = require('./datastore')['redis'].getBinding
 function createServiceBinding (route, callback) {
   async.waterfall([ function (cb) {
     // retrieve service instance details
-    getServiceInstanceOrg(route, function (err, data) {
+    service_instance.fetch(route.instance_id, function (err, data) {
       if (err) {
         cb(true, data)
-        return
       } else {
-        data.route = route
-        cb(null, data)
+        // get org and environment and continue
+        logger.log.info({data: data}, 'Service Binding get service instance org')
+        var filteredData = {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
+        filteredData.route = route
+        cb(null, filteredData)
       }
     }) },
     // create proxy
     function (data, cb) {
-      createProxy(data, function (err, result) {
+      proxy.create(data, function (err, result) {
         if (err) {
           var loggerError = logger.handle_error('ERR_PROXY_CREATION_FAILED', err)
           cb(true, loggerError)
@@ -61,46 +63,6 @@ function createServiceBinding (route, callback) {
     })
 }
 
-// create proxy in edge org
-function createProxy (data, cb) {
-  var org = data.org
-  var env = data.env
-  var route = data.route
-  // TODO: this is brittle. Refactor. Goal is to support some configurability, but the code needs to match the template, or the avaliable variables need to be documented
-  var routeName = route.bind_resource.route
-  var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
-  proxyNameTemplate = proxyNameTemplate.replace(/#/g, '$')
-  var proxyHostTemplate = config.get('APIGEE_PROXY_HOST_PATTERN')
-  proxyHostTemplate = proxyHostTemplate.replace(/#/g, '$')
-  var proxyName = template(proxyNameTemplate, { routeName: routeName })
-  proxy.upload({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
-    if (err) {
-      var loggerError = logger.handle_error('ERR_PROXY_UPLOAD_FAILED', err)
-      cb(true, loggerError)
-    } else {
-      var proxyHost = config.get('APIGEE_PROXY_HOST')
-      var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
-      route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
-      route.proxyname = proxyName
-      logger.log.info('route proxy url: ', route.proxyURL)
-      cb(null, route)
-    }
-  })
-}
-
-// retrieve org/environment
-function getServiceInstanceOrg (route, cb) {
-  service_instance.fetch(route.instance_id, function (err, data) {
-    if (err) {
-      cb(true, data)
-    } else {
-      // get org and environment and continue
-      logger.log.info({data: data}, 'Service Binding get service instance org')
-      cb(null, {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass})
-    }
-  })
-}
-
 function deleteServiceBinding (route, callback) {
   /* route is
   {
@@ -112,15 +74,15 @@ function deleteServiceBinding (route, callback) {
   */
   async.waterfall([ function (cb) {
     // retrieve service instance details
-    getServiceInstanceOrg(route, function (err, data) {
+    service_instance.fetch(route.instance_id, function (err, data) {
       if (err) {
         cb(true, data)
-        return
       } else {
-        // data is {org: 'orgname', env: 'envname'}
-        data.route = route
-        logger.log.info({data: data}, 'service bidning get org')
-        cb(null, data)
+        // get org and environment and continue
+        logger.log.info({data: data}, 'Service Binding get service instance org')
+        var filteredData = {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
+        filteredData.route = route
+        cb(null, filteredData)
       }
     }) },
   function (data, cb) {
