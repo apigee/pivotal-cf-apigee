@@ -25,7 +25,7 @@ function createProxy (data, cb) {
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
   uploadProxy({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_PROXY_UPLOAD_FAILED', err)
+      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_UPLOAD_FAILED, err)
       cb(true, loggerError)
     } else {
       var proxyHost = config.get('APIGEE_PROXY_HOST')
@@ -43,7 +43,7 @@ function createProxy (data, cb) {
 function uploadProxy (proxyData, callback) {
   getZip(proxyData, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_PROXY_ZIP', err)
+      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_ZIP, err)
       callback(true, loggerError)
     } else {
       importProxy(proxyData, data, function (err, result) {
@@ -61,7 +61,7 @@ function uploadProxy (proxyData, callback) {
 function getZip (proxyData, callback) {
   fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error('ERR_PROXY_READ_FAILED', err)
+      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_READ_FAILED, err)
       callback(true, loggerError)
     } else {
       var zip = new JSZip(data)

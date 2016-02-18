@@ -18,7 +18,7 @@ console.log(opts)
 // Load the badge for the report$
 badger(opts, function parsingResults (err, badgeStatus) {
   if (err) {
-    logger.handle_error('ERR_CODE_COVERAGE_BADGE', err)
+    logger.handle_error(logger.codes.ERR_CODE_COVERAGE_BADGE, err)
   }
   else {
     logger.log.info('Badge successfully generated')

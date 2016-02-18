@@ -33,38 +33,38 @@ var codes = {
 }
 
 var messages = {
-  ERR_REQ_INVALID_PROTOCOL: 'Invalid protocol, needs to be TLS enabled. Send req over https',
-  ERR_REQ_JSON_SCHEMA_FAIL: 'Invalid JSON Sent to the server',
-  ERR_PROXY_CREATION_FAILED: 'Proxy Creation Failed',
-  ERR_PROXY_UPLOAD_FAILED: 'Proxy Upload Failed',
-  ERR_PROXY_ZIP: 'Error in zipping proxy bundle',
-  ERR_PROXY_READ_FAILED: 'Error in reading proxy template',
-  ERR_PROXY_VHOSTS_NON200_RES: 'Apigee returned non 200 response while fetching Virtual Hosts',
-  ERR_APIGEE_AUTH: 'Error Authenticating to Apigee, Please check apigee credentials',
-  ERR_APIGEE_REQ_FAILED: 'Error making reqest to Apigee',
-  ERR_APIGEE_PROXY_UPLOAD: 'Error uploading proxy to Apigee',
-  ERR_APIGEE_GET_PROXY_REV_FAILED: 'Error Retrieving proxy revision details from Apigee ',
-  ERR_APIGEE_DEPLOY_PROXY: 'Error deploying proxy to Apigee',
-  ERR_APIGEE_UNDEPLOY_PROXY_FAILED: 'Error undeploying proxy from Apigee',
-  ERR_APIGEE_GET_KVM: 'Error Retrieving KVM from Apigee',
-  ERR_APIGEE_DELETE_KVM: 'Error deleting KVM from Apigee',
-  ERR_APIGEE_KVM_NOT_FOUND: 'Error Retrieving KVM from Apigee',
-  ERR_APIGEE_KVM_SET_ERROR: 'Error updating KVM in Apigee',
-  ERR_KVM_SERVICE_DELETE_FAIL: 'Error deleting service from Apigee KVM',
-  ERR_KVM_BINDING_DELETE_FAIL: 'Error deleting binding from Apigee KVM',
-  ERR_REDIS: 'Unable to connect to redis',
-  ERR_REDIS_SERVICE_GET_KEY_MISSING: 'Service instance details not found in redis',
-  ERR_REDIS_SERVICE_DELETE_FAIL: 'Service Instance Deletion Failed',
-  ERR_REDIS_SERVICE_SAVE_FAIL: 'Service Instance Saving Failed',
-  ERR_REDIS_BINDING_SAVE_FAILED: 'Route Binding Save Failed',
-  ERR_REDIS_BINDING_GET_KEY_MISSING: 'Service instance details not found in redis',
-  ERR_REDIS_BINDING_DELETE_FAIL: "Route Binding Delete failed",
-  ERR_REDIS_DELETE_GET_KEY_MISSING: 'Service instance details not found in redis',
-  ERR_CODE_COVERAGE_BADGE: "Error generating code coverage badge"
+  E0011: 'Invalid protocol, needs to be TLS enabled. Send req over https',
+  E0010: 'Invalid JSON Sent to the server',
+  E0020: 'Proxy Creation Failed',
+  E0021: 'Proxy Upload Failed',
+  E0022: 'Error in zipping proxy bundle',
+  E0023: 'Error in reading proxy template',
+  E0024: 'Apigee returned non 200 response while fetching Virtual Hosts',
+  E0030: 'Error Authenticating to Apigee, Please check apigee credentials',
+  E0031: 'Error making reqest to Apigee',
+  E0032: 'Error uploading proxy to Apigee',
+  E0033: 'Error Retrieving proxy revision details from Apigee ',
+  E0034: 'Error deploying proxy to Apigee',
+  E0035: 'Error undeploying proxy from Apigee',
+  E0036: 'Error Retrieving KVM from Apigee',
+  E0037: 'Error deleting KVM from Apigee',
+  E0038: 'Error Retrieving KVM from Apigee',
+  E0039: 'Error updating KVM in Apigee',
+  E0040: 'Error deleting service from Apigee KVM',
+  E0041: 'Error deleting binding from Apigee KVM',
+  E0060: 'Unable to connect to redis',
+  E0061: 'Service instance details not found in redis',
+  E0062: 'Service Instance Deletion Failed',
+  E0063: 'Service Instance Saving Failed',
+  E0064: 'Route Binding Save Failed',
+  E0065: 'Service instance details not found in redis',
+  E0066: "Route Binding Delete failed",
+  E0067: 'Service instance details not found in redis',
+  E0070: "Error generating code coverage badge"
 }
 
 var getMessage = function(code) {
-  return util.format('[%s] - %s', codes[code], messages[code])
+  return util.format('[%s] - %s', code, messages[code])
 }
 
 var handle_error = function(code, err) {
