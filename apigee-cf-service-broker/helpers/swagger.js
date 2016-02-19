@@ -9,8 +9,13 @@ var verifyApiKey = require('../policy_templates/security/apikey.js');
 var oauth2 = require('../policy_templates/security/verifyAccessToken.js');
 
 var generatePolicy = function(route, zip, cb) {
-  // TODO : https
-  var routeUrl = 'http://' + route.bind_resource.route
+  var routeUrl
+  if (process.env.NODE_ENV === 'TEST') {
+    routeUrl = 'http://' + route.bind_resource.route
+  }
+  else {
+    routeUrl = 'https://' + route.bind_resource.route
+  }
   async.waterfall([
     // check for swagger
     function(callback) {
