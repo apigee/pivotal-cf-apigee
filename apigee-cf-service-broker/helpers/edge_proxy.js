@@ -10,6 +10,7 @@ var getVirtualHosts = require('./mgmt_api').getVirtualHosts
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var logger = require('./logger')
 var template = require('es6-template-strings')
+var swagger = require('./swagger.js')
 
 // create proxy in edge org
 function createProxy (data, cb) {
@@ -23,7 +24,7 @@ function createProxy (data, cb) {
   var proxyHostTemplate = config.get('APIGEE_PROXY_HOST_PATTERN')
   proxyHostTemplate = proxyHostTemplate.replace(/#/g, '$')
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
-  uploadProxy({user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
+  uploadProxy({route: data.route, user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_PROXY_UPLOAD_FAILED, err)
       cb(true, loggerError)
@@ -80,7 +81,15 @@ function getZip (proxyData, callback) {
           zip.folder('apiproxy/proxies').file('default.xml', proxyDefValue)
           var proxyNameTemplate = zip.file('apiproxy/cf-proxy.xml').asText()
           zip.file('apiproxy/cf-proxy.xml', proxyNameTemplate.replace(re2, proxyData.proxyname))
-          callback(null, zip.generate({type: 'nodebuffer'}))
+          // Check for swagger & add policy support
+          swagger.generatePolicy(proxyData.route, zip, function(err, updatedZip) {
+            if (err) {
+              callback(null, this.zip.generate({type: 'nodebuffer'}))
+            }
+            else {
+              callback(null, updatedZip.generate({type: 'nodebuffer'}))
+            }
+          }.bind({ zip: zip }))
         }
       })
     }
