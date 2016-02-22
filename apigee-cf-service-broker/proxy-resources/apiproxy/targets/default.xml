@@ -13,6 +13,6 @@
     <Flows/>
     <HTTPTargetConnection>
         <Properties/>
-        <URL>%TARGETURL%</URL>
+        <URL>https://api.usergrid.com</URL>
     </HTTPTargetConnection>
 </TargetEndpoint>
