@@ -7,9 +7,17 @@
     <DisplayName>%PROXYNAME%</DisplayName>
     <LastModifiedAt>1450199918456</LastModifiedAt>
     <LastModifiedBy>noreply_admin@apigee.com</LastModifiedBy>
+    <Policies>
+        <Policy>cf-get-target-url</Policy>
+        <Policy>cf-set-target-url</Policy>
+    </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>
     </ProxyEndpoints>
+    <Resources>
+        <Resource>jsc://cf-set-target-url.js</Resource>
+        <Resource>jsc://cf-get-target-url.js</Resource>
+    </Resources>
     <TargetServers/>
     <TargetEndpoints>
         <TargetEndpoint>default</TargetEndpoint>

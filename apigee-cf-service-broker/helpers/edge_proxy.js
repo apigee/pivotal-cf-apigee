@@ -69,7 +69,6 @@ function getZip (proxyData, callback) {
       var re1 = /%BASEPATH%/g
       var re2 = /%PROXYNAME%/g
       var re3 = /%VIRTUALHOSTS%/g
-      var re4 = /%TARGETURL%/g
       // get virtual hosts for org/env
       getVirtualHosts(proxyData, function (err, data) {
         if (err) {
@@ -82,9 +81,6 @@ function getZip (proxyData, callback) {
           zip.folder('apiproxy/proxies').file('default.xml', proxyDefValue)
           var proxyNameTemplate = zip.file('apiproxy/cf-proxy.xml').asText()
           zip.file('apiproxy/cf-proxy.xml', proxyNameTemplate.replace(re2, proxyData.proxyname))
-          var targetNameTemplate = zip.file('apiproxy/targets/default.xml').asText()
-          var targetUrl = 'https://' + proxyData.route.bind_resource.route
-          zip.file('apiproxy/targets/default.xml', targetNameTemplate.replace(re4, targetUrl))
           // Check for swagger & add policy support
           swagger.generatePolicy(proxyData.route, zip, function(err, updatedZip) {
             if (err) {
