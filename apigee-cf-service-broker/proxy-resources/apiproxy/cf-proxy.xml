@@ -9,7 +9,6 @@
     <LastModifiedBy>noreply_admin@apigee.com</LastModifiedBy>
     <Policies>
         <Policy>cf-get-target-url</Policy>
-        <Policy>cf-set-target-url</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>
