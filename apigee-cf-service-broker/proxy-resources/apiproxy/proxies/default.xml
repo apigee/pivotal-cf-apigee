@@ -2,11 +2,7 @@
 <ProxyEndpoint name="default">
     <Description/>
     <PreFlow name="PreFlow">
-        <Request>
-            <Step>
-                <Name>cf-get-target-url</Name>
-            </Step>
-        </Request>
+        <Request/>
         <Response/>
     </PreFlow>
     <Flows/>

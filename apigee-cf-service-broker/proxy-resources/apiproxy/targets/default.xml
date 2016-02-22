@@ -3,11 +3,7 @@
     <Description/>
     <FaultRules/>
     <PreFlow name="PreFlow">
-        <Request>
-            <Step>
-                <Name>cf-set-target-url</Name>
-            </Step>
-        </Request>
+        <Request/>
         <Response/>
     </PreFlow>
     <PostFlow name="PostFlow">
@@ -17,6 +13,6 @@
     <Flows/>
     <HTTPTargetConnection>
         <Properties/>
-        <URL>https://api.usergrid.com</URL>
+        <URL>%TARGETURL%</URL>
     </HTTPTargetConnection>
 </TargetEndpoint>
