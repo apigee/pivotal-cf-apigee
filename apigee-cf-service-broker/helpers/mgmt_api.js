@@ -22,7 +22,16 @@ function getProxyRevision (proxyData, callback) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
       callback(true, loggerError)
-    } else if (res.statusCode !== 200) {
+    }
+    else if (res.statusCode == 401) {
+      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_AUTH, err)
+      callback(true, loggerError)
+    }
+    else if (res.statusCode == 404) {
+      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_PROXY_NOT_FOUND, err)
+      callback(404, loggerError)
+    }
+    else if (res.statusCode !== 200) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_GET_PROXY_REV_FAILED, err)
       callback(true, loggerError)
     } else {
@@ -108,9 +117,14 @@ function undeployProxy (proxyData, callback) {
   var adminPass = proxyData.pass
   // should get latest version and undeploy that
   getProxyRevision(proxyData, function (err, revision) {
-    if (err) {
-      callback('getting revision info failed.', err)
-    } else {
+    if (err == 404) {
+      // Proxy not found, It's manually deleted
+      callback(404, err)
+    }
+    else if (err) {
+      callback(true, err)
+    }
+    else {
       var options = {
         url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + revision + '/deployments',
         auth: {

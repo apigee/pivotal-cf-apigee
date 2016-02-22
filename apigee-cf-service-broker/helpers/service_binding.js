@@ -99,8 +99,12 @@ function deleteServiceBinding (route, callback) {
   },
   function (data, cb) {
     mgmt_api.undeployProxy(data, function (err, result) {
-      if (err) {
-        cb(true, result)
+      if (err == 404) {
+        // proxy manually deleted , not found, proceed with service binding deletion
+        cb(null, data)
+      }
+      else if (err) {
+        cb(err, result)
         return
       } else {
         cb(null, data)
