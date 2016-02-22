@@ -21,7 +21,7 @@ function createServiceBinding (route, callback) {
         cb(true, data)
       } else {
         // get org and environment and continue
-        logger.log.info({data: data}, 'Service Binding get service instance org')
+        // logger.log.info({data: data}, 'Service Binding get service instance org')
         var filteredData = {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
         filteredData.route = route
         cb(null, filteredData)
@@ -79,7 +79,7 @@ function deleteServiceBinding (route, callback) {
         cb(true, data)
       } else {
         // get org and environment and continue
-        logger.log.info({data: data}, 'Service Binding get service instance org')
+        // logger.log.info({data: data}, 'Service Binding get service instance org')
         var filteredData = {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
         filteredData.route = route
         cb(null, filteredData)
