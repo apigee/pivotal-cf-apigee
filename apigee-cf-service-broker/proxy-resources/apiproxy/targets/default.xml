@@ -3,8 +3,12 @@
     <Description/>
     <FaultRules/>
     <PreFlow name="PreFlow">
-        <Request/>
-        <Response/>
+      <Request>
+          <Step>
+              <Name>cf-set-target-url</Name>
+          </Step>
+      </Request>
+      <Response/>
     </PreFlow>
     <PostFlow name="PostFlow">
         <Request/>
