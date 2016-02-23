@@ -16,6 +16,7 @@
     </ProxyEndpoints>
     <Resources>
         <Resource>jsc://cf-get-target-url.js</Resource>
+        <Resource>jsc://cf-set-target-url.js</Resource>
     </Resources>
     <TargetServers/>
     <TargetEndpoints>
