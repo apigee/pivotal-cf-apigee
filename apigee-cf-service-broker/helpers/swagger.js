@@ -2,11 +2,14 @@ var swaggerParser = require('swagger-parser')
 var async = require('async')
 var JSZip = require('jszip')
 var logger = require('./logger')
-var quota = require('../policy_templates/quota/quota.js');
-var spike = require('../policy_templates/spikeArrest/spikeArrest.js');
-var cache = require('../policy_templates/cache/responseCache.js');
-var verifyApiKey = require('../policy_templates/security/apikey.js');
-var oauth2 = require('../policy_templates/security/verifyAccessToken.js');
+var quota = require('../policy_templates/quota/quota.js')
+var spike = require('../policy_templates/spikeArrest/spikeArrest.js')
+var cache = require('../policy_templates/cache/responseCache.js')
+var verifyApiKey = require('../policy_templates/security/apikey.js')
+var oauth2 = require('../policy_templates/security/verifyAccessToken.js')
+var DOMParser = require('xmldom').DOMParser
+var XMLSerializer = require('xmldom').XMLSerializer
+var builder = require('xmlbuilder')
 
 var generatePolicy = function(route, zip, cb) {
   var routeUrl
@@ -31,46 +34,141 @@ var generatePolicy = function(route, zip, cb) {
     },
     function(api, callback) {
       // Valid Swagger Found -- Look for A127 Policies
-      if (api['x-a127-services']) {
-        async.each(Object.keys(api['x-a127-services']), function(service, cb) {
+      if (api['x-apigee-policies']) {
+        async.each(Object.keys(api['x-apigee-policies']), function(service, cb) {
           // Perform operation on file here.
-          var provider = api['x-a127-services'][service].provider;
+          var policy = api['x-apigee-policies'][service].type;
           var xmlString = '';
-          if (provider.indexOf('quota') > -1) {
+          if (policy == 'quota') {
             // Add Quota Policy
-            xmlString = quota.quotaGenTemplate(api['x-a127-services'][service].options, service);
+            xmlString = quota.quotaGenTemplate(api['x-apigee-policies'][service].options, service);
           }
-          if (provider.indexOf('spike') > -1) {
+          if (policy == 'spikeArrest') {
             // Add spike Policy
-            xmlString = spike.spikeArrestGenTemplate(api['x-a127-services'][service].options, service);
+            xmlString = spike.spikeArrestGenTemplate(api['x-apigee-policies'][service].options, service);
           }
-          if (provider.indexOf('cache') > -1) {
+          if (policy == 'responseCache') {
             // Add cache Policies
-            xmlString = cache.responseCacheGenTemplate(api['x-a127-services'][service].options, service);
+            xmlString = cache.responseCacheGenTemplate(api['x-apigee-policies'][service].options, service);
           }
-          if (provider.indexOf('oauth') > -1 && (service == "apiKeyQuery" || service == "apiKeyHeader")) {
+          if (policy == 'verifyApiKey') {
             // Add cache Policies
-            xmlString = verifyApiKey.apiKeyGenTemplate(api['x-a127-services'][service].options, service);
+            xmlString = verifyApiKey.apiKeyGenTemplate(api['x-apigee-policies'][service].options, service);
           }
-          if (provider.indexOf('oauth') > -1 && (service == "oauth2")) {
+          if (policy == 'oAuthV2') {
             // Add cache Policies
-            xmlString = oauth2.verifyAccessTokenGenTemplate(api['x-a127-services'][service].options, "verifyAccessToken");
+            xmlString = oauth2.verifyAccessTokenGenTemplate(api['x-apigee-policies'][service].options, service);
           }
-          zip.folder('apiproxy/policies').file(service  +".xml", xmlString)
+          if (xmlString != '') {
+            zip.folder('apiproxy/policies').file(service  +".xml", xmlString)
+          }
           cb(null)
         }, function(err){
           // if any of the file processing produced an error, err would equal that error
           if(err) {
             callback(true, err)
           } else {
-            callback(null, zip);
+            callback(null, api, zip)
           }
         })
       } else {
         // TODO: Error / Warning
-        var loggerError = logger.handle_error(logger.codes.ERR_POLICIES_NOT_FOUND, err)
-        callback(true, loggerError);
+        var loggerError = logger.handle_error(logger.codes.ERR_POLICIES_NOT_FOUND, true)
+        callback(true, loggerError)
       }
+    },
+    function (api, zip, callback) {
+      // Attach policies to preFlow / postFlow
+      var proxyText = zip.file('apiproxy/proxies/default.xml').asText()
+      var targetText = zip.file('apiproxy/targets/default.xml').asText()
+      var proxyParser = new DOMParser().parseFromString(proxyText,'text/xml');
+      var targetParser = new DOMParser().parseFromString(targetText,'text/xml');
+      async.each(Object.keys(api['x-apigee-apply']), function(service, cb) {
+        var flow = api['x-apigee-apply'][service].options.flow.charAt(0).toUpperCase() + api['x-apigee-apply'][service].options.flow.slice(1)
+        var reqRes = api['x-apigee-apply'][service].options['on'].charAt(0).toUpperCase() + api['x-apigee-apply'][service].options['on'].slice(1)
+        if (api['x-apigee-apply'][service].options.endPoint == 'proxy') {
+          try {
+            var flowParser = proxyParser.documentElement.getElementsByTagName(flow)[0]
+            var flowReqRes = flowParser.getElementsByTagName(reqRes)[0]
+            flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>'+service+'</Name></Step>','text/xml'))
+          } catch (ex) {
+            // do nothing, just print error to log
+            logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+          }
+        }
+        else if (api['x-apigee-apply'][service].options.endPoint == 'target') {
+          try {
+            var flowParser = targetParser.documentElement.getElementsByTagName(flow)[0]
+            var flowReqRes = flowParser.getElementsByTagName(reqRes)[0]
+            flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>'+service+'</Name></Step>','text/xml'))
+          } catch(ex) {
+            // do nothing, just print error to log
+            logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+          }
+        }
+        cb(null)
+      }, function(err){
+        // if any of the file processing produced an error, err would equal that error
+        if(err) {
+          callback(true, err)
+        } else {
+          // Add back to zip
+          zip.file('apiproxy/targets/default.xml', new XMLSerializer().serializeToString(targetParser))
+          zip.file('apiproxy/proxies/default.xml', new XMLSerializer().serializeToString(proxyParser))
+          callback(null, api, zip)
+        }
+      })
+    },
+    function (api, zip, callback) {
+      // Attach conditional flows
+      var proxyText = zip.file('apiproxy/proxies/default.xml').asText()
+      var targetText = zip.file('apiproxy/targets/default.xml').asText()
+      var proxyParser = new DOMParser().parseFromString(proxyText,'text/xml')
+      var targetParser = new DOMParser().parseFromString(targetText,'text/xml')
+      var allowedVerbs = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'TRACE', 'CONNECT', 'PATCH']
+      for (var apiPath in api.paths) {
+        for (var resource in api.paths[apiPath]) {
+          if (allowedVerbs.indexOf(resource.toUpperCase()) >= 0) {
+            var resourceItem = api.paths[apiPath][resource];
+            resourceItem.operationId = resourceItem.operationId || resource.toUpperCase() + ' ' + apiPath;
+            var flow = builder.create('Flow', { headless: true }).att('name', resourceItem.operationId);
+            var flowCondition = '(proxy.pathsuffix MatchesPath &quot;' + apiPath + '&quot;) and (request.verb = &quot;' + resource.toUpperCase() + '&quot;)';
+            flow.ele('Condition').raw(flowCondition);
+            flow.ele('Description', {}, resourceItem.summary);
+            var requestPipe = flow.ele('Request');
+            var responsePipe = flow.ele('Response');
+            var proxyFlow = false
+            var targetFlow = false
+            if (resourceItem['x-apigee-apply']) {
+              // Add conditonal flows
+              for (var service in resourceItem['x-apigee-apply']) {
+                if(resourceItem['x-apigee-apply'][service].endPoint.indexOf("proxy") > -1) {
+                  proxyFlow = true
+                } else if (resourceItem['x-apigee-apply'][service].endPoint.indexOf("target") > -1) {
+                  targetFlow = true
+                }
+              }
+            } // check for normal policies ends here
+            // Check for Security Policies
+            if (resourceItem['security']) {
+              proxyFlow = true
+            }
+            if (proxyFlow) {
+              var flowParser = proxyParser.documentElement.getElementsByTagName('Flows')[0]
+              flowParser.appendChild(new DOMParser().parseFromString(flow.end({  indent: '  ', newline: '\n' }),'text/xml'))
+            }
+            if (targetFlow) {
+              var flowParser = targetParser.documentElement.getElementsByTagName('Flows')[0]
+              flowParser.appendChild(new DOMParser().parseFromString(flow.end({  indent: '  ', newline: '\n' }),'text/xml'))
+            }
+          }  // methods check ends here
+        }  // for loop for resources ends here
+      }  // for loop for paths ends here
+      console.log(new XMLSerializer().serializeToString(targetParser))
+      console.log(new XMLSerializer().serializeToString(proxyParser))
+      zip.file('apiproxy/targets/default.xml', new XMLSerializer().serializeToString(targetParser))
+      zip.file('apiproxy/proxies/default.xml', new XMLSerializer().serializeToString(proxyParser))
+      callback(null, zip)
     }
   ], function (err, zip) {
     if (err) {

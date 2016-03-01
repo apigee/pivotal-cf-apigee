@@ -30,8 +30,6 @@ function apiKeyTemplate(options) {
 function apiKeyGenTemplate(options, name) {
   var templateOptions = options;
   templateOptions.name = name;
-  if (name == "apiKeyHeader") {
-    templateOptions.keyRef = "request.header.apikey";
-  }
+  templateOptions.keyRef = "request."+ options.in +"." + options.keyName;
   return apiKeyTemplate(templateOptions);
 }

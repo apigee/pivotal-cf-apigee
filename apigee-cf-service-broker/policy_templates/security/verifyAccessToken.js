@@ -12,7 +12,7 @@ function verifyAccessTokenTemplate(options) {
   var continueOnError = options.continueOnError || 'false';
   var enabled = options.enabled || 'true';
   var name = options.name || 'verifyAccessToken-' + random.randomText();
-  var keyRef = options.keyRef || 'request.queryparam.verifyAccessToken';
+  var keyRef = options.keyRef || 'request.header.Authorization';
 
   var verifyAccessToken = builder.create('OAuthV2');
   verifyAccessToken.att("async", aysnc);

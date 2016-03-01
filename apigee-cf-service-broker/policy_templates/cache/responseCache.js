@@ -51,8 +51,8 @@ function responseCacheTemplate(options) {
 
 function responseCacheGenTemplate(options, name) {
   var templateOptions = options;
-  templateOptions.keyFragment = options.name;
+  templateOptions.keyFragment = options.identifier;
   templateOptions.name = name;
-  templateOptions.timeoutInSec = Math.round(options.ttl / 1000);
+  templateOptions.timeoutInSec = options.time;
   return responseCacheTemplate(templateOptions);
 }
