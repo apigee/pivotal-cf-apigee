@@ -14,7 +14,6 @@ var config = require('../helpers/config')
 /* Mock Apigee API Calls using NOCK for testing */
 require('./helpers/api_mocks.js')
 
-
 describe('Starting Tests..', function () {
   this.timeout(0)
   var authHeader = 'Basic ' + new Buffer('admin:' + config.get('APIGEE_BROKER_PASSWORD')).toString('base64')

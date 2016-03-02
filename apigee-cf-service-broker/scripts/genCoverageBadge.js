@@ -19,8 +19,7 @@ console.log(opts)
 badger(opts, function parsingResults (err, badgeStatus) {
   if (err) {
     logger.handle_error(logger.codes.ERR_CODE_COVERAGE_BADGE, err)
-  }
-  else {
+  } else {
     logger.log.info('Badge successfully generated')
   }
 })
