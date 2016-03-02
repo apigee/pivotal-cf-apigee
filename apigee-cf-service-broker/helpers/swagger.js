@@ -7,18 +7,14 @@ var spike = require('../policy_templates/spikeArrest/spikeArrest.js')
 var cache = require('../policy_templates/cache/responseCache.js')
 var verifyApiKey = require('../policy_templates/security/apikey.js')
 var oauth2 = require('../policy_templates/security/verifyAccessToken.js')
+var xmlToJson = require('../policy_templates/mediation/xmlToJson.js')
+var jsonToXml = require('../policy_templates/mediation/jsonToXml.js')
 var DOMParser = require('xmldom').DOMParser
 var XMLSerializer = require('xmldom').XMLSerializer
 var builder = require('xmlbuilder')
 
 var generatePolicy = function(route, zip, cb) {
-  var routeUrl
-  if (process.env.NODE_ENV === 'TEST') {
-    routeUrl = 'http://' + route.bind_resource.route
-  }
-  else {
-    routeUrl = 'https://' + route.bind_resource.route
-  }
+  var routeUrl = 'http://' + route.bind_resource.route
   async.waterfall([
     // check for swagger
     function(callback) {
@@ -58,6 +54,14 @@ var generatePolicy = function(route, zip, cb) {
           if (policy == 'oAuthV2') {
             // Add cache Policies
             xmlString = oauth2.verifyAccessTokenGenTemplate(api['x-apigee-policies'][service].options, service);
+          }
+          if (policy == 'xmlToJson') {
+            // Add cache Policies
+            xmlString = xmlToJson.xmlToJsonGenTemplate(api['x-apigee-policies'][service].options, service);
+          }
+          if (policy == 'jsonToXml') {
+            // Add cache Policies
+            xmlString = jsonToXml.jsonToXmlGenTemplate(api['x-apigee-policies'][service].options, service);
           }
           if (xmlString != '') {
             zip.folder('apiproxy/policies').file(service  +".xml", xmlString)
@@ -131,41 +135,71 @@ var generatePolicy = function(route, zip, cb) {
           if (allowedVerbs.indexOf(resource.toUpperCase()) >= 0) {
             var resourceItem = api.paths[apiPath][resource];
             resourceItem.operationId = resourceItem.operationId || resource.toUpperCase() + ' ' + apiPath;
-            var flow = builder.create('Flow', { headless: true }).att('name', resourceItem.operationId);
+            var proxyFlowElement = builder.create('Flow', { headless: true }).att('name', resourceItem.operationId);
+            var targetFlowElement = builder.create('Flow', { headless: true }).att('name', resourceItem.operationId);
             var flowCondition = '(proxy.pathsuffix MatchesPath &quot;' + apiPath + '&quot;) and (request.verb = &quot;' + resource.toUpperCase() + '&quot;)';
-            flow.ele('Condition').raw(flowCondition);
-            flow.ele('Description', {}, resourceItem.summary);
-            var requestPipe = flow.ele('Request');
-            var responsePipe = flow.ele('Response');
+            proxyFlowElement.ele('Condition').raw(flowCondition);
+            proxyFlowElement.ele('Description', {}, resourceItem.summary);
+            targetFlowElement.ele('Condition').raw(flowCondition);
+            targetFlowElement.ele('Description', {}, resourceItem.summary);
+            var requestPipeProxy = proxyFlowElement.ele('Request');
+            var responsePipeProxy = proxyFlowElement.ele('Response');
+            var requestPipeTarget = targetFlowElement.ele('Request');
+            var responsePipeTarget = targetFlowElement.ele('Response');
             var proxyFlow = false
             var targetFlow = false
             if (resourceItem['x-apigee-apply']) {
-              // Add conditonal flows
+              // Check proxy / target conditonal flows has any policies
               for (var service in resourceItem['x-apigee-apply']) {
-                if(resourceItem['x-apigee-apply'][service].endPoint.indexOf("proxy") > -1) {
+                if(resourceItem['x-apigee-apply'][service].options.endPoint.indexOf("proxy") > -1) {
                   proxyFlow = true
-                } else if (resourceItem['x-apigee-apply'][service].endPoint.indexOf("target") > -1) {
+                  // Attach policies now
+                  if (resourceItem['x-apigee-apply'][service].options['on'].indexOf("request") > -1) {
+                    var step = requestPipeProxy.ele('Step', {});
+                    step.ele("Name", {}, service);
+                  }
+                  if (resourceItem['x-apigee-apply'][service].options['on'].indexOf("response") > -1) {
+                    var step = responsePipeProxy.ele('Step', {});
+                    step.ele("Name", {}, service);
+                  }
+                } else if (resourceItem['x-apigee-apply'][service].options.endPoint.indexOf("target") > -1) {
                   targetFlow = true
+                  // Attach policies now
+                  // Attach policies now
+                  if (resourceItem['x-apigee-apply'][service].options['on'].indexOf("request") > -1) {
+                    var step = requestPipeTarget.ele('Step', {});
+                    step.ele("Name", {}, service);
+                  }
+                  if (resourceItem['x-apigee-apply'][service].options['on'].indexOf("response") > -1) {
+                    var step = responsePipeTarget.ele('Step', {});
+                    step.ele("Name", {}, service);
+                  }
                 }
               }
             } // check for normal policies ends here
             // Check for Security Policies
             if (resourceItem['security']) {
               proxyFlow = true
+              // Attach policies now
+              for (var security in resourceItem['security']) {
+                for (var stepName in resourceItem['security'][security]) {
+                  // Attach verify access token policy..
+                  var step = requestPipeProxy.ele('Step', {});
+                  step.ele("Name", {}, stepName);
+                }
+              }
             }
             if (proxyFlow) {
               var flowParser = proxyParser.documentElement.getElementsByTagName('Flows')[0]
-              flowParser.appendChild(new DOMParser().parseFromString(flow.end({  indent: '  ', newline: '\n' }),'text/xml'))
+              flowParser.appendChild(new DOMParser().parseFromString(proxyFlowElement.end({  indent: '  ', newline: '\n' }),'text/xml'))
             }
             if (targetFlow) {
               var flowParser = targetParser.documentElement.getElementsByTagName('Flows')[0]
-              flowParser.appendChild(new DOMParser().parseFromString(flow.end({  indent: '  ', newline: '\n' }),'text/xml'))
+              flowParser.appendChild(new DOMParser().parseFromString(targetFlowElement.end({  indent: '  ', newline: '\n' }),'text/xml'))
             }
           }  // methods check ends here
         }  // for loop for resources ends here
       }  // for loop for paths ends here
-      console.log(new XMLSerializer().serializeToString(targetParser))
-      console.log(new XMLSerializer().serializeToString(proxyParser))
       zip.file('apiproxy/targets/default.xml', new XMLSerializer().serializeToString(targetParser))
       zip.file('apiproxy/proxies/default.xml', new XMLSerializer().serializeToString(proxyParser))
       callback(null, zip)
