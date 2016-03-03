@@ -128,14 +128,20 @@ var generatePolicy = function (route, zip, cb) {
       var proxyParser = new DOMParser().parseFromString(proxyText, 'text/xml')
       var targetParser = new DOMParser().parseFromString(targetText, 'text/xml')
       var allowedVerbs = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'TRACE', 'CONNECT', 'PATCH']
+
       for (var apiPath in api.paths) {
+
         for (var resource in api.paths[apiPath]) {
+
           if (allowedVerbs.indexOf(resource.toUpperCase()) >= 0) {
             var resourceItem = api.paths[apiPath][resource]
+
             resourceItem.operationId = resourceItem.operationId || resource.toUpperCase() + ' ' + apiPath
+
             var proxyFlowElement = builder.create('Flow', { headless: true }).att('name', resourceItem.operationId)
+
             var targetFlowElement = builder.create('Flow', { headless: true }).att('name', resourceItem.operationId)
-            var flowCondition = '(proxy.pathsuffix MatchesPath &quot;' + apiPath + '&quot;) and (request.verb = &quot;' + resource.toUpperCase() + '&quot;)'
+            var flowCondition = '(request.uri MatchesPath &quot;' + apiPath + '&quot;) and (request.verb = &quot;' + resource.toUpperCase() + '&quot;)'
             proxyFlowElement.ele('Condition').raw(flowCondition)
             proxyFlowElement.ele('Description', {}, resourceItem.summary)
             targetFlowElement.ele('Condition').raw(flowCondition)
