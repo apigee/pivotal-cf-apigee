@@ -15,12 +15,12 @@ var builder = require('xmlbuilder')
 var generatePolicy = function (route, zip, cb) {
   var routeUrl = 'http://' + route.bind_resource.route
   async.waterfall([
-    // check for swagger
+    // check for openApi
     function (callback) {
-      swaggerParser.parse(routeUrl + '/swagger.json', function (err, api, metadata) {
+      swaggerParser.parse(routeUrl + '/openApi.json', function (err, api, metadata) {
         if (err) {
           // TODO: Error / Warning
-          var loggerError = logger.handle_error(logger.codes.ERR_SWAGGER_NOT_FOUND, err)
+          var loggerError = logger.handle_error(logger.codes.ERR_OPENAPI_NOT_FOUND, err)
           callback(true, loggerError)
         } else {
           callback(null, api)
@@ -28,7 +28,7 @@ var generatePolicy = function (route, zip, cb) {
       })
     },
     function (api, callback) {
-      // Valid Swagger Found -- Look for A127 Policies
+      // Valid openApi Found -- Look for apigee Policies
       if (api['x-apigee-policies']) {
         async.each(Object.keys(api['x-apigee-policies']), function (service, cb) {
           // Perform operation on file here.

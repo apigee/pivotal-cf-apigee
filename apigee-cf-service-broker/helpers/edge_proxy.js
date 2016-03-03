@@ -10,7 +10,7 @@ var getVirtualHosts = require('./mgmt_api').getVirtualHosts
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var logger = require('./logger')
 var template = require('es6-template-strings')
-var swagger = require('./swagger.js')
+var openApi = require('./open_api.js')
 
 // create proxy in edge org
 function createProxy (data, cb) {
@@ -85,8 +85,8 @@ function getZip (proxyData, callback) {
           var targetNameTemplate = zip.file('apiproxy/targets/default.xml').asText()
           var targetUrl = 'https://' + proxyData.route.bind_resource.route
           zip.file('apiproxy/targets/default.xml', targetNameTemplate.replace(re4, targetUrl))
-          // Check for swagger & add policy support
-          swagger.generatePolicy(proxyData.route, zip, function(err, updatedZip) {
+          // Check for open Api & add policy support
+          openApi.generatePolicy(proxyData.route, zip, function(err, updatedZip) {
             if (err) {
               callback(null, this.zip.generate({type: 'nodebuffer'}))
             }

@@ -31,7 +31,7 @@ var codes = {
   ERR_REDIS_BINDING_DELETE_FAIL: 'E0066',
   ERR_REDIS_DELETE_GET_KEY_MISSING: 'E0067',
   ERR_CODE_COVERAGE_BADGE: 'E0070',
-  ERR_SWAGGER_NOT_FOUND: 'E0080',
+  ERR_OPENAPI_NOT_FOUND: 'E0080',
   ERR_POLICIES_NOT_FOUND: 'E0081',
   ERR_INVALID_OPENAPI_SPEC: 'E0082'
 }
@@ -66,7 +66,7 @@ var messages = {
   E0066: 'Route Binding Delete failed',
   E0067: 'Service instance details not found in redis',
   E0070: 'Error generating code coverage badge',
-  E0081: 'Unable to find policies in swagger spec',
+  E0081: 'Unable to find policies in Open API spec',
   E0082: 'Invalid Open API Spec, Check policy attachment'
 }
 
