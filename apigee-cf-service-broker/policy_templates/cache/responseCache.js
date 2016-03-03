@@ -27,7 +27,7 @@ function responseCacheTemplate (options) {
 
   var cacheKey = cache.ele('CacheKey', {})
   cacheKey.ele('Prefix', {})
-  cacheKey.ele('KeyFragment', {ref: keyFragmentRef, type: 'string'}, keyFragment)
+  cacheKey.ele('KeyFragment', {ref: keyFragmentRef, type: 'string'})
 
   cache.ele('Scope', {}, scope)
   var expirySettings = cache.ele('ExpirySettings', {})
