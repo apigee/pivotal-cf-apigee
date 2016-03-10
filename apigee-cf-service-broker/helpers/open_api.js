@@ -82,44 +82,50 @@ var generatePolicy = function (route, zip, cb) {
     },
     function (api, zip, callback) {
       // Attach policies to preFlow / postFlow
-      var proxyText = zip.file('apiproxy/proxies/default.xml').asText()
-      var targetText = zip.file('apiproxy/targets/default.xml').asText()
-      var proxyParser = new DOMParser().parseFromString(proxyText, 'text/xml')
-      var targetParser = new DOMParser().parseFromString(targetText, 'text/xml')
-      async.each(Object.keys(api['x-apigee-apply']), function (service, cb) {
-        var flow = api['x-apigee-apply'][service].options.flow.charAt(0).toUpperCase() + api['x-apigee-apply'][service].options.flow.slice(1)
-        var reqRes = api['x-apigee-apply'][service].options['on'].charAt(0).toUpperCase() + api['x-apigee-apply'][service].options['on'].slice(1)
-        if (api['x-apigee-apply'][service].options.endPoint === 'proxy') {
-          try {
-            var flowParser = proxyParser.documentElement.getElementsByTagName(flow)[0]
-            var flowReqRes = flowParser.getElementsByTagName(reqRes)[0]
-            flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
-          } catch (ex) {
-            // do nothing, just print error to log
-            logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+      if (api['x-apigee-apply']) {
+        var proxyText = zip.file('apiproxy/proxies/default.xml').asText()
+        var targetText = zip.file('apiproxy/targets/default.xml').asText()
+        var proxyParser = new DOMParser().parseFromString(proxyText, 'text/xml')
+        var targetParser = new DOMParser().parseFromString(targetText, 'text/xml')
+        async.each(Object.keys(api['x-apigee-apply']), function (service, cb) {
+          var flow = api['x-apigee-apply'][service].options.flow.charAt(0).toUpperCase() + api['x-apigee-apply'][service].options.flow.slice(1)
+          var reqRes = api['x-apigee-apply'][service].options['on'].charAt(0).toUpperCase() + api['x-apigee-apply'][service].options['on'].slice(1)
+          if (api['x-apigee-apply'][service].options.endPoint === 'proxy') {
+            try {
+              var flowParser = proxyParser.documentElement.getElementsByTagName(flow)[0]
+              var flowReqRes = flowParser.getElementsByTagName(reqRes)[0]
+              flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
+            } catch (ex) {
+              // do nothing, just print error to log
+              logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+            }
           }
-        } else if (api['x-apigee-apply'][service].options.endPoint === 'target') {
-          try {
-            var flowParser = targetParser.documentElement.getElementsByTagName(flow)[0]
-            var flowReqRes = flowParser.getElementsByTagName(reqRes)[0]
-            flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
-          } catch (ex) {
-            // do nothing, just print error to log
-            logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+          else if (api['x-apigee-apply'][service].options.endPoint === 'target') {
+            try {
+              var flowParser = targetParser.documentElement.getElementsByTagName(flow)[0]
+              var flowReqRes = flowParser.getElementsByTagName(reqRes)[0]
+              flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
+            } catch (ex) {
+              // do nothing, just print error to log
+              logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+            }
           }
-        }
-        cb(null)
-      }, function (err) {
-        // if any of the file processing produced an error, err would equal that error
-        if (err) {
-          callback(true, err)
-        } else {
-          // Add back to zip
-          zip.file('apiproxy/targets/default.xml', new XMLSerializer().serializeToString(targetParser))
-          zip.file('apiproxy/proxies/default.xml', new XMLSerializer().serializeToString(proxyParser))
-          callback(null, api, zip)
-        }
-      })
+          cb(null)
+        }, function (err) {
+          // if any of the file processing produced an error, err would equal that error
+          if (err) {
+            callback(true, err)
+          }
+          else {
+            // Add back to zip
+            zip.file('apiproxy/targets/default.xml', new XMLSerializer().serializeToString(targetParser))
+            zip.file('apiproxy/proxies/default.xml', new XMLSerializer().serializeToString(proxyParser))
+            callback(null, api, zip)
+          }
+        })
+      } else {
+        callback(null, api, zip)
+      }
     },
     function (api, zip, callback) {
       // Attach conditional flows
