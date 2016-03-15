@@ -8,17 +8,17 @@ var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var crypto = require('crypto')
 var config = require('../helpers/config')
 var logger = require('./logger')
+var cfenv = require('cfenv')
 
 // redis client
 // parsing redis cloud credentials
-// TODO: fix this to be right
+var appEnv = cfenv.getAppEnv()
 var rclient
 var options
 if (process.env.NODE_ENV === 'TEST') {
   rclient = require('redis-mock').createClient()
 } else {
-  var vcap_services = process.env.VCAP_SERVICES
-  var credentials = JSON.parse(vcap_services)['p-redis'][0].credentials
+  var credentials = appEnv.getServiceCreds('apigee-redis')
   options = {
     port: credentials.port,
     host: credentials.host,
