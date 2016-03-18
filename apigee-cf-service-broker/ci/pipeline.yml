@@ -44,7 +44,7 @@ resources:
   source:
     branch: master
     pool: pcf
-    private_key: {{{pcf-key}} 
+    private_key: {{pcf-key}} 
     uri: git@github.com:cf-platform-eng/pipeline-resource-pool
 jobs:
 - name: build-tile
@@ -59,7 +59,7 @@ jobs:
       platform: linux
       image: docker:///guidowb/tile-pipeline
       run:
-        path: apigee-tile-repo/ci/scripts/tile-build.sh
+        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/tile-build.sh
         args:
         - tile-generator-repo
         - apigee-tile-repo
@@ -108,7 +108,7 @@ jobs:
       platform: linux
       image: docker:///guidowb/tile-pipeline
       run:
-        path: apigee-tile-repo/ci/scripts/run-deploytile.sh
+        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-deploytile.sh
         args:
         - tile-generator-repo
         - apigee-tile-repo
@@ -137,7 +137,7 @@ jobs:
       platform: linux
       image: docker:///guidowb/tile-pipeline
       run:
-        path: apigee-tile-repo/ci/scripts/run-deploymenttests.sh
+        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-deploymenttests.sh
         args:
         - tile-generator-repo
         - pcf-environment
@@ -163,7 +163,7 @@ jobs:
       platform: linux
       image: docker:///guidowb/tile-pipeline
       run:
-        path: apigee-tile-repo/ci/scripts/run-removetile.sh
+        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-removetile.sh
         args:
         - tile-generator-repo
         - apigee-tile
@@ -202,7 +202,7 @@ jobs:
       platform: linux
       image: docker:///guidowb/tile-pipeline
       run:
-        path: apigee-tile-repo/ci/scripts/run-removetile.sh
+        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-removetile.sh
         args:
         - tile-generator-repo
         - apigee-tile
