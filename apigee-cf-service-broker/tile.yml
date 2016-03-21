@@ -17,16 +17,9 @@ description: POC service broker for Apigee Edge
 packages:
 - name: apigee-cf-service-broker
   type: app-broker
-  uri: app.example.com
-  files:
-  - path: resources/apigee.tgz
-# start_command: start_here.sh
-# health_monitor: true
-# create_open_security_group: true
-# org_quota: 2048
-# memory: 1024
-# persistence_store: true
-  bind_to_service: apigee-redis
+  manifest:
+    path: resources/apigee.tgz
+  auto_services: apigee-redis
 
 # Include stemcell criteria if you don't want to accept the default.
 # Since this stemcell is only used to run pre and post errands, we
