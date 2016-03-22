@@ -197,6 +197,25 @@ jobs:
       passed:
       - claim-pcf
     - get: apigee-tile-repo
+  - task: remove-tile
+    config:
+      platform: linux
+      image: docker:///guidowb/tile-pipeline
+      run:
+        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-removetile.sh
+        args:
+        - tile-generator-repo
+        - apigee-tile
+        - pcf-environment
+      inputs:
+      - name: tile-generator-repo
+        path: ""
+      - name: pcf-environment
+        path: ""
+      - name: apigee-tile
+        path: ""
+      - name: apigee-tile-repo
+        path: ""
   - put: pcf-environment
     params:
       release: pcf-environment
