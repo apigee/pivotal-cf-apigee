@@ -29,6 +29,8 @@ node_modules
 # Webstorm ide
 .idea/
 release/
+product/
+*/resources/*.tgz
 credentials.yml
 #redis
 dump.rdb
