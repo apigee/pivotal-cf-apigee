@@ -30,7 +30,7 @@ node_modules
 .idea/
 release/
 product/
-*/resources/*.tgz
+*/resources/*.zip
 credentials.yml
 #redis
 dump.rdb
