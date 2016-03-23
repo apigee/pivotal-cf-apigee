@@ -14,7 +14,7 @@ if [ -n "${HISTORY}" ]; then
 	cp ${HISTORY} ${SOURCE_DIR}/tile-history.yml
 fi
 
-(cd ${SOURCE_DIR}; tar -zcvf apigee.tgz .; $TILE build)
+(cd ${SOURCE_DIR}; zip -r resources/apigee.zip server.js package.json; $TILE build)
 
 VERSION=`grep '^version:' ${SOURCE_DIR}/tile-history.yml | sed 's/^version: //'`
 HISTORY="tile-history-${VERSION}.yml"

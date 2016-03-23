@@ -27,7 +27,7 @@ packages:
       APIGEE_PROXY_HOST_PATTERN: "#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}"
       APIGEE_PROXY_NAME_PATTERN: "cf-#{routeName}"
       APIGEE_MGMT_API_URL: https://api.enterprise.apigee.com/v1
-    path: resources/apigee.tgz
+    path: resources/apigee.zip
   auto_services: apigee-redis
 
 # Include stemcell criteria if you don't want to accept the default.
