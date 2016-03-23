@@ -28,7 +28,10 @@ packages:
       APIGEE_PROXY_NAME_PATTERN: "cf-#{routeName}"
       APIGEE_MGMT_API_URL: https://api.enterprise.apigee.com/v1
     path: resources/apigee.zip
-  auto_services: apigee-redis
+  auto_services:
+  - name: p-redis
+    plan: shared-vm
+
 
 # Include stemcell criteria if you don't want to accept the default.
 # Since this stemcell is only used to run pre and post errands, we
