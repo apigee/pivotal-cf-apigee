@@ -18,7 +18,7 @@ var options
 if (process.env.NODE_ENV === 'TEST') {
   rclient = require('redis-mock').createClient()
 } else {
-  var credentials = appEnv.getServiceCreds('apigee-redis')
+  var credentials = appEnv.getServiceCreds('apigee_cf_service_broker-p-redis')
   options = {
     port: credentials.port,
     host: credentials.host,
