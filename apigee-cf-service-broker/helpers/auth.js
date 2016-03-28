@@ -26,7 +26,7 @@ var staticauth = function (req, res, next) {
   }
 
   console.log(require('util').inspect(appEnv, { depth: null }));
-  if (user.name === appEnv.app.SECURITY_USER_NAME) && (user.pass === appEnv.SECURITY_USER_PASSWORD)) {
+  if ((user.name === appEnv.app.SECURITY_USER_NAME) && (user.pass === appEnv.SECURITY_USER_PASSWORD)) {
     return next()
   } else {
     return unauthorized(res)
