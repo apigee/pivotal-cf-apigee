@@ -10,8 +10,6 @@ var basicAuth = require('basic-auth')
 var request = require('request')
 var mgmt_api = require('./mgmt_api')
 var config = require('../helpers/config')
-var cfenv = require('cfenv')
-var appEnv = cfenv.getAppEnv()
 
 // hardcoded admin/password - testing only
 var staticauth = function (req, res, next) {
@@ -26,7 +24,7 @@ var staticauth = function (req, res, next) {
   }
 
   console.log(require('util').inspect(appEnv, { depth: null }));
-  if ((user.name === appEnv.app.SECURITY_USER_NAME) && (user.pass === appEnv.SECURITY_USER_PASSWORD)) {
+  if (user.name === config.get('SECURITY_USER_NAME') && user.pass === config.get('SECURITY_USER_PASSWORD')) {
     return next()
   } else {
     return unauthorized(res)
