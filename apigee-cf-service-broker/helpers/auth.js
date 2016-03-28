@@ -23,7 +23,6 @@ var staticauth = function (req, res, next) {
     return unauthorized(res)
   }
 
-  console.log(require('util').inspect(appEnv, { depth: null }));
   if (user.name === config.get('SECURITY_USER_NAME') && user.pass === config.get('SECURITY_USER_PASSWORD')) {
     return next()
   } else {
