@@ -15,8 +15,4 @@ if (process.env.NODE_ENV === 'TEST') {
   nconf.defaults(defaults.env)
 }
 
-var randomPass = require('crypto').randomBytes(18).toString('base64')
-nconf.set('APIGEE_BROKER_PASSWORD', randomPass)
-log.info('Using default password for application endpoints:', nconf.get('APIGEE_BROKER_PASSWORD'))
-
 module.exports = nconf
