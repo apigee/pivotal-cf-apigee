@@ -20,21 +20,11 @@ packages:
   manifest:
     command: node server.js
     buildpack: nodejs_buildpack
-    env:
-      APIGEE_BROKER_PASSPHRASE: secret
-      APIGEE_DASHBOARD_URL: https://enterprise.apigee.com/platform/#/
-      APIGEE_PROXY_HOST: apigee.net
-      APIGEE_PROXY_HOST_PATTERN: "#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}"
-      APIGEE_PROXY_NAME_PATTERN: "cf-#{routeName}"
-      APIGEE_MGMT_API_URL: https://api.enterprise.apigee.com/v1
     path: resources/apigee.zip
   auto_services:
   - name: p-redis
     plan: shared-vm
-  enable_global_access_to_plans: true`
-
-      
-
+  enable_global_access_to_plans: true
 
 # Include stemcell criteria if you don't want to accept the default.
 # Since this stemcell is only used to run pre and post errands, we
@@ -86,12 +76,12 @@ forms:
     type: string
     label: Apigee Proxy Host Pattern
     description: pattern to use to create proxy host
-    default: "#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}"
+    default: '#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}'
   - name: apigee_proxy_name_pattern
     type: string
     label: Apigee Proxy Name Pattern
     description: pattern to use to create proxy name
-    default: "cf-#{routeName}"
+    default: 'cf-#{routeName}'
   - name: apigee_mgmt_api_url
     type: string
     label: Apigee Management API URL
