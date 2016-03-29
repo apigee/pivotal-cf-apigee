@@ -31,6 +31,9 @@ packages:
   auto_services:
   - name: p-redis
     plan: shared-vm
+  enable_global_access_to_plans: true`
+
+      
 
 
 # Include stemcell criteria if you don't want to accept the default.
@@ -59,13 +62,38 @@ stemcell_criteria:
 # elsewhere in this template by using:
 #     (( .properties.<property-name> ))
 # 
-#forms:
-# - name: buildpack_properties
-#   label: Buildpack
-#   description: Buildpack_properties
-#   properties:
-#   - name: buildpack_rank
-#     type: integer
-#     default: 0
-#     label: Buildpack rank for this buildpack_rank
-#     description: Ranking of this buildpack relative to others
+forms:
+- name: apigee-form
+  label: Apigee Edge Tile
+  description: Custom Properties for Apigee Edge
+  properties:
+  - name: apigee_broker_passphrase
+    type: string
+    label: Broker Passphrase
+    description: Passphrase used to encrypt redis datastore
+    default: secret
+  - name: apigee_dashboard_url
+    type: string
+    label: Dashboard URL
+    description: URL to Apigee dashboard
+    default: https://enterprise.apigee.com/platform/#/
+  - name: apigee_proxy_host
+    type: string
+    label: Apigee Proxy Host
+    description: Domain of Apigee proxy host
+    default: apigee.net
+  - name: apigee_proxy_host_pattern
+    type: string
+    label: Apigee Proxy Host Pattern
+    description: pattern to use to create proxy host
+    default: "#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}"
+  - name: apigee_proxy_name_pattern
+    type: string
+    label: Apigee Proxy Name Pattern
+    description: pattern to use to create proxy name
+    default: "cf-#{routeName}"
+  - name: apigee_mgmt_api_url
+    type: string
+    label: Apigee Management API URL
+    description: URL to the Apigee management API
+    default: https://api.enterprise.apigee.com/v1
