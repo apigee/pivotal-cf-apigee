@@ -57,7 +57,7 @@ forms:
   label: Apigee Edge Tile
   description: Custom Properties for Apigee Edge
   properties:
-  - name: apigee_broker_passphrase
+  - name: apigee_redis_passphrase
     type: string
     label: Broker Passphrase
     description: Passphrase used to encrypt redis datastore

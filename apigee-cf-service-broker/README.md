@@ -40,7 +40,7 @@ The sample values are appropriate for a SaaS Edge account. For a private cloud (
 
 Item | Purpose | Example
 ---- | ---- | ----
-APIGEE_BROKER_PASSPHRASE | passphrase used to encrypt data in Redis store | `correct horse battery staple`
+APIGEE_REDIS_PASSPHRASE | passphrase used to encrypt data in Redis store | `correct horse battery staple`
 APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/` for SaaS Edge.
 APIGEE_PROXY_HOST | Hostname for API Proxies. | `apigee.net` for Free SaaS accounts.
 APIGEE_PROXY_HOST_PATTERN | Pattern for generating proxy URL | `#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}` for Free SaaS accounts.
