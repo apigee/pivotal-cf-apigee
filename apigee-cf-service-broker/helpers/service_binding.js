@@ -22,7 +22,7 @@ function createServiceBinding (route, callback) {
       } else {
         // get org and environment and continue
         // logger.log.info({data: data}, 'Service Binding get service instance org')
-        var filteredData = {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
+        var filteredData = {host: data.host, hostpattern: data.hostpattern, org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
         filteredData.route = route
         cb(null, filteredData)
       }

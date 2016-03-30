@@ -57,7 +57,7 @@ forms:
   label: Apigee Edge Tile
   description: Custom Properties for Apigee Edge
   properties:
-  - name: apigee_broker_passphrase
+  - name: apigee_redis_passphrase
     type: string
     label: Broker Passphrase
     description: Passphrase used to encrypt redis datastore
@@ -72,11 +72,6 @@ forms:
     label: Apigee Proxy Host
     description: Domain of Apigee proxy host
     default: apigee.net
-  - name: apigee_proxy_host_pattern
-    type: string
-    label: Apigee Proxy Host Pattern
-    description: pattern to use to create proxy host
-    default: "${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}"
   - name: apigee_mgmt_api_url
     type: string
     label: Apigee Management API URL

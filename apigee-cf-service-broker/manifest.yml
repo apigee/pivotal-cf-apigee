@@ -8,6 +8,4 @@ buildpack: nodejs_buildpack
 env:
   APIGEE_REDIS_PASSPHRASE: set passphrase here
   APIGEE_DASHBOARD_URL: https://enterprise.apigee.com/platform/#/
-  APIGEE_PROXY_HOST: apigee.net
-  APIGEE_PROXY_HOST_PATTERN: "${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}"
   APIGEE_MGMT_API_URL: https://api.enterprise.apigee.com/v1

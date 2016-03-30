@@ -130,7 +130,7 @@ function putServiceInstanceRedis (instance, callback) {
 }
 
 function getServiceInstanceRedis (instance_id, callback) {
-  var decipher = crypto.createDecipher('aes192', config.get('APIGEE_BROKER_PASSPHRASE'))
+  var decipher = crypto.createDecipher('aes192', config.get('APIGEE_REDIS_PASSPHRASE'))
   var key = instance_id
   rclient.hget('serviceInstance', key, function (err, result) {
     if (err) {
