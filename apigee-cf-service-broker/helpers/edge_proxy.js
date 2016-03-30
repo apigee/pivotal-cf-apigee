@@ -19,10 +19,9 @@ function createProxy (data, cb) {
   var route = data.route
   // TODO: this is brittle. Refactor. Goal is to support some configurability, but the code needs to match the template, or the avaliable variables need to be documented
   var routeName = route.bind_resource.route
-  var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
-  proxyNameTemplate = proxyNameTemplate.replace(/#/g, '$')
+  //var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
+  var proxyNameTemplate = 'cf-${routeName}'
   var proxyHostTemplate = config.get('APIGEE_PROXY_HOST_PATTERN')
-  proxyHostTemplate = proxyHostTemplate.replace(/#/g, '$')
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
   uploadProxy({route: data.route, user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {

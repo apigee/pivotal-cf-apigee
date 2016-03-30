@@ -115,7 +115,7 @@ function deleteBindingKVM (route, callback) {
 
 // Redis storage
 function putServiceInstanceRedis (instance, callback) {
-  var cipher = crypto.createCipher('aes192', config.get('APIGEE_BROKER_PASSPHRASE'))
+  var cipher = crypto.createCipher('aes192', config.get('APIGEE_REDIS_PASSPHRASE'))
   var key = instance.instance_id
   instance = cipher.update(JSON.stringify(instance), 'utf-8', 'hex')
   instance += cipher.final('hex')

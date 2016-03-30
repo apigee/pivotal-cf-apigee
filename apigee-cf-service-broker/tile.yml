@@ -51,7 +51,7 @@ stemcell_criteria:
 # applications as environment variables. You can also refer to them
 # elsewhere in this template by using:
 #     (( .properties.<property-name> ))
-# 
+#
 forms:
 - name: apigee-form
   label: Apigee Edge Tile
@@ -76,12 +76,7 @@ forms:
     type: string
     label: Apigee Proxy Host Pattern
     description: pattern to use to create proxy host
-    default: '#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}'
-  - name: apigee_proxy_name_pattern
-    type: string
-    label: Apigee Proxy Name Pattern
-    description: pattern to use to create proxy name
-    default: 'cf-#{routeName}'
+    default: "${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}"
   - name: apigee_mgmt_api_url
     type: string
     label: Apigee Management API URL
