@@ -16,7 +16,7 @@ resources:
   type: git
   source:
     uri: git@github.com:apigee/pivotal-cf-apigee.git
-    branch: ci
+    branch: master
     private_key: {{git-key}}
 - name: tile-generator-repo
   type: git
