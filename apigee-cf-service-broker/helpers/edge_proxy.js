@@ -14,22 +14,24 @@ var openApi = require('./open_api.js')
 
 // create proxy in edge org
 function createProxy (data, cb) {
+  var apigeeHost = data.host
+  var apigeeHostPattern = data.hostpattern
   var org = data.org
   var env = data.env
   var route = data.route
   // TODO: this is brittle. Refactor. Goal is to support some configurability, but the code needs to match the template, or the avaliable variables need to be documented
   var routeName = route.bind_resource.route
-  var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
-  proxyNameTemplate = proxyNameTemplate.replace(/#/g, '$')
-  var proxyHostTemplate = config.get('APIGEE_PROXY_HOST_PATTERN')
-  proxyHostTemplate = proxyHostTemplate.replace(/#/g, '$')
+  // restore if we expose proxy naming template to end users
+  // var proxyNameTemplate = config.get('APIGEE_PROXY_NAME_PATTERN')
+  var proxyNameTemplate = 'cf-${routeName}'
+  var proxyHostTemplate = apigeeHostPattern || '${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}'
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
   uploadProxy({route: data.route, user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_PROXY_UPLOAD_FAILED, err)
       cb(true, loggerError)
     } else {
-      var proxyHost = config.get('APIGEE_PROXY_HOST')
+      var proxyHost = apigeeHost || 'apigee.net'
       var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
       route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
       route.proxyname = proxyName

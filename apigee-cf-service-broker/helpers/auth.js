@@ -22,7 +22,8 @@ var staticauth = function (req, res, next) {
   if (!user || !user.name || !user.pass) {
     return unauthorized(res)
   }
-  if (user.name === 'admin' && user.pass === config.get('APIGEE_BROKER_PASSWORD')) {
+
+  if (user.name === config.get('SECURITY_USER_NAME') && user.pass === config.get('SECURITY_USER_PASSWORD')) {
     return next()
   } else {
     return unauthorized(res)

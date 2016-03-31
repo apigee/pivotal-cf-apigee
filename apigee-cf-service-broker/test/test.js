@@ -16,7 +16,7 @@ require('./helpers/api_mocks.js')
 
 describe('Starting Tests..', function () {
   this.timeout(0)
-  var authHeader = 'Basic ' + new Buffer('admin:' + config.get('APIGEE_BROKER_PASSWORD')).toString('base64')
+  var authHeader = 'Basic ' + new Buffer(config.get('SECURITY_USER_NAME') + ':' + config.get('SECURITY_USER_PASSWORD')).toString('base64')
   var badAuthHeader = 'Basic ' + new Buffer('admin:' + 'wrong-password').toString('base64')
   before(function () {  // eslint-disable-line
     app = server.listen(8000)

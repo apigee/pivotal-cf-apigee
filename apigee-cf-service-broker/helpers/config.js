@@ -13,10 +13,8 @@ if (process.env.NODE_ENV === 'TEST') {
   var fs = require('fs')
   var defaults = yaml.safeLoad(fs.readFileSync('manifest.yml', 'utf8'))
   nconf.defaults(defaults.env)
+  nconf.set('SECURITY_USER_PASSWORD', 'testing')
+  nconf.set('SECURITY_USER_NAME', 'tester')
 }
-
-var randomPass = require('crypto').randomBytes(18).toString('base64')
-nconf.set('APIGEE_BROKER_PASSWORD', randomPass)
-log.info('Using default password for application endpoints:', nconf.get('APIGEE_BROKER_PASSWORD'))
 
 module.exports = nconf

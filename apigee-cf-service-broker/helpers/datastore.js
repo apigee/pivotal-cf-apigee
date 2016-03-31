@@ -18,7 +18,7 @@ var options
 if (process.env.NODE_ENV === 'TEST') {
   rclient = require('redis-mock').createClient()
 } else {
-  var credentials = appEnv.getServiceCreds('apigee-redis')
+  var credentials = appEnv.getServiceCreds('apigee_cf_service_broker-p-redis')
   options = {
     port: credentials.port,
     host: credentials.host,
@@ -115,7 +115,7 @@ function deleteBindingKVM (route, callback) {
 
 // Redis storage
 function putServiceInstanceRedis (instance, callback) {
-  var cipher = crypto.createCipher('aes192', config.get('APIGEE_BROKER_PASSPHRASE'))
+  var cipher = crypto.createCipher('aes192', config.get('APIGEE_REDIS_PASSPHRASE'))
   var key = instance.instance_id
   instance = cipher.update(JSON.stringify(instance), 'utf-8', 'hex')
   instance += cipher.final('hex')
@@ -130,7 +130,7 @@ function putServiceInstanceRedis (instance, callback) {
 }
 
 function getServiceInstanceRedis (instance_id, callback) {
-  var decipher = crypto.createDecipher('aes192', config.get('APIGEE_BROKER_PASSPHRASE'))
+  var decipher = crypto.createDecipher('aes192', config.get('APIGEE_REDIS_PASSPHRASE'))
   var key = instance_id
   rclient.hget('serviceInstance', key, function (err, result) {
     if (err) {

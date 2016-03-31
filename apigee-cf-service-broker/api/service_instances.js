@@ -36,7 +36,9 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
     apigee_org: req.body.parameters.org,
     apigee_env: req.body.parameters.env,
     apigee_user: req.body.parameters.user,
-    apigee_pass: req.body.parameters.pass
+    apigee_pass: req.body.parameters.pass,
+    host: req.body.parameters.host,
+    hostpattern: req.body.parameters.hostpattern
   }
   service_instance.create(instance, function (err, data) {
     if (err) {
