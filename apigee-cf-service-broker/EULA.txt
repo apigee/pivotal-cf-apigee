@@ -1,0 +1,131 @@
+APIGEE TERMS OF SERVICE
+
+This license agreement for the Services contains the terms and conditions for the Apigee products (“Services”) and is between Apigee Corporation (“Apigee”) and the party agreeing to the terms of this license agreement (“Customer”).  By clicking an "Accept" or similar button, completing a registration process, and/ or otherwise using any of the Services, Customer agrees to be bound by the terms of this this license agreement (“Agreement”). Customer may not use the Services without agreeing to this Agreement first.  If the party executing this Agreement is entering into this Agreement on behalf of a company or other legal entity, the party represents and warrants that it has the authority to bind such entity to this Agreement. If a written agreement regarding Customer’s use of the Services exists between and has been executed by both Customer and Apigee, the terms of that written agreement shall take precedence over this Agreement.
+1. Provision of the Service.
+
+1.1 Generally. Subject to the terms and conditions of this Agreement, Apigee grants Customer a limited, nonexclusive, non-transferable license to use and evaluate the Services for its internal business purposes only.  Customer will adhere to all laws, rules, and regulations applicable to its use of the Services, including this Agreement, the Acceptable Use Policy and the other restrictions contained herein.  Please note that if Customer is a government or public entity, Section 15 also applies to Customer.
+
+1.2  Security.  Apigee will, in its discretion, implement reasonable and appropriate measures to safeguard Customer’s Content, Customer’s Confidential Information, and the integrity of the Services.
+
+1.3  Customer’s Account. To access the Services, Customer must create an account and is responsible for the information it provides to create the account, the security of Customer’s passwords, and any and all uses of the account. If Customer becomes aware of any suspected or actual misuse or compromise of its account, Customer will immediately notify Apigee.
+
+1.4 Open Source Components.  Some portions of the Services may contain open source code, which is governed by a separate license. In the event of a conflict between this Agreement and any such separate license, the separate license will prevail with respect to the applicable open source code. 
+
+2.  Capacity Limitations and Restrictions.
+
+2.1  Capacity Limitations.  Customer’s use of the Services is subject to (a) 25 Gigabytes of total storage and (b) 10 million free push notifications per month.
+
+2.2 Use Restrictions. Customer shall not:  (a) resell, sublicense, lease, time-share or otherwise make the Services available to any third party; (b) send or store infringing or unlawful material using the Services; (c) attempt to gain unauthorized access to, or disrupt the integrity or performance of, the Services or the data contained therein; (d) modify, copy or create derivative works based on the Services; (e) reverse engineer the Services; (f) propagate any virus, worms, Trojan horses, or other programming routine intended to damage any system or data; (g) access the Services for the purpose of building a competitive product or service or copying its features or user interface; (h) use the Services, or permit it to be used, for purposes of product evaluation, benchmarking or other comparative analysis intended for publication without Apigee's prior written consent; or (i) permit access to the Services by a direct competitor of Apigee. 
+
+2.3 Load Testing. Customer shall not conduct load or performance tests on the Services.
+
+3.  Changes.
+
+3.1 Service.  Apigee may change or discontinue, any of the Services features (or Services as a whole) from time to time in its sole discretion and without notice.
+
+3.2  Agreement.  Apigee may make changes to this Agreement, including fees from time to time. Changes will become effective thirty (30) days after they are posted online by Apigee (where this Agreement is posted), except for non-material changes or enhancements to the Services, which will become effective immediately. Customer’s continued use of the Services constitutes Customer’s consent to the changes.  If Customer does not agree to the changes, Customer must stop using the Services.
+
+4.  Support.
+
+Apigee may, in its sole discretion, provide updates, modifications or bug fixes for the Services to Customer. Any such updates, modifications, or bug fixes shall be deemed part of the Services and subject to the license and other terms and conditions hereunder.
+
+5.  Fees.
+
+The Services are provided pursuant to this Agreement are for free.  However unlikely, Customer is responsible for any and all taxes related to its use of the Services.  If Customer desires to go over the thresholds contained in Section 2.1, Customer may enter into Apigee’s agreement for fee based services.
+6.  Intellectual Property Rights; Ownership.
+
+6.1  Apigee Ownership.  Customer acknowledges and agrees that Apigee owns all right, title and interest (including without limitation all patents, copyrights, trade secrets or other proprietary rights) in the Services, and any modifications, corrections or enhancements thereto, whether or not made by Apigee. Customer further acknowledges that the Services contains valuable trade secrets and confidential information of Apigee, including but not limited to the specifications, functionality and performance thereof, and shall take all reasonable precautions to prevent any disclosure of such information except as expressly permitted in this Agreement. Apigee shall own all intellectual property rights in any feedback or suggestions provided by Customer (“Feedback”) and Feedback will be deemed Apigee Confidential Information.
+
+6.2  Customer Ownership.  Any Customer Content is owned by Customer.
+
+7. Confidentiality.
+
+7.1.  Defined.  As used herein, "Confidential Information" means all confidential and proprietary information of a party ("Disclosing Party") disclosed to the other party ("Receiving Party"), whether orally or in writing, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure, including the Services, documentation, business and marketing plans, technology and technical information, product designs, and business processes. 
+
+7.2  Exceptions.  Confidential Information shall not include any information that:  (i) is or becomes generally known to the public without breach of any obligation owed to Disclosing Party; (ii) was known to Receiving Party prior to its disclosure by Disclosing Party without breach of any obligation owed to Disclosing Party; (iii) was independently developed by Receiving Party without breach of any obligation owed to Disclosing Party; or (iv) is received from a third party without breach of any obligation owed to Disclosing Party.
+
+7.3   Obligations.  Receiving Party shall not disclose any Confidential Information of Disclosing Party for any purpose outside the scope of this Agreement, except with Disclosing Party's prior written consent. Receiving Party shall protect the confidentiality of Disclosing Party's Confidential Information in the same manner that it protects the confidentiality of its own confidential information of like kind (but in no event using less than reasonable care). Receiving Party shall promptly notify Disclosing Party if it becomes aware of any actual or reasonably suspected breach of confidentiality of Disclosing Party's Confidential Information.
+
+7.4   Required Disclosure.  If Receiving Party is compelled by law to disclose Confidential Information of Disclosing Party, it shall provide Disclosing Party with prior notice of such compelled disclosure (to the extent legally permitted) and reasonable assistance, at Disclosing Party's cost, if Disclosing Party wishes to contest the disclosure.
+
+7.5   Additional Rights.  If Receiving Party discloses (or threatens to disclose) any Confidential Information of Disclosing Party in breach of confidentiality protections hereunder, Disclosing Party shall have the right, in addition to any other remedies available to it, to seek injunctive relief to enjoin such acts, it being acknowledged by the parties that any other available remedies are inadequate.
+
+8.  Privacy.
+
+Apigee’s privacy policies and practices may be found at http://apigee.com/about/privacy.  Apigee will abide by those policies and practices in the provision of the Services to Customer.  In addition Apigee may use, for its business purposes, data, text, and files that pass through and/or may be generated by the use of the Services in anonymized format.
+
+9.  Indemnity.
+
+9.1  By Apigee.  Apigee will defend or settle any action brought against Customer to the extent that it is based upon a claim that the Services, as provided by Apigee to Customer under this Agreement and used within the scope of this Agreement, infringe any copyright or misappropriates any trade secret, and will pay any costs, damages and reasonable attorneys’ fees attributable to such claim that are awarded against Customer or payable by Customer in settlement, provided that Customer: (i) promptly notify Apigee in writing of the claim; (ii) grant Apigee sole control of the defense and settlement of the claim; and (iii) provide Apigee, at Apigee’s expense, with all assistance, information and authority reasonably required for the defense and settlement of the claim.
+
+9.2  Apigee Options.  If Customer’s use of the Services are, or in Apigee ’s opinion is likely to be, enjoined due to the type of claim specified above, Apigee may, at its sole option and expense, terminate Customer’s right and Apigee’s obligations hereunder with respect to such Services.
+
+9.3  Exclusions.  Notwithstanding the terms of this Section 9, Apigee will have no liability for any infringement or misappropriation claim of any kind to the extent that it results from:  (a) modifications to the Services made by a party other than Apigee; (b) the combination, operation or use of the Services with equipment, devices, software or data not supplied or approved by Apigee; (c) Customer’s failure to use updated or modified Services provided by Apigee to avoid a claim; or (d) Customer’s use of the Services other than in accordance with this Agreement and the Documentation.
+
+9.4   Sole Remedy.  THE PROVISIONS IN THIS SECTION 9 SET FORTH APIGEE’S SOLE AND EXCLUSIVE OBLIGATIONS, AND CUSTOMER'S SOLE AND EXCLUSIVE REMEDIES, WITH RESPECT TO INFRINGEMENT OR MISAPPROPRIATION OF THIRD PARTY INTELLECTUAL PROPERTY RIGHTS OF ANY KIND.
+
+9.5  By Customer.  Customer shall defend, indemnify and hold Apigee harmless against any loss, damage or costs (including reasonable attorneys' fees) incurred in connection with claims made or brought against Apigee by a third party alleging that the Customer Content infringes the intellectual property rights of, or has otherwise harmed, such third party; provided, that Apigee (a) promptly gives written notice of the claim to Customer; (b) gives Customer sole control of the defense and settlement of the claim (provided that Customer may not settle any Claim unless it unconditionally releases Apigee of all liability); and (c) provides to Customer, at Customer's cost, all reasonable assistance..
+
+10. Term and Termination.
+
+10.1 Term and Termination.  This Agreement shall commence on the Effective Date and continue, unless earlier terminated pursuant to this Section 10. Either party may terminate this Agreement for convenience upon notice to the other party under Section 16.1. 
+
+10.2 Effect of Termination.  Upon the effective date of termination of this Agreement or any Registration Form, Customer’s license to use the Services will cease and Customer will delete and either destroy or return to Apigee copies of any Documentation and any Apigee Confidential Information. The parties’ rights and obligations under Sections 5, 6, 7, 9.5, 10.2, 11, 12, 13, 15, and 16 shall survive termination of this Agreement.
+
+10.3  Other Agreements.  If Customer elects to license the Services with additional rights, Customer acknowledges and agrees that such licenses will be subject to Apigee’s then current terms and conditions governing such use.
+
+11. No Warranty.
+
+THE SERVICES ARE PROVIDED “AS IS”, AND APIGEE MAKES NO WARRANTIES, EXPRESS OR IMPLIED, WITH RESPECT THERETO, INCLUDING BUT NOT LIMITED ANY IMPLIED WARRANTIES OF MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. WITHOUT LIMITING THE FOREGOING, APIGEE DOES NOT WARRANT THAT THE SERVICES WILL MEET CUSTOMER’S NEEDS, WILL FUNCTION PROPERLY, OR WILL BE ERROR-FREE.
+
+12. Limitation of Liability.
+
+12.1  IN NO EVENT WILL APIGEE BE LIABLE TO CUSTOMER FOR LOSS OF PROFITS, DATA, CUSTOMER CONTENT, OR SERVICES USAGE, OR ANY, INDIRECT, PUNITIVE, CONSEQUENTIAL, OR INCIDENTAL DAMAGES, HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, EVEN IF APIGEE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, AND NOTWITHSTANDING ANY FAILURE OF THE ESSENTIAL PURPOSE OF ANY LIMITED REMEDY. 
+
+
+ 12.2  APIGEE’S TOTAL LIABILITY TO CUSTOMER ARISING OUT OF OR UNDER THIS AGREEMENT OR FOR BREACH OF THIS AGREEMENT, WHETHER IN CONTRACT, TORT (INCLUDING WITHOUT LIMITATION NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, SHALL NOT EXCEED FIVE HUNDRED DOLLARS ($500).
+13.  Publicity.
+
+Customer may state that it is a customer of the Service, consistent with any trademark guidelines provided by Apigee.  Customer may not otherwise promote or misrepresent the relationship between Customer and Apigee (including but not limited to expressing or implying that Apigee sponsors or endorses Customer’s use of the Services.  Apigee may list Customer as a customer of the Services.
+
+14. Export Restrictions.
+
+Customer agrees to comply fully with all applicable regulations of the United States Department of Commerce and with the United States Export Administration Act, as amended from time to time, and with all applicable laws and regulations of other jurisdictions with respect to the importation and use of the Services.
+
+15.  U.S. Government Restricted Rights.
+
+If Customer is a government, public, or municipal entity, this Amendment to the Terms of Service also applies to Customer. 
+
+16.  Miscellaneous.
+
+16.1  Notices.  Notices shall be in writing, sent using a recognized private mail carrier or the United States Postal Service and effective on proof of delivery.  Notices to Apigee shall be sent to Apigee Corporation, 10 Almaden Boulevard, 16th Floor San Jose, CA 95113.  Notices to Customer shall be sent to the physical or e-mail address on file with Apigee. 
+
+16.2  Independent Contractor.  The parties are independent contractors, and nothing in this Agreement is intended to shall create any agency, partnership or joint venture relationship between them.
+
+16.3  Governing law.  This Agreement is governed and interpreted in accordance with the laws of the State of California without reference to conflicts of laws principles. The parties hereby consent to the exclusive jurisdiction of the state and federal courts located in Santa Clara, County, California, for resolution of any disputes arising out of this Agreement.
+
+16.4  Assignment.  Customer may not assign this Agreement, or any of its rights or obligations hereunder, by operation of law or otherwise, without Apigee ’s prior written consent. Any purported assignment by Customer other than as provided in this Section 16.4 shall be null and void.
+
+16.5  Severability.  If any of the provisions of this Agreement are held to be invalid under any applicable statute or rule of law, they are, to that extent, deemed omitted. No failure by Apigee to enforce any of its rights under this Agreement will act as a waiver of such rights.
+
+16.6  No Third Party Beneficiaries.  There are no third-party beneficiaries under this Agreement.
+
+16.7  Force Majeure. Neither party will be liable for inadequate performance to the extent caused by a condition (such as, natural disaster, act of war or terrorism, labor condition, governmental action, and Internet or power interruption) that was beyond the party’s reasonable control.
+
+16.8  Entire Agreement.  This Agreement and any documents and URLs referenced herein constitute the entire agreement between Apigee and Customer with respect to the subject matter hereof, and merges all prior negotiations and drafts of the parties with regard thereto, and supersedes any and all other written or oral agreements existing between the parties hereto regarding the subject matter of this Agreement.
+
+16.9  Interpretation of Conflicting Terms. If there is a conflict between the terms of this Agreement and the terms at any URL, this Agreement will control.
+
+17.  Definitions.
+
+“Acceptable Use Policy” means the policy currently available at acceptable-use-policy as it may be updated by Apigee from time to time.
+
+ “Customer Content” means content provided, generated, transmitted, or displayed through the Services by Customer, as well as any content provided by its authorized users.
+
+ “Documentation” means the description of the Services available on Apigee’s documentation website at http://apigee.com/docs, as amended from time-to-time.
+
+ “Privacy Policy” means the privacy policy currently referenced at http://apigee.com/about/privacy, as it may be updated by Apigee from time to time.
+
+ “Registration Form” means an online form or other ordering document listing the Services for use hereunder.
+
+ “Services” mean the Apigee free hosted service offering as further described at http://apigee.com/about/plans.
