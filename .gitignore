@@ -29,7 +29,6 @@ node_modules
 # Webstorm ide
 .idea/
 release/
-product/
 */resources/*.zip
 credentials.yml
 #redis
