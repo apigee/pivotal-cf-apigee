@@ -1,0 +1,8 @@
+---
+applications:
+- name: jeffapi
+  memory: 128M
+  instances: 1
+  host: jeff-api
+  path: .
+  buildpack: nodejs_buildpack
