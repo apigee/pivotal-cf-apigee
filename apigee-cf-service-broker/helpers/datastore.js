@@ -236,7 +236,7 @@ function getServiceCatalog () {
       name: 'apigee-edge',
       description: 'Apigee Edge API Platform',
       bindable: true,
-      tags: ['api', 'api management', 'awesome'],
+      tags: ['api', 'api management', 'api platform'],
       metadata: {
         displayName: 'Apigee Edge API Platform',
         imageUrl: 'http://apigee.com/about/sites/all/themes/apigee_themes/apigee_bootstrap/ApigeeLogo@2x.png',
@@ -250,10 +250,10 @@ function getServiceCatalog () {
       plans: [
         {
           id: 'A98CCB00-549B-458F-A627-D54C5E860519',
-          name: 'Beta',
-          description: 'Beta Release of Apigee Edge.',
+          name: 'org',
+          description: 'Apigee Edge for Route Services',
           metadata: {
-            displayName: 'Apigee Edge Beta Release',
+            displayName: 'Apigee Edge for Route Services',
           },
           free: true
         }
