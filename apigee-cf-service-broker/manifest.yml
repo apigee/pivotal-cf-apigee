@@ -3,7 +3,7 @@ applications:
 - name: apigee-cf-service-broker
 command: node server.js
 services:
-- apigee-redis
+- apigee_cf_service_broker-p-redis
 buildpack: nodejs_buildpack
 env:
   APIGEE_REDIS_PASSPHRASE: set passphrase here
