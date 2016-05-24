@@ -15,9 +15,8 @@ resources:
 - name: apigee-tile-repo
   type: git
   source:
-    uri: git@github.com:apigee/pivotal-cf-apigee.git
+    uri: https://github.com/apigee/pivotal-cf-apigee.git
     branch: master
-    private_key: {{git-key}}
 - name: tile-generator-repo
   type: git
   source:
@@ -44,7 +43,7 @@ resources:
   source:
     branch: master
     pool: pcf
-    private_key: {{pcf-key}} 
+    private_key: {{github-pool-private-key}} 
     uri: git@github.com:cf-platform-eng/pipeline-resource-pool
 jobs:
 - name: build-tile
