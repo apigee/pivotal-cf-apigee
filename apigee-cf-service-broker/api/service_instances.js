@@ -15,25 +15,28 @@
  * limitations under the License.
  */
 
-/*
-Implementation of catalog API for CF
-http://docs.cloudfoundry.org/services/api.html
-
-sample provisioning request:
-{"service_id":"5E3F917B-9225-4BE4-802F-8F1491F714C0",
-"plan_id":"D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F",
-"organization_guid":"885e653c-1e90-4a09-bc2e-5cbb39ceccf1",
-"space_guid":"ab17b10a-6765-4c3e-b00f-4f8358c6b185",
-"parameters":{"org":"cdmo"}}
-
-*/
+/**
+ * Implementation of [service broker API for CF](http://docs.cloudfoundry.org/services/api.html)
+ *
+ * @example
+ * sample provisioning request:
+ * {
+ *   "service_id"        : "5E3F917B-9225-4BE4-802F-8F1491F714C0",
+ *   "plan_id"           : "D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F",
+ *   "organization_guid" : "885e653c-1e90-4a09-bc2e-5cbb39ceccf1",
+ *   "space_guid"        : "ab17b10a-6765-4c3e-b00f-4f8358c6b185",
+ *   "parameters"        : {"org" : "cdmo"}
+ * }
+ *
+ * @module
+ */
 
 var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
 var validate = require('express-jsonschema').validate
 var instanceSchema = require('../schemas/service_instance')
-var auth = require('../helpers/auth')('staticauth')
+var auth = require('../helpers/auth')(config)
 var service_instance = require('../helpers/service_instance')
 var service_binding = require('../helpers/service_binding')
 var logger = require('../helpers/logger')
@@ -58,7 +61,12 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
   }
   service_instance.create(instance, function (err, data) {
     if (err) {
-      res.status(401).json({msg: data.message})
+      if (err.statusCode) {
+          res.status(err.statusCode).json({msg: data.message})
+      }
+      else {
+          res.status(500).json(err);
+      }
     } else {
       var r = {dashboard_url: config.get('APIGEE_DASHBOARD_URL') + instance.apigee_org}
       log.info({response: r}, 'create service instance response')
@@ -76,7 +84,12 @@ router.patch('/:instance_id', function (req, res) {
 router.delete('/:instance_id', function (req, res) {
   service_instance.delete(req.params.instance_id, function (err, data) {
     if (err) {
-      res.status(err).json({msg: data.message, description: 'Failure: ' + JSON.stringify(data)})
+        if (err.statusCode) {
+            res.status(err.statusCode).json({msg: data.message, description: 'Failure: ' + JSON.stringify(data)})
+        }
+        else {
+            res.status(500).json(err);
+        }
     } else {
       res.json({})
     }
@@ -100,7 +113,8 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
   // create proxy in org that handles the url and dynamically sets target (bind_resource.route)
   service_binding.create(route, function (err, result) {
     if (err) {
-      res.status(400).json({msg: result.message})
+      const status = err.statusCode || 400
+      res.status(status).json({msg: result.message})
     } else {
       var r = {route_service_url: result.proxyURL}
       res.status(201).json(r)
@@ -118,11 +132,16 @@ router.delete('/:instance_id/service_bindings/:binding_id', function (req, res) 
   }
   service_binding.delete(route, function (err, result) {
     if (err) {
-      res.status(400).json({msg: result.message})
+      const status = err.statusCode || 400
+      res.status(status).json({msg: result.message})
     } else {
       res.json({})
     }
   })
 })
 
+/**
+ * Router for `/service_instances`
+ * @type express.Router
+ */
 module.exports = router

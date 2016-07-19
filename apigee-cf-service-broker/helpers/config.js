@@ -14,20 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Configuration helper
+ * @module
+ */
+
 var nconf = require('nconf')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
+var defaults = {
+    auth: 'staticauth'
+}
+
 // arguments, environment vars
-nconf.argv()
-  .env()
-  .file({file: 'tmp.json'}) // not used, but required to nconf.set later on
+nconf
+    .argv()
+    .env()
+    .file({file: 'tmp.json'}) // not used, but required to nconf.set later on
+    .defaults(defaults)
 
 // read from manifest.yml if in TEST
 if (process.env.NODE_ENV === 'TEST') {
   var yaml = require('js-yaml')
   var fs = require('fs')
-  var defaults = yaml.safeLoad(fs.readFileSync('manifest.yml', 'utf8'))
-  nconf.defaults(defaults.env)
+  var fromManifest = yaml.safeLoad(fs.readFileSync('manifest.yml', 'utf8'))
+  nconf.defaults(Object.assign({}, defaults, fromManifest.env))
   nconf.set('SECURITY_USER_PASSWORD', 'testing')
   nconf.set('SECURITY_USER_NAME', 'tester')
 }

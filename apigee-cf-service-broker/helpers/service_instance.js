@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-/*
-service instance provisioning
-*/
+/**
+ * Service instance provisioning
+ * @module
+ */
 
 var saveServiceInstance = require('./datastore')['redis'].saveServiceInstance
 var getServiceInstance = require('./datastore')['redis'].getServiceInstance
@@ -30,11 +31,11 @@ function createInstance (instance, callback) {
   // validate user has access to provided apigee org-guid-here
   mgmt_api.authenticate({org: instance.apigee_org, user: instance.apigee_user, pass: instance.apigee_pass}, function (err, data) {
     if (err) {
-      callback(true, data)
+      callback(err, data)
     } else {
       saveServiceInstance(instance, function (err, data) {
         if (err) {
-          callback(true, data)
+          callback(err, data)
         } else {
           callback(null, data)
         }
@@ -46,7 +47,7 @@ function createInstance (instance, callback) {
 function getInstance (instance_id, callback) {
   getServiceInstance(instance_id, function (err, data) {
     if (err) {
-      callback(true, data)
+      callback(err, data)
     } else {
       callback(null, data)
     }

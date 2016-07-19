@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-/*
-Implementation of catalog API for CF
-http://docs.cloudfoundry.org/services/api.html
-*/
+/**
+ * Implementation of [catalog API for CF](http://docs.cloudfoundry.org/services/api.html)
+ * @module
+ */
 
 var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
-// we only validate that user/pass was supplied
-var auth = require('../helpers/auth')('staticauth')
+var auth = require('../helpers/auth')(config)
 var getServiceCatalog = require('../helpers/datastore')['redis'].getServiceCatalog
 
 // TODO - populate services object from a data store.. CPS?
@@ -39,4 +38,8 @@ router.get('/', function (req, res) {
   res.json({services: services})
 })
 
+/**
+ * Router for `/catalog`
+ * @type express.Router
+ */
 module.exports = router

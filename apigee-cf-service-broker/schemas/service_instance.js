@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-// schema sent from CF when a user selects a service plan
+/**
+ * Schema sent from CF when a user selects a service plan
+ * @module
+ */
+
 var createServiceInstance = {
   type: 'object',
   properties: {

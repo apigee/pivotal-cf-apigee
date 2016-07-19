@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-// TODO: refactor
+/**
+ * Create proxy on Edge
+ * @todo refactor
+ * @module
+ */
 
 var config = require('../helpers/config')
 var JSZip = require('jszip')
@@ -44,7 +48,7 @@ function createProxy (data, cb) {
   uploadProxy({route: data.route, user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_PROXY_UPLOAD_FAILED, err)
-      cb(true, loggerError)
+      cb(err, loggerError)
     } else {
       var proxyHost = apigeeHost || 'apigee.net'
       var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
@@ -62,11 +66,11 @@ function uploadProxy (proxyData, callback) {
   getZip(proxyData, function (err, data) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_PROXY_ZIP, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else {
       importProxy(proxyData, data, function (err, result) {
         if (err) {
-          callback(true, result)
+          callback(err, result)
         } else {
           callback(null, result)
         }
@@ -80,7 +84,7 @@ function getZip (proxyData, callback) {
   fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_PROXY_READ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else {
       var zip = new JSZip(data)
       var re1 = /%BASEPATH%/g
@@ -90,7 +94,7 @@ function getZip (proxyData, callback) {
       // get virtual hosts for org/env
       getVirtualHosts(proxyData, function (err, data) {
         if (err) {
-          callback(true, data)
+          callback(err, data)
         } else {
           var vHostString = JSON.parse(data).map(function (val) { return '<VirtualHost>' + val + '</VirtualHost>' }).join('\n')
           var proxyDefTemplate = zip.folder('apiproxy/proxies').file('default.xml')

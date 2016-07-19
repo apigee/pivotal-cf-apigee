@@ -1,6 +1,7 @@
 ---
 applications:
 - name: apigee-cf-service-broker
+  random-route: true
 command: node server.js
 services:
 - apigee_cf_service_broker-p-redis

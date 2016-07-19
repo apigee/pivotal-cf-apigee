@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-/*
- Dump out version info, hosting location, etc.
-*/
+/**
+ * Dump out version info, hosting location, etc.
+ * @module
+ */
 
 var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
 
-var auth = require('../helpers/auth')('staticauth')
+var auth = require('../helpers/auth')(config)
 
 router.use(auth)
 router.get('/', function (req, res) {
   res.json({ message: 'This is the cf-apigee-broker CF Service Broker API.', configuration: 'Blocked' })
 })
 
+/**
+ * Router for misc API
+ * @type express.Router
+ */
 module.exports = router

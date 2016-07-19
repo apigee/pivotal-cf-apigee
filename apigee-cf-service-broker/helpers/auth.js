@@ -14,11 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-Authentication middleware: Usage example:
-  var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
-  router.use(auth)
-*/
+
+/**
+ * Authentication middleware
+ *
+ * @example
+ * var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
+ * router.use(auth)
+ *
+ * @module
+ */
 
 // CF sends basic auth with every request
 var basicAuth = require('basic-auth')
@@ -140,6 +145,9 @@ module.exports = function (options) {
     basicauth: basicauth,
     anybasicauth: anybasicauth,
     apigeeuserauth: apigeeuserauth
+  }
+  if (options === config) {
+      options = config.get('auth')
   }
   return auths[options]
 }

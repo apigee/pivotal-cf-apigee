@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-// TODO: refactor
+/**
+ * Creates service binding
+ * @todo refactor
+ * @module
+ */
 
 var config = require('../helpers/config')
 var service_instance = require('./service_instance')
@@ -34,7 +38,7 @@ function createServiceBinding (route, callback) {
     // retrieve service instance details
     service_instance.fetch(route.instance_id, function (err, data) {
       if (err) {
-        cb(true, data)
+        cb(err, data)
       } else {
         // get org and environment and continue
         // logger.log.info({data: data}, 'Service Binding get service instance org')
@@ -48,7 +52,7 @@ function createServiceBinding (route, callback) {
       proxy.create(data, function (err, result) {
         if (err) {
           var loggerError = logger.handle_error(logger.codes.ERR_PROXY_CREATION_FAILED, err)
-          cb(true, loggerError)
+          cb(err, loggerError)
           return
         } else {
           // result needs to have URL details in it
@@ -71,7 +75,7 @@ function createServiceBinding (route, callback) {
     }],
     function (err, result) {
       if (err) {
-        callback(true, result)
+        callback(err, result)
       } else {
         // need to call back with URL details for forwarding
         callback(null, result)
@@ -92,7 +96,7 @@ function deleteServiceBinding (route, callback) {
     // retrieve service instance details
     service_instance.fetch(route.instance_id, function (err, data) {
       if (err) {
-        cb(true, data)
+        cb(err, data)
       } else {
         // get org and environment and continue
         // logger.log.info({data: data}, 'Service Binding get service instance org')
@@ -104,7 +108,7 @@ function deleteServiceBinding (route, callback) {
   function (data, cb) {
     getBinding(data.route.binding_id, function (err, binding) {
       if (err) {
-        cb(true, binding)
+        cb(err, binding)
         return
       } else {
         data.proxyname = binding.proxyname
@@ -115,7 +119,7 @@ function deleteServiceBinding (route, callback) {
   },
   function (data, cb) {
     mgmt_api.undeployProxy(data, function (err, result) {
-      if (err == 404) {
+      if ((err || {}).statusCode == 404) {
         // proxy manually deleted , not found, proceed with service binding deletion
         cb(null, data)
       }
@@ -130,7 +134,7 @@ function deleteServiceBinding (route, callback) {
     // delete data
     deleteBinding(data.route, function (err, result) {
       if (err) {
-        cb(true, result)
+        cb(err, result)
         return
       } else {
         cb(null, {})
@@ -138,7 +142,7 @@ function deleteServiceBinding (route, callback) {
     })
   }], function (err, result) {
     if (err) {
-      callback(true, result)
+      callback(err, result)
     } else {
       // need to call back with URL details for forwarding
       callback(null, result)

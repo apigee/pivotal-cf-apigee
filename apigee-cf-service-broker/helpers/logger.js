@@ -1,3 +1,4 @@
+'use strict'
 /**
  * Copyright (C) 2016 Apigee Corporation
  *
@@ -13,6 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Log messages/errors
+ * @module
+ */
+
 var log = require('bunyan').createLogger({name: 'apigee'})
 var util = require('util')
 
@@ -58,11 +65,11 @@ var messages = {
   E0021: 'Proxy Upload Failed',
   E0022: 'Error in zipping proxy bundle',
   E0023: 'Error in reading proxy template',
-  E0024: 'Apigee returned non 200 response while fetching Virtual Hosts',
+  E0024: 'Apigee returned non-200 response while fetching Virtual Hosts',
   E0030: 'Error Authenticating to Apigee, Please check apigee credentials',
-  E0031: 'Error making reqest to Apigee',
+  E0031: 'Error making request to Apigee',
   E0032: 'Error uploading proxy to Apigee',
-  E0033: 'Error Retrieving proxy revision details from Apigee ',
+  E0033: 'Error Retrieving proxy revision details from Apigee',
   E0034: 'Error deploying proxy to Apigee',
   E0035: 'Error undeploying proxy from Apigee',
   E0036: 'Error Retrieving KVM from Apigee',

@@ -1,3 +1,4 @@
+'use strict'
 /**
  * Copyright (C) 2016 Apigee Corporation
  *
@@ -14,6 +15,10 @@
  * limitations under the License.
  */
 
+/**
+ * Generate proxy from OpenAPI interface file
+ * @module
+ */
 var swaggerParser = require('swagger-parser')
 var async = require('async')
 var logger = require('./logger')

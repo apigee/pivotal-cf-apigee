@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-/*
-Edge management API calls
-*/
+/**
+ * Edge Management API calls
+ * @module
+ */
+
 var request = require('request')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var logger = require('./logger')
@@ -37,19 +39,19 @@ function getProxyRevision (proxyData, callback) {
   request.get(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     }
     else if (res.statusCode == 401) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_AUTH, err)
-      callback(true, loggerError)
+      callback({statusCode: 401}, loggerError)
     }
     else if (res.statusCode == 404) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_PROXY_NOT_FOUND, err)
-      callback(404, loggerError)
+      callback({statusCode: 404}, loggerError)
     }
     else if (res.statusCode !== 200) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_GET_PROXY_REV_FAILED, err)
-      callback(true, loggerError)
+      callback({statusCode: res.statusCode}, loggerError)
     } else {
       body = JSON.parse(body)
       var revision = body.revision.slice(-1).pop()
@@ -80,15 +82,15 @@ function importProxy (proxyData, data, callback) {
   request.post(options, function (err, httpResponse, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else if (httpResponse.statusCode !== 201) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_PROXY_UPLOAD, err)
-      callback(true, loggerError)
+      callback({statusCode: httpResponse.statusCode}, loggerError)
     } else {
       // deploy proxy
       deployProxy(proxyData, function (err, result) {
         if (err) {
-          callback(true, result)
+          callback(err, result)
         } else {
           callback(null, result)
         }
@@ -105,7 +107,7 @@ function deployProxy (proxyData, callback) {
   // should get latest version and deploy that
   getProxyRevision(proxyData, function (err, result) {
     if (err) {
-      callback(true, result)
+      callback(err, result)
     } else {
       var options = {
         url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + result + '/deployments', // TODO: unbrittle this
@@ -117,7 +119,7 @@ function deployProxy (proxyData, callback) {
       request.post(options, function (err, res, body) {
         if (err) {
           var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_DEPLOY_PROXY, err)
-          callback(true, loggerError)
+          callback(err, loggerError)
         } else {
           callback(null, res)
         }
@@ -133,12 +135,8 @@ function undeployProxy (proxyData, callback) {
   var adminPass = proxyData.pass
   // should get latest version and undeploy that
   getProxyRevision(proxyData, function (err, revision) {
-    if (err == 404) {
-      // Proxy not found, It's manually deleted
-      callback(404, err)
-    }
-    else if (err) {
-      callback(true, err)
+    if (err) {
+      callback(err, {})
     }
     else {
       var options = {
@@ -151,7 +149,7 @@ function undeployProxy (proxyData, callback) {
       request.del(options, function (err, res, body) {
         if (err) {
           var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_UNDEPLOY_PROXY_FAILED, err)
-          callback(true, loggerError)
+          callback(err, loggerError)
         } else {
           callback(null, res)
         }
@@ -176,10 +174,10 @@ function getVirtualHosts (proxyData, callback) {
   request.get(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else if (res.statusCode !== 200) {
       var loggerError = logger.handle_error(logger.codes.ERR_PROXY_VHOSTS_NON200_RES, err)
-      callback(true, loggerError)
+      callback({statusCode: res.statusCode}, loggerError)
     } else {
       callback(null, body)
     }
@@ -204,10 +202,10 @@ function getKVM (keyOptions, callback) {
   request.get(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else if (res.statusCode !== 200) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_GET_KVM, res)
-      callback(true, loggerError)
+      callback({statusCode: res.statusCode}, loggerError)
     } else {
       callback(null, JSON.parse(body))
     }
@@ -232,10 +230,10 @@ function deleteKVM (keyOptions, callback) {
   request.del(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else if (res.statusCode !== 200) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_DELETE_KVM, res)
-      callback(true, loggerError)
+      callback({statusCode: res.statusCode}, loggerError)
     } else {
       callback(null, body)
     }
@@ -262,13 +260,13 @@ function setKVM (keyOptions, callback) {
   request.post(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else if (res.statusCode === 404) {
       // create KVM, try once more.
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_KVM_NOT_FOUND, res)
     } else if (res.statusCode !== 200 && res.statusCode !== 201) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_KVM_SET_ERROR, res)
-      callback(true, loggerError)
+      callback({statusCode: res.statusCode}, loggerError)
     } else {
       callback(null, body)
     }
@@ -288,10 +286,10 @@ function authenticate (authOptions, callback) {
   request.get(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(true, loggerError)
+      callback(err, loggerError)
     } else if (res.statusCode !== 200) {
       var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_AUTH, err)
-      callback(true, loggerError)
+      callback({statusCode: res.statusCode}, loggerError)
     } else {
       callback(null, body)
     }
