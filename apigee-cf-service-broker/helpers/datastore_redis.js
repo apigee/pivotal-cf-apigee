@@ -74,7 +74,7 @@ function getServiceInstanceRedis (instance_id, callback) {
       callback({statusCode: 500}, loggerError)
     }
     else if (result == null) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_SERVICE_GET_KEY_MISSING, err)
+      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_SERVICE_GET_KEY_MISSING, {instance_id : instance_id})
       callback({statusCode: 404}, loggerError)
     }
     else {
@@ -94,7 +94,7 @@ function deleteServiceInstanceRedis (instance_id, callback) {
       var loggerError = logger.handle_error(logger.codes.ERR_REDIS_SERVICE_DELETE_FAIL, err)
       callback({statusCode: 500}, loggerError)
     } else if (result == 0) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_DELETE_GET_KEY_MISSING, err)
+      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_DELETE_GET_KEY_MISSING, {instance_id : instance_id})
       callback({statusCode: 410}, loggerError)
     }
     else {
@@ -125,7 +125,7 @@ function getBindingRedis (binding_id, callback) {
       callback({statusCode: 500}, loggerError)
     }
     else if (result == null) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_GET_KEY_MISSING, err)
+      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_GET_KEY_MISSING, {binding_id : binding_id})
       callback({statusCode: 404}, loggerError)
     } else {
       callback(null, JSON.parse(result))
@@ -141,7 +141,7 @@ function deleteBindingRedis (route, callback) {
       callback({statusCode: 500}, loggerError)
     }
     else if (result == 0) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_DELETE_GET_KEY_MISSING, err)
+      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_DELETE_GET_KEY_MISSING, {binding_id : key})
       callback({statusCode: 410}, loggerError)
     } else {
       callback(null, result)

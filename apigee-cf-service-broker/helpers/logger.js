@@ -59,8 +59,8 @@ var codes = {
 }
 
 var messages = {
-  E0011: 'Invalid protocol, needs to be TLS enabled. Send req over https',
   E0010: 'Invalid JSON Sent to the server',
+  E0011: 'Invalid protocol, needs to be TLS enabled. Send req over https',
   E0020: 'Proxy Creation Failed',
   E0021: 'Proxy Upload Failed',
   E0022: 'Error in zipping proxy bundle',
@@ -88,6 +88,7 @@ var messages = {
   E0066: 'Route Binding Delete failed',
   E0067: 'Service instance details not found in redis',
   E0070: 'Error generating code coverage badge',
+  E0080: 'OpenAPI interface file not found',
   E0081: 'Unable to find policies in Open API spec',
   E0082: 'Invalid Open API Spec, Check policy attachment'
 }
@@ -97,10 +98,21 @@ var getMessage = function(code) {
 }
 
 var handle_error = function(code, err) {
-// console log error for pcf
-  log.error({errDetails: err}, getMessage(code));
-// return the error object
-  return new Error(getMessage(code))
+    function LoggedStack(code) {
+        Error.captureStackTrace(this, handle_error)
+        let line = this.stack.split('\n')[1]
+        this.topOfStack = line ? line.trim() : line
+        this.message = getMessage(code);
+    }
+
+    const logged = new LoggedStack(code)
+    const error = new Error(logged.message)
+
+    log.error({
+        errAt: logged.topOfStack,
+        errDetails: err
+    }, error.message);
+    return error
 }
 
 

@@ -211,7 +211,7 @@ describe('Starting Tests..', function () {
     })
     it('Invalid Service Instance delete should return a 410 response', function (done) {
       var serviceInstance = 'Non-Exist'
-      api.del('/v2/service_instances/' + serviceInstance.instance_id)
+      api.del('/v2/service_instances/' + serviceInstance)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
         .expect(410, done)
