@@ -24,6 +24,7 @@ var nconf = require('nconf')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 var defaults = {
+    datastore: 'redis',
     auth: 'staticauth'
 }
 

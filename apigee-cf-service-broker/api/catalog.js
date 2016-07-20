@@ -24,7 +24,7 @@ var config = require('../helpers/config')
 var express = require('express')
 var router = express.Router()
 var auth = require('../helpers/auth')(config)
-var getServiceCatalog = require('../helpers/datastore')['redis'].getServiceCatalog
+var getServiceCatalog = require('../helpers/datastore').getServiceCatalog
 
 // TODO - populate services object from a data store.. CPS?
 // TODO - this catalog will be different for private cloud

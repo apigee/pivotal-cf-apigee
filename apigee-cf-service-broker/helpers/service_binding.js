@@ -29,9 +29,9 @@ var proxy = require('./edge_proxy')
 var mgmt_api = require('./mgmt_api')
 var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var logger = require('./logger')
-var saveBinding = require('./datastore')['redis'].saveBinding
-var deleteBinding = require('./datastore')['redis'].deleteBinding
-var getBinding = require('./datastore')['redis'].getBinding
+var saveBinding = require('./datastore').saveBinding
+var deleteBinding = require('./datastore').deleteBinding
+var getBinding = require('./datastore').getBinding
 
 function createServiceBinding (route, callback) {
   async.waterfall([ function (cb) {

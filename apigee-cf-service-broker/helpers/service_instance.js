@@ -20,9 +20,9 @@
  * @module
  */
 
-var saveServiceInstance = require('./datastore')['redis'].saveServiceInstance
-var getServiceInstance = require('./datastore')['redis'].getServiceInstance
-var deleteServiceInstance = require('./datastore')['redis'].deleteServiceInstance
+var saveServiceInstance = require('./datastore').saveServiceInstance
+var getServiceInstance = require('./datastore').getServiceInstance
+var deleteServiceInstance = require('./datastore').deleteServiceInstance
 var mgmt_api = require('./mgmt_api')
 var logger = require('./logger')
 
