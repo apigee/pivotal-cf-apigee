@@ -38,20 +38,20 @@ function getProxyRevision (proxyData, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     }
     else if (res.statusCode == 401) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_AUTH, err)
-      callback({statusCode: 401}, loggerError)
+      var loggerError = logger.ERR_APIGEE_AUTH(err, 401)
+      callback(loggerError)
     }
     else if (res.statusCode == 404) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_PROXY_NOT_FOUND, err)
-      callback({statusCode: 404}, loggerError)
+      var loggerError = logger.ERR_APIGEE_PROXY_NOT_FOUND(err, 404)
+      callback(loggerError)
     }
     else if (res.statusCode !== 200) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_GET_PROXY_REV_FAILED, err)
-      callback({statusCode: res.statusCode}, loggerError)
+      var loggerError = logger.ERR_APIGEE_GET_PROXY_REV_FAILED(body, res.statusCode)
+      callback(loggerError)
     } else {
       body = JSON.parse(body)
       var revision = body.revision.slice(-1).pop()
@@ -81,16 +81,17 @@ function importProxy (proxyData, data, callback) {
   }
   request.post(options, function (err, httpResponse, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     } else if (httpResponse.statusCode !== 201) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_PROXY_UPLOAD, err)
-      callback({statusCode: httpResponse.statusCode}, loggerError)
+      var loggerError = logger.ERR_APIGEE_PROXY_UPLOAD(body, httpResponse.statusCode)
+      callback(loggerError)
     } else {
       // deploy proxy
       deployProxy(proxyData, function (err, result) {
         if (err) {
-          callback(err, result)
+          var loggerError = logger.ERR_UAE(err)
+          callback(loggerError)
         } else {
           callback(null, result)
         }
@@ -107,7 +108,8 @@ function deployProxy (proxyData, callback) {
   // should get latest version and deploy that
   getProxyRevision(proxyData, function (err, result) {
     if (err) {
-      callback(err, result)
+        var loggerError = logger.ERR_UAE(err)
+        callback(loggerError)
     } else {
       var options = {
         url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + result + '/deployments', // TODO: unbrittle this
@@ -118,8 +120,8 @@ function deployProxy (proxyData, callback) {
       }
       request.post(options, function (err, res, body) {
         if (err) {
-          var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_DEPLOY_PROXY, err)
-          callback(err, loggerError)
+          var loggerError = logger.ERR_APIGEE_DEPLOY_PROXY(err)
+          callback(loggerError)
         } else {
           callback(null, res)
         }
@@ -136,7 +138,8 @@ function undeployProxy (proxyData, callback) {
   // should get latest version and undeploy that
   getProxyRevision(proxyData, function (err, revision) {
     if (err) {
-      callback(err, {})
+        var loggerError = logger.ERR_UAE(err)
+        callback(loggerError)
     }
     else {
       var options = {
@@ -148,8 +151,8 @@ function undeployProxy (proxyData, callback) {
       }
       request.del(options, function (err, res, body) {
         if (err) {
-          var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_UNDEPLOY_PROXY_FAILED, err)
-          callback(err, loggerError)
+          var loggerError = logger.ERR_APIGEE_UNDEPLOY_PROXY_FAILED(err)
+          callback(loggerError)
         } else {
           callback(null, res)
         }
@@ -173,11 +176,11 @@ function getVirtualHosts (proxyData, callback) {
   log.debug('get virtual hosts url: ', options.url)
   request.get(options, function (err, res, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     } else if (res.statusCode !== 200) {
-      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_VHOSTS_NON200_RES, err)
-      callback({statusCode: res.statusCode}, loggerError)
+      var loggerError = logger.ERR_PROXY_VHOSTS_NON200_RES(body, res.statusCode)
+      callback(loggerError)
     } else {
       callback(null, body)
     }
@@ -201,11 +204,11 @@ function getKVM (keyOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     } else if (res.statusCode !== 200) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_GET_KVM, res)
-      callback({statusCode: res.statusCode}, loggerError)
+      var loggerError = logger.ERR_APIGEE_GET_KVM(body, res.statusCode)
+      callback(loggerError)
     } else {
       callback(null, JSON.parse(body))
     }
@@ -229,11 +232,11 @@ function deleteKVM (keyOptions, callback) {
   }
   request.del(options, function (err, res, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     } else if (res.statusCode !== 200) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_DELETE_KVM, res)
-      callback({statusCode: res.statusCode}, loggerError)
+      var loggerError = logger.ERR_APIGEE_DELETE_KVM(body, res.statusCode)
+      callback(loggerError)
     } else {
       callback(null, body)
     }
@@ -259,14 +262,14 @@ function setKVM (keyOptions, callback) {
   }
   request.post(options, function (err, res, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     } else if (res.statusCode === 404) {
-      // create KVM, try once more.
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_KVM_NOT_FOUND, res)
+      //TODO create KVM, try once more.
+      var loggerError = logger.ERR_APIGEE_KVM_NOT_FOUND(body, 404)
     } else if (res.statusCode !== 200 && res.statusCode !== 201) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_KVM_SET_ERROR, res)
-      callback({statusCode: res.statusCode}, loggerError)
+      var loggerError = logger.ERR_APIGEE_KVM_SET_ERROR(body, res.statusCode)
+      callback(loggerError)
     } else {
       callback(null, body)
     }
@@ -285,11 +288,11 @@ function authenticate (authOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_REQ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
+      callback(loggerError)
     } else if (res.statusCode !== 200) {
-      var loggerError = logger.handle_error(logger.codes.ERR_APIGEE_AUTH, err)
-      callback({statusCode: res.statusCode}, loggerError)
+      var loggerError = logger.ERR_APIGEE_AUTH(body, res.statusCode)
+      callback(loggerError)
     } else {
       callback(null, body)
     }

@@ -33,7 +33,7 @@ var DOMParser = require('xmldom').DOMParser
 var XMLSerializer = require('xmldom').XMLSerializer
 var builder = require('xmlbuilder')
 
-var generatePolicy = function (route, zip, cb) {
+var generatePolicy = function (route, zip, callback) {
   var routeUrl = 'http://' + route.bind_resource.route
   async.waterfall([
     // check for openApi
@@ -41,8 +41,8 @@ var generatePolicy = function (route, zip, cb) {
       swaggerParser.parse(routeUrl + '/openApi.json', function (err, api, metadata) {
         if (err) {
           // TODO: Error / Warning
-          var loggerError = logger.handle_error(logger.codes.ERR_OPENAPI_NOT_FOUND, err)
-          callback(true, loggerError)
+          var loggerError = logger.ERR_OPENAPI_NOT_FOUND(err)
+          callback(loggerError)
         } else {
           callback(null, api)
         }
@@ -90,15 +90,15 @@ var generatePolicy = function (route, zip, cb) {
         }, function (err) {
           // if any of the file processing produced an error, err would equal that error
           if (err) {
-            callback(true, err)
+            callback(err)
           } else {
             callback(null, api, zip)
           }
         })
       } else {
         // TODO: Error / Warning
-        var loggerError = logger.handle_error(logger.codes.ERR_POLICIES_NOT_FOUND, true)
-        callback(true, loggerError)
+        var loggerError = logger.ERR_POLICIES_NOT_FOUND()
+        callback(loggerError)
       }
     },
     function (api, zip, callback) {
@@ -118,7 +118,7 @@ var generatePolicy = function (route, zip, cb) {
               flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
             } catch (ex) {
               // do nothing, just print error to log
-              logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+              logger.ERR_INVALID_OPENAPI_SPEC(ex)
             }
           }
           else if (api['x-apigee-apply'][service].options.endPoint === 'target') {
@@ -128,14 +128,14 @@ var generatePolicy = function (route, zip, cb) {
               flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
             } catch (ex) {
               // do nothing, just print error to log
-              logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+              logger.ERR_INVALID_OPENAPI_SPEC(ex)
             }
           }
           cb(null)
         }, function (err) {
           // if any of the file processing produced an error, err would equal that error
           if (err) {
-            callback(true, err)
+            callback(err)
           }
           else {
             // Add back to zip
@@ -237,9 +237,10 @@ var generatePolicy = function (route, zip, cb) {
     }
   ], function (err, zip) {
     if (err) {
-      cb(true, {})
+      var loggerError = logger.ERR_UAE(err)
+      callback(loggerError)
     } else {
-      cb(null, zip)
+      callback(null, zip)
     }
   })
 }

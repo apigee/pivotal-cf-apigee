@@ -32,7 +32,7 @@ var template = require('es6-template-strings')
 var openApi = require('./open_api.js')
 
 // create proxy in edge org
-function createProxy (data, cb) {
+function createProxy (data, callback) {
   var apigeeHost = data.host
   var apigeeHostPattern = data.hostpattern
   var org = data.org
@@ -47,15 +47,15 @@ function createProxy (data, cb) {
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
   uploadProxy({route: data.route, user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_UPLOAD_FAILED, err)
-      cb(err, loggerError)
+      var loggerError = logger.ERR_PROXY_UPLOAD_FAILED(err)
+      callback(loggerError)
     } else {
       var proxyHost = apigeeHost || 'apigee.net'
       var proxyUrlRoot = template(proxyHostTemplate, { apigeeOrganization: org, apigeeEnvironment: env, proxyHost: proxyHost })
       route.proxyURL = 'https://' + proxyUrlRoot + '/' + route.binding_id
       route.proxyname = proxyName
       logger.log.info('route proxy url: ', route.proxyURL)
-      cb(null, route)
+      callback(null, route)
     }
   })
 }
@@ -65,12 +65,13 @@ function createProxy (data, cb) {
 function uploadProxy (proxyData, callback) {
   getZip(proxyData, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_ZIP, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_PROXY_ZIP(err)
+      callback(loggerError)
     } else {
       importProxy(proxyData, data, function (err, result) {
         if (err) {
-          callback(err, result)
+          var loggerError = logger.ERR_UAE(err)
+          callback(loggerError)
         } else {
           callback(null, result)
         }
@@ -83,8 +84,8 @@ function uploadProxy (proxyData, callback) {
 function getZip (proxyData, callback) {
   fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_PROXY_READ_FAILED, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_PROXY_READ_FAILED(err)
+      callback(loggerError)
     } else {
       var zip = new JSZip(data)
       var re1 = /%BASEPATH%/g
@@ -94,7 +95,8 @@ function getZip (proxyData, callback) {
       // get virtual hosts for org/env
       getVirtualHosts(proxyData, function (err, data) {
         if (err) {
-          callback(err, data)
+          var loggerError = logger.ERR_UAE(err)
+          callback(loggerError)
         } else {
           var vHostString = JSON.parse(data).map(function (val) { return '<VirtualHost>' + val + '</VirtualHost>' }).join('\n')
           var proxyDefTemplate = zip.folder('apiproxy/proxies').file('default.xml')

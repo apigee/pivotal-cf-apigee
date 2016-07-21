@@ -51,8 +51,8 @@ function createServiceBinding (route, callback) {
     function (data, cb) {
       proxy.create(data, function (err, result) {
         if (err) {
-          var loggerError = logger.handle_error(logger.codes.ERR_PROXY_CREATION_FAILED, err)
-          cb(err, loggerError)
+          var loggerError = logger.ERR_PROXY_CREATION_FAILED(err)
+          cb(loggerError)
           return
         } else {
           // result needs to have URL details in it
@@ -64,7 +64,7 @@ function createServiceBinding (route, callback) {
     function (data, cb) {
       saveBinding(data, function (err, result) {
         if (err) {
-          var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_SAVE_FAILED, err)
+          var loggerError = logger.ERR_REDIS_BINDING_SAVE_FAILED(err)
           cb(loggerError)
           return
         } else {
@@ -75,7 +75,8 @@ function createServiceBinding (route, callback) {
     }],
     function (err, result) {
       if (err) {
-        callback(err, result)
+        var loggerError = logger.ERR_UAE(err)
+        callback(loggerError)
       } else {
         // need to call back with URL details for forwarding
         callback(null, result)
@@ -142,7 +143,8 @@ function deleteServiceBinding (route, callback) {
     })
   }], function (err, result) {
     if (err) {
-      callback(err, result)
+      var loggerError = logger.ERR_UAE(err)
+      callback(loggerError)
     } else {
       // need to call back with URL details for forwarding
       callback(null, result)

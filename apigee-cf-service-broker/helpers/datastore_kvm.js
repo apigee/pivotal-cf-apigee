@@ -62,8 +62,8 @@ function deleteServiceInstanceKVM (instance_id, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_KVM_SERVICE_DELETE_FAIL, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_KVM_SERVICE_DELETE_FAIL(err)
+      callback(loggerError)
     } else {
       callback(null, data)
     }
@@ -97,8 +97,8 @@ function deleteBindingKVM (route, callback) {
   }
   mgmt_api.deleteKVM(options, function (err, data) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_KVM_BINDING_DELETE_FAIL, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_KVM_BINDING_DELETE_FAIL(err)
+      callback(loggerError)
     } else {
       callback(null, data)
     }

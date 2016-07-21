@@ -29,10 +29,9 @@ var defaults = {
 }
 
 // arguments, environment vars
-nconf
+nconf.use('memory')
     .argv()
     .env()
-    .file({file: 'tmp.json'}) // not used, but required to nconf.set later on
     .defaults(defaults)
 
 // read from manifest.yml if in TEST

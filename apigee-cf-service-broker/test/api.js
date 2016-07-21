@@ -27,17 +27,18 @@ var api = supertest('http://localhost:' + port)
 var app
 var config = require('../helpers/config')
 
-/* Mock Apigee API Calls using NOCK for testing */
-require('./helpers/api_mocks.js')
+//require('./helpers/api_mocks.js')
 
-describe('Starting Tests..', function () {
+describe('Component APIs', function () {
   this.timeout(0)
   var authHeader = 'Basic ' + new Buffer(config.get('SECURITY_USER_NAME') + ':' + config.get('SECURITY_USER_PASSWORD')).toString('base64')
   var badAuthHeader = 'Basic ' + new Buffer('admin:' + 'wrong-password').toString('base64')
-  before(function () {  // eslint-disable-line
+  before('Starting test server', function () {  // eslint-disable-line
     app = server.listen(8000)
   })
-  describe('API Securtiy', function () {
+
+  describe('API Security', function () {
+
     it('Valid Auth should return 200', function (done) {
       api.get('/')
         .set('Accept', 'application/json')

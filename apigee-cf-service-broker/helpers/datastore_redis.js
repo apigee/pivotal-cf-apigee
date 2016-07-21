@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === 'TEST') {
   }
   rclient = redis.createClient(options)
   rclient.on('error', function (err) {
-    logger.handle_error(logger.codes.ERR_REDIS, err)
+    logger.ERR_REDIS(err)
   })
   rclient.auth(credentials.password)
 }
@@ -57,8 +57,8 @@ function putServiceInstanceRedis (instance, callback) {
   instance += cipher.final('hex')
   rclient.hset('serviceInstance', key, instance, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_SERVICE_SAVE_FAIL, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_REDIS_SERVICE_SAVE_FAIL(err)
+      callback(loggerError)
     } else {
       callback(null, result)
     }
@@ -70,12 +70,12 @@ function getServiceInstanceRedis (instance_id, callback) {
   var key = instance_id
   rclient.hget('serviceInstance', key, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS, err)
-      callback({statusCode: 500}, loggerError)
+      var loggerError = logger.ERR_REDIS(err)
+      callback(loggerError)
     }
     else if (result == null) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_SERVICE_GET_KEY_MISSING, {instance_id : instance_id})
-      callback({statusCode: 404}, loggerError)
+      var loggerError = logger.ERR_REDIS_SERVICE_GET_KEY_MISSING({instance_id : key}, 404)
+      callback(loggerError)
     }
     else {
       logger.log.info({redis: result}, 'Service Instance Details in Redis')
@@ -91,11 +91,11 @@ function deleteServiceInstanceRedis (instance_id, callback) {
   var key = instance_id
   rclient.hdel('serviceInstance', key, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_SERVICE_DELETE_FAIL, err)
-      callback({statusCode: 500}, loggerError)
+      var loggerError = logger.ERR_REDIS_SERVICE_DELETE_FAIL(err)
+      callback(loggerError)
     } else if (result == 0) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_DELETE_GET_KEY_MISSING, {instance_id : instance_id})
-      callback({statusCode: 410}, loggerError)
+      var loggerError = logger.ERR_REDIS_DELETE_GET_KEY_MISSING({instance_id : key}, 410)
+      callback(loggerError)
     }
     else {
       callback(null, result)
@@ -108,8 +108,8 @@ function putBindingRedis (route, callback) {
   route = JSON.stringify(route)
   rclient.hset('routeBinding', key, route, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_SAVE_FAIL, err)
-      callback(err, loggerError)
+      var loggerError = logger.ERR_REDIS_BINDING_SAVE_FAIL(err)
+      callback(loggerError)
     } else {
       callback(null, JSON.parse(this.route))
     }
@@ -121,12 +121,12 @@ function getBindingRedis (binding_id, callback) {
   var key = binding_id
   rclient.hget('routeBinding', key, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS, err)
-      callback({statusCode: 500}, loggerError)
+      var loggerError = logger.ERR_REDIS(err)
+      callback(loggerError)
     }
     else if (result == null) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_GET_KEY_MISSING, {binding_id : binding_id})
-      callback({statusCode: 404}, loggerError)
+      var loggerError = logger.ERR_REDIS_BINDING_GET_KEY_MISSING({binding_id : key}, 404)
+      callback(loggerError)
     } else {
       callback(null, JSON.parse(result))
     }
@@ -137,12 +137,12 @@ function deleteBindingRedis (route, callback) {
   var key = route.binding_id
   rclient.hdel('routeBinding', key, function (err, result) {
     if (err) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_DELETE_FAIL, err)
-      callback({statusCode: 500}, loggerError)
+      var loggerError = logger.ERR_REDIS_BINDING_DELETE_FAIL(err)
+      callback(loggerError)
     }
     else if (result == 0) {
-      var loggerError = logger.handle_error(logger.codes.ERR_REDIS_DELETE_GET_KEY_MISSING, {binding_id : key})
-      callback({statusCode: 410}, loggerError)
+      var loggerError = logger.ERR_REDIS_DELETE_GET_KEY_MISSING({binding_id : key}, 410)
+      callback(loggerError)
     } else {
       callback(null, result)
     }

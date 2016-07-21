@@ -62,7 +62,7 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
   service_instance.create(instance, function (err, data) {
     if (err) {
       if (err.statusCode) {
-          res.status(err.statusCode).json({msg: data.message})
+          res.status(err.statusCode).json(err)
       }
       else {
           res.status(500).json(err);
@@ -85,7 +85,7 @@ router.delete('/:instance_id', function (req, res) {
   service_instance.delete(req.params.instance_id, function (err, data) {
     if (err) {
         if (err.statusCode) {
-            res.status(err.statusCode).json({msg: data.message, description: 'Failure: ' + JSON.stringify(data)})
+            res.status(err.statusCode).json(err)
         }
         else {
             res.status(500).json(err);
@@ -113,8 +113,12 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
   // create proxy in org that handles the url and dynamically sets target (bind_resource.route)
   service_binding.create(route, function (err, result) {
     if (err) {
-      const status = err.statusCode || 400
-      res.status(status).json({msg: result.message})
+        if (err.statusCode) {
+            res.status(err.statusCode).json(err)
+        }
+        else {
+            res.status(500).json(err);
+        }
     } else {
       var r = {route_service_url: result.proxyURL}
       res.status(201).json(r)
@@ -132,8 +136,12 @@ router.delete('/:instance_id/service_bindings/:binding_id', function (req, res) 
   }
   service_binding.delete(route, function (err, result) {
     if (err) {
-      const status = err.statusCode || 400
-      res.status(status).json({msg: result.message})
+        if (err.statusCode) {
+            res.status(err.statusCode).json(err)
+        }
+        else {
+            res.status(500).json(err);
+        }
     } else {
       res.json({})
     }

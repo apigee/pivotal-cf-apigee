@@ -24,6 +24,7 @@ var log = require('bunyan').createLogger({name: 'apigee'})
 var util = require('util')
 
 var codes = {
+  ERR_UAE: 'E0000',
   ERR_REQ_JSON_SCHEMA_FAIL: 'E0010',
   ERR_REQ_INVALID_PROTOCOL: 'E0011',
   ERR_PROXY_CREATION_FAILED: 'E0020',
@@ -59,6 +60,7 @@ var codes = {
 }
 
 var messages = {
+  E0000: 'Unexpected Application Error',
   E0010: 'Invalid JSON Sent to the server',
   E0011: 'Invalid protocol, needs to be TLS enabled. Send req over https',
   E0020: 'Proxy Creation Failed',
@@ -97,29 +99,33 @@ var getMessage = function(code) {
   return util.format('[%s] - %s', code, messages[code])
 }
 
-var handle_error = function(code, err) {
-    function LoggedStack(code) {
+var handle_error = function(code, originalErr, statusCode) {
+    if (originalErr instanceof LoggerError) {
+        return originalErr
+    }
+
+    function LoggerError(code, statusCode) {
         Error.captureStackTrace(this, handle_error)
         let line = this.stack.split('\n')[1]
         this.topOfStack = line ? line.trim() : line
         this.message = getMessage(code);
+        this.statusCode = statusCode || 500
     }
+    util.inherits(LoggerError, Error)
 
-    const logged = new LoggedStack(code)
-    const error = new Error(logged.message)
+    const error = new LoggerError(code, statusCode)
 
     log.error({
-        errAt: logged.topOfStack,
-        errDetails: err
+        errAt: error.topOfStack,
+        errStatusCode: statusCode,  // undefined if used default 500
+        errDetails: originalErr
     }, error.message);
     return error
 }
 
 
-module.exports = {
-  codes: codes,
-  messages: messages,
-  getMessage: getMessage,
-  handle_error: handle_error,
-  log: log
+module.exports.log = log;
+for (let name in codes) {
+    let code = codes[name]
+    module.exports[name] = handle_error.bind(this, code)
 }
