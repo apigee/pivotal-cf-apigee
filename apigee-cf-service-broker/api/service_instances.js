@@ -56,6 +56,7 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
     apigee_env: req.body.parameters.env,
     apigee_user: req.body.parameters.user,
     apigee_pass: req.body.parameters.pass,
+    microHost: req.body.parameters.micro,
     host: req.body.parameters.host,
     hostpattern: req.body.parameters.hostpattern
   }
@@ -120,7 +121,7 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
             res.status(500).json(err);
         }
     } else {
-      var r = {route_service_url: result.proxyURL}
+      var r = {credentials: {}, route_service_url: result.proxyURL}
       res.status(201).json(r)
     }
   })

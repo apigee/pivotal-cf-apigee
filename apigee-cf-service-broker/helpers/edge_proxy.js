@@ -35,6 +35,7 @@ var openApi = require('./open_api.js')
 function createProxy (data, callback) {
   var apigeeHost = data.host
   var apigeeHostPattern = data.hostpattern
+  var micro = data.micro
   var org = data.org
   var env = data.env
   var route = data.route
@@ -45,6 +46,11 @@ function createProxy (data, callback) {
   var proxyNameTemplate = 'cf-${routeName}'
   var proxyHostTemplate = apigeeHostPattern || '${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}'
   var proxyName = template(proxyNameTemplate, { routeName: routeName })
+  if (micro) {
+      apigeeHost = micro
+      proxyHostTemplate = '${proxyHost}'
+      proxyName = 'edgemicro_' + proxyName
+  }
   uploadProxy({route: data.route, user: data.user, pass: data.pass, org: org, env: env, proxyname: proxyName, basepath: '/' + route.binding_id}, function (err, data) {
     if (err) {
       var loggerError = logger.ERR_PROXY_UPLOAD_FAILED(err)

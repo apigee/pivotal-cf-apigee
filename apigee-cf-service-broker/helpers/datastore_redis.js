@@ -78,9 +78,9 @@ function getServiceInstanceRedis (instance_id, callback) {
       callback(loggerError)
     }
     else {
-      logger.log.info({redis: result}, 'Service Instance Details in Redis')
       var decrypted = decipher.update(result, 'hex', 'utf-8')
       decrypted += decipher.final('utf-8')
+      logger.log.info({redis: decrypted}, 'Service Instance Details in Redis')
       callback(null, JSON.parse(decrypted))
     }
   })
