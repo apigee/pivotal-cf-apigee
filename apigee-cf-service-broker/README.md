@@ -9,7 +9,7 @@ instructions for downloading and installing node.js can be found [here](https://
 ### Redis service
 Redis is used for data persistence by the service broker.
 ```bash
-cf create-service p-redis shared-vm apigee-redis
+cf create-service p-redis shared-vm apigee_cf_service_broker-p-redis
 ```
 
 ### Elastic Runtime v 1.7
@@ -42,9 +42,6 @@ Item | Purpose | Example
 ---- | ---- | ----
 APIGEE_REDIS_PASSPHRASE | passphrase used to encrypt data in Redis store | `correct horse battery staple`
 APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/` for SaaS Edge.
-APIGEE_PROXY_HOST | Hostname for API Proxies. | `apigee.net` for Free SaaS accounts.
-APIGEE_PROXY_HOST_PATTERN | Pattern for generating proxy URL | `#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}` for Free SaaS accounts.
-APIGEE_PROXY_NAME_PATTERN | Pattern for naming API Proxies in Edge | `cf-#{routeName}`
 APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterprise.apigee.com/v1` for SaaS Edge.
 
 1. Deploy the broker to cloud foundry.
@@ -52,10 +49,14 @@ APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterp
  cf push
  ```
 
-1. During deployment, the service broker will create a random password and output it to its logs. This password must be used when interacting with the service broker via the CLI. Note that it will change each time the service broker restarted or re-deployed.
- ```bash
- cf logs apigee-cf-service-broker --recent |grep "Using default"
- ```
+1. Create environment variables for the broker authentication.
+```bash
+cf set-env apigee-cf-service-broker SECURITY_USER_NAME <pick a username>
+cf set-env apigee-cf-service-broker SECURITY_USER_PASSWORD <pick a password>
+​
+# restage the broker
+cf restage apigee-cf-service-broker
+```
 
 1. determine the url of your service broker
  ```bash
@@ -64,7 +65,7 @@ APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterp
 
 1. register service broker
  ```bash
- cf create-service-broker apigee-edge admin <password from previous step> <url of your service broker>
+ cf create-service-broker apigee-edge <username specified above> <password specified above> <url of your service broker>
  ```
 
 1. publish in marketplace
@@ -76,8 +77,11 @@ APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterp
 
 1. create service instance in cf org/space
  ```bash
- cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>"}'
+ cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>", "host":"<apigee host>", "hostPattern":"<pattern to generate url>"}'
  ```
+ Where 
+ * `host` is the hostname for your Edge proxies. E.g. "apigee.net" if you are using the Apigee Trial. 
+ * `hostPattern` is the pattern to determine a proxy url. E.g. "${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}" if you are using the Apigee Trial, or just "${proxyHost}" for a simple on-premises installation.
 
 1. push an application that you wish to register an Edge route for, and note its url.
 
