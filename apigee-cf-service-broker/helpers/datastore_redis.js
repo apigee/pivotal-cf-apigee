@@ -22,9 +22,8 @@
  */
 
 var redis = require('redis')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
 var crypto = require('crypto')
-var config = require('../helpers/config')
+var config = require('./config')
 var logger = require('./logger')
 var cfenv = require('cfenv')
 
@@ -39,8 +38,22 @@ if (process.env.NODE_ENV === 'TEST') {
     port: credentials.port,
     host: credentials.host,
     no_ready_check: true,
-    max_attempts: 2,
-    connect_timeout: 3000
+    retry_strategy: function (options) {
+        if (options.error.code === 'ECONNREFUSED') {
+            // End reconnecting on a specific error and flush all commands with a individual error
+            return new Error('The server refused the connection');
+        }
+        if (options.total_retry_time > 1000 * 60 * 60) {
+            // End reconnecting after a specific timeout and flush all commands with a individual error
+            return new Error('Retry time exhausted');
+        }
+        if (options.times_connected > 10) {
+            // End reconnecting with built in error
+            return undefined;
+        }
+        // reconnect after
+        return Math.max(options.attempt * 100, 3000);
+    }
   }
   rclient = redis.createClient(options)
   rclient.on('error', function (err) {
@@ -53,14 +66,14 @@ if (process.env.NODE_ENV === 'TEST') {
 function putServiceInstanceRedis (instance, callback) {
   var cipher = crypto.createCipher('aes192', config.get('APIGEE_REDIS_PASSPHRASE'))
   var key = instance.instance_id
-  instance = cipher.update(JSON.stringify(instance), 'utf-8', 'hex')
-  instance += cipher.final('hex')
-  rclient.hset('serviceInstance', key, instance, function (err, result) {
+  var encrypted = cipher.update(JSON.stringify(instance), 'utf-8', 'hex')
+  encrypted += cipher.final('hex')
+  rclient.hset('serviceInstance', key, encrypted, function (err, result) {
     if (err) {
       var loggerError = logger.ERR_REDIS_SERVICE_SAVE_FAIL(err)
       callback(loggerError)
     } else {
-      callback(null, result)
+      callback(null, instance)
     }
   })
 }
@@ -72,22 +85,20 @@ function getServiceInstanceRedis (instance_id, callback) {
     if (err) {
       var loggerError = logger.ERR_REDIS(err)
       callback(loggerError)
-    }
-    else if (result == null) {
+    } else if (result == null) {
       var loggerError = logger.ERR_REDIS_SERVICE_GET_KEY_MISSING({instance_id : key}, 404)
       callback(loggerError)
-    }
-    else {
+    } else {
       var decrypted = decipher.update(result, 'hex', 'utf-8')
       decrypted += decipher.final('utf-8')
-      logger.log.info({redis: decrypted}, 'Service Instance Details in Redis')
-      callback(null, JSON.parse(decrypted))
+      result = JSON.parse(decrypted)
+      // logger.log.info({redis: result}, 'Service Instance Details in Redis')
+      callback(null, result)
     }
   })
 }
 
 function deleteServiceInstanceRedis (instance_id, callback) {
-  // delete from redis
   var key = instance_id
   rclient.hdel('serviceInstance', key, function (err, result) {
     if (err) {
@@ -96,35 +107,31 @@ function deleteServiceInstanceRedis (instance_id, callback) {
     } else if (result == 0) {
       var loggerError = logger.ERR_REDIS_DELETE_GET_KEY_MISSING({instance_id : key}, 410)
       callback(loggerError)
-    }
-    else {
-      callback(null, result)
+    } else {
+      callback(null, {})
     }
   })
 }
 
 function putBindingRedis (route, callback) {
   var key = route.binding_id
-  route = JSON.stringify(route)
-  rclient.hset('routeBinding', key, route, function (err, result) {
+  rclient.hset('routeBinding', key, JSON.stringify(route), function (err, result) {
     if (err) {
       var loggerError = logger.ERR_REDIS_BINDING_SAVE_FAIL(err)
       callback(loggerError)
     } else {
-      callback(null, JSON.parse(this.route))
+      callback(null, route)
     }
-  }.bind({ route: route }))
+  })
 }
 
 function getBindingRedis (binding_id, callback) {
-  // get from redis
   var key = binding_id
   rclient.hget('routeBinding', key, function (err, result) {
     if (err) {
       var loggerError = logger.ERR_REDIS(err)
       callback(loggerError)
-    }
-    else if (result == null) {
+    } else if (result == null) {
       var loggerError = logger.ERR_REDIS_BINDING_GET_KEY_MISSING({binding_id : key}, 404)
       callback(loggerError)
     } else {
@@ -139,12 +146,11 @@ function deleteBindingRedis (route, callback) {
     if (err) {
       var loggerError = logger.ERR_REDIS_BINDING_DELETE_FAIL(err)
       callback(loggerError)
-    }
-    else if (result == 0) {
+    } else if (result == 0) {
       var loggerError = logger.ERR_REDIS_DELETE_GET_KEY_MISSING({binding_id : key}, 410)
       callback(loggerError)
     } else {
-      callback(null, result)
+      callback(null, {})
     }
   })
 }

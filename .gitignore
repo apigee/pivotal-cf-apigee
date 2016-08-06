@@ -30,6 +30,7 @@ build/Release
 node_modules
 
 # Webstorm ide
+*.iml
 .idea/
 release/
 */resources/*.zip

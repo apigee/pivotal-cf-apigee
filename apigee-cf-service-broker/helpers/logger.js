@@ -99,19 +99,20 @@ var getMessage = function(code) {
   return util.format('[%s] - %s', code, messages[code])
 }
 
+function LoggerError(code, statusCode) {
+    Error.captureStackTrace(this, handle_error)
+    let line = this.stack.split('\n')[1]
+    this.topOfStack = line ? line.trim() : line
+    this.code = code
+    this.message = getMessage(code)
+    this.statusCode = statusCode || 500
+}
+util.inherits(LoggerError, Error)
+
 var handle_error = function(code, originalErr, statusCode) {
     if (originalErr instanceof LoggerError) {
         return originalErr
     }
-
-    function LoggerError(code, statusCode) {
-        Error.captureStackTrace(this, handle_error)
-        let line = this.stack.split('\n')[1]
-        this.topOfStack = line ? line.trim() : line
-        this.message = getMessage(code);
-        this.statusCode = statusCode || 500
-    }
-    util.inherits(LoggerError, Error)
 
     const error = new LoggerError(code, statusCode)
 
@@ -126,6 +127,8 @@ var handle_error = function(code, originalErr, statusCode) {
 
 module.exports.log = log;
 for (let name in codes) {
-    let code = codes[name]
-    module.exports[name] = handle_error.bind(this, code)
+    const code = codes[name]
+    const fn = handle_error.bind(this, code)
+    fn.code = code
+    module.exports[name] = fn
 }

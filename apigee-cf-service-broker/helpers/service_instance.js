@@ -33,35 +33,17 @@ function createInstance (instance, callback) {
     if (err) {
       callback(err, data)
     } else {
-      saveServiceInstance(instance, function (err, data) {
-        if (err) {
-          callback(err, data)
-        } else {
-          callback(null, data)
-        }
-      })
+      saveServiceInstance(instance, callback)
     }
   })
 }
 
 function getInstance (instance_id, callback) {
-  getServiceInstance(instance_id, function (err, data) {
-    if (err) {
-      callback(err, data)
-    } else {
-      callback(null, data)
-    }
-  })
+  getServiceInstance(instance_id, callback)
 }
 
 function deleteInstance (instance_id, callback) {
-  deleteServiceInstance(instance_id, function (err, data) {
-    if (err) {
-      callback(err, data)
-    } else {
-      callback(null, data)
-    }
-  })
+  deleteServiceInstance(instance_id, callback)
 }
 
 module.exports = {

@@ -127,7 +127,7 @@ describe('Component APIs', function () {
         .set('Authorization', authHeader)
         .expect(401, done)
     })
-    it('Valid Apigee Credentials on service instance creation should return a 201 response', function (done) {
+    it('Valid Apigee Credentials on service instance creation should return a 201 response with dashboard_url', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
         payload: {
@@ -147,7 +147,13 @@ describe('Component APIs', function () {
         .send(serviceInstance.payload)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
-        .expect(201, done)
+        .expect(201)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('dashboard_url')
+          expect(res.body.dashboard_url).to.equal('https://enterprise.apigee.com/platform/#/cdmo')
+          done()
+        })
     })
   })
 
@@ -170,7 +176,7 @@ describe('Component APIs', function () {
           done()
         })
     })
-    it('Valid Auth on route binding API should return 201', function (done) {
+    it('Valid Auth on route binding API should return 201 with route_service_url', function (done) {
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',
@@ -186,7 +192,13 @@ describe('Component APIs', function () {
         .send(bindingInstance.payload)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
-        .expect(201, done)
+        .expect(201)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('route_service_url')
+          expect(res.body.route_service_url).to.equal('https://cdmo-test.apigee.net/binding-guid-here')
+          done()
+        })
     })
   })
   describe('Delete Route Binding & Delete Service Instance', function () {
