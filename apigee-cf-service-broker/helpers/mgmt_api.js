@@ -21,63 +21,94 @@
  */
 
 var request = require('request')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var config = require('./config')
 var logger = require('./logger')
 
+/* Destructure, spread operator: Node 6
+function auth(obj) {
+  const {user, pass} = obj
+  return {user, pass}
+}
+
+function mgmtUrl() {
+  const vX = config.get('APIGEE_MGMT_API_URL')
+  return [vX, ...arguments].join('/')
+}
+
+function org(obj, ...rest) {
+  return mgmtUrl('organizations', obj.org, ...rest)
+}
+
+function orgEnv(obj, ...rest) {
+  return org(obj, 'environments', obj.env, ...rest)
+}
+*/
+
+function auth(obj) {
+  return {
+    user: obj.user,
+    pass: obj.pass
+  }
+}
+
+function mgmtUrl() {
+  const args = Array.prototype.slice.call(arguments)
+  const vX = config.get('APIGEE_MGMT_API_URL')
+  return [vX].concat(args).join('/')
+}
+
+function org() {
+  const args = Array.prototype.slice.call(arguments)
+  const obj = args.shift()
+  return mgmtUrl.apply(null, ['organizations', obj.org].concat(args))
+}
+
+function orgEnv() {
+  const args = Array.prototype.slice.call(arguments)
+  const obj = args.shift()
+  return org.apply(null, [obj, 'environments', obj.env].concat(args))
+}
+
+
 function getProxyRevision (proxyData, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = proxyData.user
-  var adminPass = proxyData.pass
   var options = {
-    url: mgmtUrl + '/organizations/' + proxyData.org + '/apis/' + proxyData.proxyname,
-    auth: {
-      user: adminUser,
-      pass: adminPass
-    }
+    url: org(proxyData, 'apis', proxyData.proxyname),
+    auth: auth(proxyData)
   }
   request.get(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
       callback(loggerError)
-    }
-    else if (res.statusCode == 401) {
+    } else if (res.statusCode == 401) {
       var loggerError = logger.ERR_APIGEE_AUTH(err, 401)
       callback(loggerError)
-    }
-    else if (res.statusCode == 404) {
+    } else if (res.statusCode == 404) {
       var loggerError = logger.ERR_APIGEE_PROXY_NOT_FOUND(err, 404)
       callback(loggerError)
-    }
-    else if (res.statusCode !== 200) {
+    } else if (res.statusCode !== 200) {
       var loggerError = logger.ERR_APIGEE_GET_PROXY_REV_FAILED(body, res.statusCode)
       callback(loggerError)
     } else {
       body = JSON.parse(body)
-      var revision = body.revision.slice(-1).pop()
+      var revision = body.revision.pop()
       callback(null, revision)
     }
   })
 }
 
 function importProxy (proxyData, data, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = proxyData.user
-  var adminPass = proxyData.pass
   var formData = {
     // Pass data via Buffers
     file: data
   }
   var options = {
-    url: mgmtUrl + '/organizations/' + proxyData.org + '/apis', // TODO: unbrittle this
+    url: org(proxyData, 'apis'),
     formData: formData,
-    auth: {
-      user: adminUser,
-      pass: adminPass
+    qs: {
+      action: 'import',
+      name: proxyData.proxyname
     },
-    qs: {action: 'import',
-        name: proxyData.proxyname}
+    auth: auth(proxyData)
   }
   request.post(options, function (err, httpResponse, body) {
     if (err) {
@@ -87,36 +118,26 @@ function importProxy (proxyData, data, callback) {
       var loggerError = logger.ERR_APIGEE_PROXY_UPLOAD(body, httpResponse.statusCode)
       callback(loggerError)
     } else {
-      // deploy proxy
-      deployProxy(proxyData, function (err, result) {
-        if (err) {
-          var loggerError = logger.ERR_UAE(err)
-          callback(loggerError)
-        } else {
-          callback(null, result)
-        }
-      })
+      deployProxy(proxyData, callback)
     }
   })
 }
 
+
+function deployments(obj, revision) {
+  return orgEnv(obj, 'apis', obj.proxyname, 'revisions', revision, 'deployments')
+}
+
 function deployProxy (proxyData, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = proxyData.user
-  var adminPass = proxyData.pass
   // should get latest version and deploy that
-  getProxyRevision(proxyData, function (err, result) {
+  getProxyRevision(proxyData, function (err, revision) {
     if (err) {
         var loggerError = logger.ERR_UAE(err)
         callback(loggerError)
     } else {
       var options = {
-        url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + result + '/deployments', // TODO: unbrittle this
-        auth: {
-          user: adminUser,
-          pass: adminPass
-        }
+        url: deployments(proxyData, revision),
+        auth: auth(proxyData)
       }
       request.post(options, function (err, res, body) {
         if (err) {
@@ -131,23 +152,15 @@ function deployProxy (proxyData, callback) {
 }
 
 function undeployProxy (proxyData, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = proxyData.user
-  var adminPass = proxyData.pass
   // should get latest version and undeploy that
   getProxyRevision(proxyData, function (err, revision) {
     if (err) {
         var loggerError = logger.ERR_UAE(err)
         callback(loggerError)
-    }
-    else {
+    } else {
       var options = {
-        url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/apis/' + proxyData.proxyname + '/revisions/' + revision + '/deployments',
-        auth: {
-          user: adminUser,
-          pass: adminPass
-        }
+        url: deployments(proxyData, revision),
+        auth: auth(proxyData)
       }
       request.del(options, function (err, res, body) {
         if (err) {
@@ -162,18 +175,10 @@ function undeployProxy (proxyData, callback) {
 }
 
 function getVirtualHosts (proxyData, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = proxyData.user
-  var adminPass = proxyData.pass
   var options = {
-    url: mgmtUrl + '/organizations/' + proxyData.org + '/environments/' + proxyData.env + '/virtualhosts',
-    auth: {
-      user: adminUser,
-      pass: adminPass
-    }
+    url: orgEnv(proxyData, 'virtualhosts'),
+    auth: auth(proxyData)
   }
-  log.debug('get virtual hosts url: ', options.url)
   request.get(options, function (err, res, body) {
     if (err) {
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
@@ -187,104 +192,11 @@ function getVirtualHosts (proxyData, callback) {
   })
 }
 
-/* istanbul ignore next */
-function getKVM (keyOptions, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
-  var kvmName = config.get('apigee_edge').key_value_map
-  var org = config.get('apigee_edge').org
-  var options = {
-    url: mgmtUrl + '/organizations/' + org + '/keyvaluemaps/' + kvmName + '/entries/' + keyOptions.key,
-    auth: {
-      user: adminUser,
-      pass: adminPass
-    }
-  }
-  request.get(options, function (err, res, body) {
-    if (err) {
-      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
-      callback(loggerError)
-    } else if (res.statusCode !== 200) {
-      var loggerError = logger.ERR_APIGEE_GET_KVM(body, res.statusCode)
-      callback(loggerError)
-    } else {
-      callback(null, JSON.parse(body))
-    }
-  })
-}
-
-/* istanbul ignore next */
-function deleteKVM (keyOptions, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
-  var kvmName = config.get('apigee_edge').key_value_map
-  var org = config.get('apigee_edge').org
-  var options = {
-    url: mgmtUrl + '/organizations/' + org + '/keyvaluemaps/' + kvmName + '/entries/' + keyOptions.key,
-    auth: {
-      user: adminUser,
-      pass: adminPass
-    }
-  }
-  request.del(options, function (err, res, body) {
-    if (err) {
-      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
-      callback(loggerError)
-    } else if (res.statusCode !== 200) {
-      var loggerError = logger.ERR_APIGEE_DELETE_KVM(body, res.statusCode)
-      callback(loggerError)
-    } else {
-      callback(null, body)
-    }
-  })
-}
-
-/* istanbul ignore next */
-function setKVM (keyOptions, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
-  var adminUser = config.get('apigee_edge').username
-  var adminPass = config.get('apigee_edge').password
-  var kvmName = config.get('apigee_edge').key_value_map
-  var org = config.get('apigee_edge').org
-  var options = {
-    url: mgmtUrl + '/organizations/' + org + '/keyvaluemaps/' + kvmName,
-    auth: {
-      user: adminUser,
-      pass: adminPass
-    },
-    body: {'name': kvmName, 'entry': [{'name': keyOptions.key, 'value': JSON.stringify(keyOptions.value)}]},
-    json: true
-  }
-  request.post(options, function (err, res, body) {
-    if (err) {
-      var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
-      callback(loggerError)
-    } else if (res.statusCode === 404) {
-      //TODO create KVM, try once more.
-      var loggerError = logger.ERR_APIGEE_KVM_NOT_FOUND(body, 404)
-    } else if (res.statusCode !== 200 && res.statusCode !== 201) {
-      var loggerError = logger.ERR_APIGEE_KVM_SET_ERROR(body, res.statusCode)
-      callback(loggerError)
-    } else {
-      callback(null, body)
-    }
-  })
-}
 
 function authenticate (authOptions, callback) {
-  var config = require('../helpers/config')
-  var mgmtUrl = config.get('APIGEE_MGMT_API_URL')
   var options = {
-    url: mgmtUrl + '/organizations/' + authOptions.org,
-    auth: {
-      user: authOptions.user,
-      pass: authOptions.pass
-    }
+    url: org(authOptions),
+    auth: auth(authOptions)
   }
   request.get(options, function (err, res, body) {
     if (err) {
@@ -304,8 +216,5 @@ module.exports = {
   getVirtualHosts: getVirtualHosts,
   deployProxy: deployProxy,
   undeployProxy: undeployProxy,
-  setKVM: setKVM,
-  getKVM: getKVM,
-  deleteKVM: deleteKVM,
   authenticate: authenticate
 }
