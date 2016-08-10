@@ -21,9 +21,13 @@
  */
 
 var nconf = require('nconf')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 var defaults = {
+    APIGEE_DASHBOARD_URL: 'https://enterprise.apigee.com/platform/#/',
+    APIGEE_MGMT_API_URL: 'https://api.enterprise.apigee.com/v1',
+    APIGEE_PROXY_DOMAIN: 'apigee.net',
+    APIGEE_PROXY_HOST_TEMPLATE: '${org}-${env}.${domain}',
+    APIGEE_PROXY_NAME_TEMPLATE: 'cf-${routeName}',
     datastore: 'redis',
     auth: 'staticauth'
 }

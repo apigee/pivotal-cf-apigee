@@ -56,9 +56,8 @@ router.put('/:instance_id', validate({body: instanceSchema.create}), function (r
     apigee_env: req.body.parameters.env,
     apigee_user: req.body.parameters.user,
     apigee_pass: req.body.parameters.pass,
-    microHost: req.body.parameters.micro,
-    host: req.body.parameters.host,
-    hostpattern: req.body.parameters.hostpattern
+    micro_host: req.body.parameters.micro,
+    host_template: req.body.parameters.host
   }
   service_instance.create(instance, function (err, data) {
     if (err) {
@@ -94,7 +93,7 @@ router.delete('/:instance_id', function (req, res) {
 // response should be route_service_url	string	A URL to which Cloud Foundry should proxy requests for the bound route.
 router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
   // use instance_id to retrieve org and environment for proxy
-  var route = {
+  var bindReq = {
     instance_id: req.params.instance_id,
     binding_id: req.params.binding_id,
     service_id: req.body.service_id,
@@ -102,8 +101,8 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
     bind_resource: req.body.bind_resource,
     parameters: req.body.parameters
   }
-  // create proxy in org that handles the url and dynamically sets target (bind_resource.route)
-  service_binding.create(route, function (err, result) {
+  // create proxy in org that handles the url (bind_resource.route) and dynamically sets target
+  service_binding.create(bindReq, function (err, result) {
     if (err) {
       res.status(err.statusCode || 500).json(err)
     } else {
@@ -115,13 +114,13 @@ router.put('/:instance_id/service_bindings/:binding_id', function (req, res) {
 
 // delete binding
 router.delete('/:instance_id/service_bindings/:binding_id', function (req, res) {
-  var route = {
+  var bindReq = {
     instance_id: req.params.instance_id,
     binding_id: req.params.binding_id,
     service_id: req.query.service_id,
     plan_id: req.query.plan_id
   }
-  service_binding.delete(route, function (err, result) {
+  service_binding.delete(bindReq, function (err, result) {
     if (err) {
       res.status(err.statusCode || 500).json(err)
     } else {

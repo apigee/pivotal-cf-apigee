@@ -33,8 +33,7 @@ var DOMParser = require('xmldom').DOMParser
 var XMLSerializer = require('xmldom').XMLSerializer
 var builder = require('xmlbuilder')
 
-var generatePolicy = function (route, zip, callback) {
-  var routeUrl = 'http://' + route.bind_resource.route
+var generatePolicy = function (routeUrl, zip, callback) {
   async.waterfall([
     // check for openApi
     function (callback) {

@@ -17,6 +17,14 @@
 
 /**
  * Edge Management API calls
+ *
+ * @param proxyData
+ * @param proxyData.org
+ * @param proxyData.env
+ * @param proxyData.user
+ * @param proxyData.pass
+ * @param proxyData.proxyname
+ *
  * @module
  */
 
@@ -96,10 +104,9 @@ function getProxyRevision (proxyData, callback) {
   })
 }
 
-function importProxy (proxyData, data, callback) {
+function importProxy (proxyData, zipBuffer, callback) {
   var formData = {
-    // Pass data via Buffers
-    file: data
+    file: zipBuffer
   }
   var options = {
     url: org(proxyData, 'apis'),

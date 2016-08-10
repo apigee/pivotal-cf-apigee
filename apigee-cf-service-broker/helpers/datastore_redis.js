@@ -113,14 +113,14 @@ function deleteServiceInstanceRedis (instance_id, callback) {
   })
 }
 
-function putBindingRedis (route, callback) {
-  var key = route.binding_id
-  rclient.hset('routeBinding', key, JSON.stringify(route), function (err, result) {
+function putBindingRedis (bindRes, callback) {
+  var key = bindRes.binding_id
+  rclient.hset('routeBinding', key, JSON.stringify(bindRes), function (err, result) {
     if (err) {
       var loggerError = logger.ERR_REDIS_BINDING_SAVE_FAIL(err)
       callback(loggerError)
     } else {
-      callback(null, route)
+      callback(null, bindRes)
     }
   })
 }
@@ -140,8 +140,8 @@ function getBindingRedis (binding_id, callback) {
   })
 }
 
-function deleteBindingRedis (route, callback) {
-  var key = route.binding_id
+function deleteBindingRedis (binding_id, callback) {
+  var key = binding_id
   rclient.hdel('routeBinding', key, function (err, result) {
     if (err) {
       var loggerError = logger.ERR_REDIS_BINDING_DELETE_FAIL(err)

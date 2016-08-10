@@ -1,6 +1,6 @@
 {
   "name": "apigee-cf-service-broker",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "apigee service broker for cloud foundry",
   "main": "index.js",
   "scripts": {

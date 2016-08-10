@@ -33,42 +33,42 @@ var deleteBinding = require('./datastore').deleteBinding
 var getBinding = require('./datastore').getBinding
 
 
-// See route objects created in calls from api/service_instances
-function retrieveServiceInstanceDetails (route, cb) {
-  service_instance.fetch(route.instance_id, function (err, data) {
+// See bindReq objects created in calls from api/service_instances
+function retrieveServiceInstanceDetails (bindReq, cb) {
+  service_instance.fetch(bindReq.instance_id, function (err, instance) {
     if (err) {
-      cb(err, data)
+      cb(err, instance)
     } else {
-      var filteredData = {
-        micro: data.microHost,
-        host: data.host, hostpattern: data.hostpattern,
-        org: data.apigee_org, env: data.apigee_env,
-        user: data.apigee_user, pass: data.apigee_pass,
-        route: route
+      var bindDetails = {
+        micro: instance.micro_host,
+        host: instance.host_template,
+        org: instance.apigee_org, env: instance.apigee_env,
+        user: instance.apigee_user, pass: instance.apigee_pass,
+        bindReq: bindReq
       }
       // logger.log.info({was: data, now: filteredData}, 'retrieveServiceInstanceDetails')
-      cb(null, filteredData)
+      cb(null, bindDetails)
     }
   })
 }
 
 
-function createServiceBinding (route, callback) {
+function createServiceBinding (bindReq, callback) {
   async.waterfall([
-    retrieveServiceInstanceDetails.bind(this, route),
-    function (data, cb) {
-      proxy.create(data, function (err, route) {
+    retrieveServiceInstanceDetails.bind(this, bindReq),
+    function (bindDetails, cb) {
+      proxy.create(bindDetails, function (err, bindRes) {
         if (err) {
           var loggerError = logger.ERR_PROXY_CREATION_FAILED(err)
           cb(loggerError)
         } else {
           // result needs to have URL details in it
-          cb(null, route)
+          cb(null, bindRes)
         }
       })
     },
-    function (route, cb) {
-      saveBinding(route, function (err, result) {
+    function (bindRes, cb) {
+      saveBinding(bindRes, function (err, result) {
         if (err) {
           var loggerError = logger.ERR_REDIS_BINDING_SAVE_FAILED(err)
           cb(loggerError)
@@ -83,34 +83,34 @@ function createServiceBinding (route, callback) {
   callback)
 }
 
-function deleteServiceBinding (route, callback) {
+function deleteServiceBinding (bindReq, callback) {
   async.waterfall([
-    retrieveServiceInstanceDetails.bind(this, route),
-    function (data, cb) {
-      getBinding(data.route.binding_id, function (err, binding) {
+    retrieveServiceInstanceDetails.bind(this, bindReq),
+    function (bindDetails, cb) {
+      getBinding(bindDetails.bindReq.binding_id, function (err, bindRes) {
         if (err) {
           cb(err, binding)
         } else {
-          data.proxyname = binding.proxyname
-          logger.log.info({data: data}, 'delete binding getBinding')
-          cb(null, data)
+          bindDetails.proxyname = bindRes.proxyname
+          logger.log.info({bindDetails: bindDetails}, 'delete binding getBinding')
+          cb(null, bindDetails)
         }
       })
     },
-    function (data, cb) {
-      mgmt_api.undeployProxy(data, function (err, result) {
+    function (bindDetails, cb) {
+      mgmt_api.undeployProxy(bindDetails, function (err, result) {
         if (err && err.statusCode == 404) {
           // proxy manually deleted , not found, proceed with service binding deletion
-          cb(null, data)
+          cb(null, bindDetails)
         } else if (err) {
           cb(err, result)
         } else {
-          cb(null, data)
+          cb(null, bindDetails)
         }
       })
     },
-    function (data, cb) {
-      deleteBinding(data.route, cb)
+    function (bindDetails, cb) {
+      deleteBinding(bindDetails.bindReq.binding_id, cb)
     }
   ],
   callback)

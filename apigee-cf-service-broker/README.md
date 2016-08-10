@@ -3,6 +3,8 @@ A service broker that provides integration between Apigee Edge and Cloud Foundry
 
 ## pre-requisites
 
+cf route services requires TLS
+
 ### node.js
 instructions for downloading and installing node.js can be found [here](https://nodejs.org/en/).
 
@@ -36,16 +38,16 @@ This broker works with both private cloud (OPDK) and SaaS Edge. If you are not a
  ```
 
 1. edit the manifest to set the listed variables to appropriate values for your environment and Edge account.
-The sample values are appropriate for a SaaS Edge account. For a private cloud (OPDK) Edge installation you will need to adjust the APIGEE_PROXY_HOST, APIGEE_PROXY_HOST_PATTERN, and APIGEE_MGMT_API_URL values.
+The sample values are appropriate for a SaaS Edge account. For a private cloud (OPDK) Edge installation you will need to adjust the APIGEE_PROXY_DOMAIN, APIGEE_PROXY_HOST_TEMPLATE, and APIGEE_MGMT_API_URL values.
 
 Item | Purpose | Example
 ---- | ---- | ----
 APIGEE_REDIS_PASSPHRASE | passphrase used to encrypt data in Redis store | `correct horse battery staple`
 APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/` for SaaS Edge.
-APIGEE_PROXY_HOST | Hostname for API Proxies. | `apigee.net` for Free SaaS accounts.
-APIGEE_PROXY_HOST_PATTERN | Pattern for generating proxy URL | `#{apigeeOrganization}-#{apigeeEnvironment}.#{proxyHost}` for Free SaaS accounts.
-APIGEE_PROXY_NAME_PATTERN | Pattern for naming API Proxies in Edge | `cf-#{routeName}`
 APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterprise.apigee.com/v1` for SaaS Edge.
+APIGEE_PROXY_DOMAIN | Domain for API Proxies. | `apigee.net` for Free SaaS accounts.
+APIGEE_PROXY_HOST_TEMPLATE | Template for generating proxy URL | `#{org}-#{env}.#{domain}` for Free SaaS accounts.
+APIGEE_PROXY_NAME_TEMPLATE | Template for naming API Proxies in Edge | `cf-#{routeName}`
 
 1. Deploy the broker to cloud foundry.
  ```bash
