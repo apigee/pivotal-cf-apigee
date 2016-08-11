@@ -106,10 +106,10 @@ function getZip (proxyData, callback) {
           var proxyNameTemplate = zip.file('apiproxy/cf-proxy.xml').asText()
           zip.file('apiproxy/cf-proxy.xml', proxyNameTemplate.replace(re2, proxyData.proxyname))
           var targetNameTemplate = zip.file('apiproxy/targets/default.xml').asText()
-          var targetUrl = 'https://' + proxyData.bindReq.bind_resource.route
-          zip.file('apiproxy/targets/default.xml', targetNameTemplate.replace(re4, targetUrl))
+          var dummyTargetUrl = 'http://' + proxyData.bindReq.bind_resource.route  // Actual is X-Cf-Forwarded-Url header
+          zip.file('apiproxy/targets/default.xml', targetNameTemplate.replace(re4, dummyTargetUrl))
           // Check for open Api & add policy support
-          openApi.generatePolicy(targetUrl, zip, function(err, updatedZip) {
+          openApi.generatePolicy(dummyTargetUrl, zip, function(err, updatedZip) {
             if (err) {
               callback(null, this.zip.generate({type: 'nodebuffer'}))
             }

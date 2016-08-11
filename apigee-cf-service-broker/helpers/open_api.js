@@ -33,23 +33,48 @@ var DOMParser = require('xmldom').DOMParser
 var XMLSerializer = require('xmldom').XMLSerializer
 var builder = require('xmlbuilder')
 
+
+function getOpenApi (routeUrl, callback) {
+  const paths = ['/openApi.json', '/openApi.yaml']
+  async.map(paths, function (path, cb) {
+    const url = routeUrl + path
+    swaggerParser.parse(url, function (err, api, metadata) {
+      if (err) {
+        if (err.message && err.message.includes('HTTP ERROR 404')) {
+          logger.log.info("OpenAPI not found at %s", url)
+          cb(null, null)  // plain 404 is to be expected
+        } else {
+          var loggerError = logger.ERR_OPENAPI_PARSE_FAIL(err)
+          cb(loggerError)
+        }
+      } else {
+        logger.log.info("OpenAPI parsed at %s", url)
+        cb(null, api)
+      }
+    })
+  },
+  function (err, specs) {
+    if (err) {
+      callback(err)
+    } else {
+      const first = specs.reduce(function (memo, value, index) {
+        return memo ? memo : value;
+      }, null)
+      callback(null, first)
+    }
+  })
+}
+
+
 var generatePolicy = function (routeUrl, zip, callback) {
   async.waterfall([
-    // check for openApi
-    function (callback) {
-      swaggerParser.parse(routeUrl + '/openApi.json', function (err, api, metadata) {
-        if (err) {
-          // TODO: Error / Warning
-          var loggerError = logger.ERR_OPENAPI_NOT_FOUND(err)
-          callback(loggerError)
-        } else {
-          callback(null, api)
-        }
-      })
-    },
+    getOpenApi.bind(this, routeUrl),
     function (api, callback) {
+      if (! api) {
+        callback(true)  // Just didn't find spec, nothing "went wrong"
+      }
       // Valid openApi Found -- Look for apigee Policies
-      if (api['x-apigee-policies']) {
+      else if (api['x-apigee-policies']) {
         async.each(Object.keys(api['x-apigee-policies']), function (service, cb) {
           // Perform operation on file here.
           var policy = api['x-apigee-policies'][service].type
@@ -235,10 +260,14 @@ var generatePolicy = function (routeUrl, zip, callback) {
       callback(null, zip)
     }
   ], function (err, zip) {
-    if (err) {
+    if (err === true) {
+      logger.log.info("Did not find OpenAPI interface file for %s", routeUrl)
+      callback(true)  // Nothing to wrap or log with stack trace
+    } else if (err) {
       var loggerError = logger.ERR_UAE(err)
       callback(loggerError)
     } else {
+      logger.log.info("Applying OpenAPI interface file for %s", routeUrl)
       callback(null, zip)
     }
   })

@@ -89,7 +89,7 @@ function deleteServiceBinding (bindReq, callback) {
     function (bindDetails, cb) {
       getBinding(bindDetails.bindReq.binding_id, function (err, bindRes) {
         if (err) {
-          cb(err, binding)
+          cb(err, bindRes)
         } else {
           bindDetails.proxyname = bindRes.proxyname
           logger.log.info({bindDetails: bindDetails}, 'delete binding getBinding')
