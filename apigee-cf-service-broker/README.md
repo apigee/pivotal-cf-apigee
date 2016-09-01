@@ -44,37 +44,21 @@ Item | Purpose | Default
 ---- | ---- | ----
 APIGEE_REDIS_PASSPHRASE | passphrase used to encrypt data in Redis store | *no default value*, must be in manifest
 APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/` for SaaS Edge.
-<<<<<<< HEAD
 APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint | `https://api.enterprise.apigee.com/v1` for SaaS Edge.
 APIGEE_PROXY_DOMAIN | Domain for API Proxies | `apigee.net` for Free SaaS accounts.
 APIGEE_PROXY_HOST_TEMPLATE | Template for generating proxy URL | `${org}-${env}.${domain}` for Free SaaS accounts.
 APIGEE_PROXY_NAME_TEMPLATE | Template for naming API Proxies in Edge | `cf-${routeName}`
-=======
-APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint. | `https://api.enterprise.apigee.com/v1` for SaaS Edge.
->>>>>>> master
 
 1. Deploy the broker to cloud foundry.
  ```bash
  cf push
  ```
-<<<<<<< HEAD
    Note the resulting URL of the broker app, for example
  ```
  urls: apigee-cf-service-broker.local.pcfdev.io
  ```
 
 1. Communication with the broker is protected with a user name and password (to prevent unauthorized access to the broker app from other sources). These credentials are specified when the broker is created, and then used for each call. However, validating those credentials is the responsibility of the broker app, which does not have those credentials provided by the runtime.
-=======
-
-1. Create environment variables for the broker authentication.
-```bash
-cf set-env apigee-cf-service-broker SECURITY_USER_NAME <pick a username>
-cf set-env apigee-cf-service-broker SECURITY_USER_PASSWORD <pick a password>
-​
-# restage the broker
-cf restage apigee-cf-service-broker
-```
->>>>>>> master
 
    Choose a user name and password and store then as the following environment variables for the broker app. Then restage the broker app to load those variables.
  ```bash
@@ -85,11 +69,7 @@ cf restage apigee-cf-service-broker
 
 1. Use those credentials and the URL for the broker app to create the service broker
  ```bash
-<<<<<<< HEAD
  cf create-service-broker apigee-edge <user from above> <password from above> https://apigee-cf-service-broker.<rest of url where broker is running>
-=======
- cf create-service-broker apigee-edge <username specified above> <password specified above> <url of your service broker>
->>>>>>> master
  ```
 
 1. Publish in marketplace
@@ -101,15 +81,8 @@ cf restage apigee-cf-service-broker
 
 1. Create service instance in cf org/space
  ```bash
-<<<<<<< HEAD
  cf create-service apigee-edge org myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>"}'
-=======
- cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>", "host":"<apigee host>", "hostPattern":"<pattern to generate url>"}'
->>>>>>> master
  ```
- Where 
- * `host` is the hostname for your Edge proxies. E.g. "apigee.net" if you are using the Apigee Trial. 
- * `hostPattern` is the pattern to determine a proxy url. E.g. "${apigeeOrganization}-${apigeeEnvironment}.${proxyHost}" if you are using the Apigee Trial, or just "${proxyHost}" for a simple on-premises installation.
 
 1. Push an application that you wish to register an Edge route for, and note its url.
 
