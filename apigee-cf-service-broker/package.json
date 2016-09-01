@@ -1,11 +1,11 @@
 {
   "name": "apigee-cf-service-broker",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "apigee service broker for cloud foundry",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "NODE_ENV=TEST istanbul cover --report cobertura --report html _mocha -- --recursive test/test.js -R spec",
+    "test": "NODE_ENV=TEST istanbul cover --report cobertura --report html _mocha -- --recursive test -R spec",
     "posttest": "node scripts/genCoverageBadge.js"
   },
   "repository": {
@@ -44,7 +44,7 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-things": "^0.2.0",
-    "istanbul": "^0.3.20",
+    "istanbul": "^0.4.4",
     "istanbul-cobertura-badger": "^1.2.1",
     "mocha": "^2.4.5",
     "nock": "^7.0.2",

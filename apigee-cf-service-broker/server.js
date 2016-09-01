@@ -18,7 +18,7 @@ function enforceTLS (req, res, next) {
   }
   if (proto !== 'https') {
     res.status(403)
-    var loggerError = logger.handle_error(logger.codes.ERR_REQ_INVALID_PROTOCOL, null)
+    var loggerError = logger.ERR_REQ_INVALID_PROTOCOL()
     var responseData = {
       msg: loggerError.message
     }
@@ -39,7 +39,7 @@ app.use('/v2/service_instances/', enforceTLS, service_instances)
 app.use(function (err, req, res, next) {
   var responseData
   if (err.name === 'JsonSchemaValidation') {
-    var loggerError = logger.handle_error(logger.codes.ERR_REQ_JSON_SCHEMA_FAIL, err)
+    var loggerError = logger.ERR_REQ_JSON_SCHEMA_FAIL(err)
     res.status(400)
     responseData = {
       msg: loggerError.message,

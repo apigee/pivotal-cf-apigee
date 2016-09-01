@@ -27,17 +27,18 @@ var api = supertest('http://localhost:' + port)
 var app
 var config = require('../helpers/config')
 
-/* Mock Apigee API Calls using NOCK for testing */
-require('./helpers/api_mocks.js')
+//require('./helpers/api_mocks.js')
 
-describe('Starting Tests..', function () {
+describe('Component APIs', function () {
   this.timeout(0)
   var authHeader = 'Basic ' + new Buffer(config.get('SECURITY_USER_NAME') + ':' + config.get('SECURITY_USER_PASSWORD')).toString('base64')
   var badAuthHeader = 'Basic ' + new Buffer('admin:' + 'wrong-password').toString('base64')
-  before(function () {  // eslint-disable-line
+  before('Starting test server', function () {  // eslint-disable-line
     app = server.listen(8000)
   })
-  describe('API Securtiy', function () {
+
+  describe('API Security', function () {
+
     it('Valid Auth should return 200', function (done) {
       api.get('/')
         .set('Accept', 'application/json')
@@ -126,7 +127,7 @@ describe('Starting Tests..', function () {
         .set('Authorization', authHeader)
         .expect(401, done)
     })
-    it('Valid Apigee Credentials on service instance creation should return a 201 response', function (done) {
+    it('Valid Apigee Credentials on service instance creation should return a 201 response with dashboard_url', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
         payload: {
@@ -146,7 +147,13 @@ describe('Starting Tests..', function () {
         .send(serviceInstance.payload)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
-        .expect(201, done)
+        .expect(201)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('dashboard_url')
+          expect(res.body.dashboard_url).to.equal('https://enterprise.apigee.com/platform/#/cdmo')
+          done()
+        })
     })
   })
 
@@ -169,7 +176,7 @@ describe('Starting Tests..', function () {
           done()
         })
     })
-    it('Valid Auth on route binding API should return 201', function (done) {
+    it('Valid Auth on route binding API should return 201 with route_service_url', function (done) {
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',
@@ -185,7 +192,13 @@ describe('Starting Tests..', function () {
         .send(bindingInstance.payload)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
-        .expect(201, done)
+        .expect(201)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('route_service_url')
+          expect(res.body.route_service_url).to.equal('https://cdmo-test.apigee.net/binding-guid-here')
+          done()
+        })
     })
   })
   describe('Delete Route Binding & Delete Service Instance', function () {
@@ -211,7 +224,7 @@ describe('Starting Tests..', function () {
     })
     it('Invalid Service Instance delete should return a 410 response', function (done) {
       var serviceInstance = 'Non-Exist'
-      api.del('/v2/service_instances/' + serviceInstance.instance_id)
+      api.del('/v2/service_instances/' + serviceInstance)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
         .expect(410, done)

@@ -15,135 +15,105 @@
  * limitations under the License.
  */
 
-// TODO: refactor
+/**
+ * Creates/deletes service binding
+ * @module
+ */
 
-var config = require('../helpers/config')
-var service_instance = require('./service_instance')
 var async = require('async')
-var proxy = require('./edge_proxy')
 
-var mgmt_api = require('./mgmt_api')
-var log = require('bunyan').createLogger({name: 'apigee', src: true})
+var config = require('./config')
 var logger = require('./logger')
-var saveBinding = require('./datastore')['redis'].saveBinding
-var deleteBinding = require('./datastore')['redis'].deleteBinding
-var getBinding = require('./datastore')['redis'].getBinding
+var mgmt_api = require('./mgmt_api')
+var proxy = require('./edge_proxy')
+var service_instance = require('./service_instance')
 
-function createServiceBinding (route, callback) {
-  async.waterfall([ function (cb) {
-    // retrieve service instance details
-    service_instance.fetch(route.instance_id, function (err, data) {
-      if (err) {
-        cb(true, data)
-      } else {
-        // get org and environment and continue
-        // logger.log.info({data: data}, 'Service Binding get service instance org')
-        var filteredData = {host: data.host, hostpattern: data.hostpattern, org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
-        filteredData.route = route
-        cb(null, filteredData)
+var saveBinding = require('./datastore').saveBinding
+var deleteBinding = require('./datastore').deleteBinding
+var getBinding = require('./datastore').getBinding
+
+
+// See bindReq objects created in calls from api/service_instances
+function retrieveServiceInstanceDetails (bindReq, cb) {
+  service_instance.fetch(bindReq.instance_id, function (err, instance) {
+    if (err) {
+      cb(err, instance)
+    } else {
+      var bindDetails = {
+        micro: instance.micro_host,
+        host: instance.host_template,
+        org: instance.apigee_org, env: instance.apigee_env,
+        user: instance.apigee_user, pass: instance.apigee_pass,
+        bindReq: bindReq
       }
-    }) },
-    // create proxy
-    function (data, cb) {
-      proxy.create(data, function (err, result) {
+      // logger.log.info({was: data, now: filteredData}, 'retrieveServiceInstanceDetails')
+      cb(null, bindDetails)
+    }
+  })
+}
+
+
+function createServiceBinding (bindReq, callback) {
+  async.waterfall([
+    retrieveServiceInstanceDetails.bind(this, bindReq),
+    function (bindDetails, cb) {
+      proxy.create(bindDetails, function (err, bindRes) {
         if (err) {
-          var loggerError = logger.handle_error(logger.codes.ERR_PROXY_CREATION_FAILED, err)
-          cb(true, loggerError)
-          return
+          var loggerError = logger.ERR_PROXY_CREATION_FAILED(err)
+          cb(loggerError)
         } else {
           // result needs to have URL details in it
-          cb(null, result)
+          cb(null, bindRes)
         }
       })
     },
-    // store binding details
-    function (data, cb) {
-      saveBinding(data, function (err, result) {
+    function (bindRes, cb) {
+      saveBinding(bindRes, function (err, result) {
         if (err) {
-          var loggerError = logger.handle_error(logger.codes.ERR_REDIS_BINDING_SAVE_FAILED, err)
+          var loggerError = logger.ERR_REDIS_BINDING_SAVE_FAILED(err)
           cb(loggerError)
-          return
         } else {
           logger.log.info({result: result}, 'Service Binding Save Binding')
+          // need to call back with URL details for forwarding
           cb(null, result)
         }
       })
-    }],
-    function (err, result) {
-      if (err) {
-        callback(true, result)
-      } else {
-        // need to call back with URL details for forwarding
-        callback(null, result)
-      }
-    })
+    }
+  ],
+  callback)
 }
 
-function deleteServiceBinding (route, callback) {
-  /* route is
-  {
-    instance_id: req.params.instance_id,
-    binding_id: req.params.binding_id,
-    service_id: req.query.service_id,
-    plan_id: req.query.plan_id
-  }
-  */
-  async.waterfall([ function (cb) {
-    // retrieve service instance details
-    service_instance.fetch(route.instance_id, function (err, data) {
-      if (err) {
-        cb(true, data)
-      } else {
-        // get org and environment and continue
-        // logger.log.info({data: data}, 'Service Binding get service instance org')
-        var filteredData = {org: data.apigee_org, env: data.apigee_env, user: data.apigee_user, pass: data.apigee_pass}
-        filteredData.route = route
-        cb(null, filteredData)
-      }
-    }) },
-  function (data, cb) {
-    getBinding(data.route.binding_id, function (err, binding) {
-      if (err) {
-        cb(true, binding)
-        return
-      } else {
-        data.proxyname = binding.proxyname
-        logger.log.info({data: data}, 'delete binding getBinding')
-        cb(null, {org: data.org, env: data.env, proxyname: binding.proxyname, route: data.route, user: data.user, pass: data.pass})
-      }
-    })
-  },
-  function (data, cb) {
-    mgmt_api.undeployProxy(data, function (err, result) {
-      if (err == 404) {
-        // proxy manually deleted , not found, proceed with service binding deletion
-        cb(null, data)
-      }
-      else if (err) {
-        cb(err, result)
-        return
-      } else {
-        cb(null, data)
-      }
-    })
-  }, function (data, cb) {
-    // delete data
-    deleteBinding(data.route, function (err, result) {
-      if (err) {
-        cb(true, result)
-        return
-      } else {
-        cb(null, {})
-      }
-    })
-  }], function (err, result) {
-    if (err) {
-      callback(true, result)
-    } else {
-      // need to call back with URL details for forwarding
-      callback(null, result)
+function deleteServiceBinding (bindReq, callback) {
+  async.waterfall([
+    retrieveServiceInstanceDetails.bind(this, bindReq),
+    function (bindDetails, cb) {
+      getBinding(bindDetails.bindReq.binding_id, function (err, bindRes) {
+        if (err) {
+          cb(err, bindRes)
+        } else {
+          bindDetails.proxyname = bindRes.proxyname
+          logger.log.info({bindDetails: bindDetails}, 'delete binding getBinding')
+          cb(null, bindDetails)
+        }
+      })
+    },
+    function (bindDetails, cb) {
+      mgmt_api.undeployProxy(bindDetails, function (err, result) {
+        if (err && err.statusCode == 404) {
+          // proxy manually deleted , not found, proceed with service binding deletion
+          cb(null, bindDetails)
+        } else if (err) {
+          cb(err, result)
+        } else {
+          cb(null, bindDetails)
+        }
+      })
+    },
+    function (bindDetails, cb) {
+      deleteBinding(bindDetails.bindReq.binding_id, cb)
     }
-  })
+  ],
+  callback)
 }
 
 module.exports = {

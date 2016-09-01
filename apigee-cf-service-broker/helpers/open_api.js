@@ -1,3 +1,4 @@
+'use strict'
 /**
  * Copyright (C) 2016 Apigee Corporation
  *
@@ -14,6 +15,10 @@
  * limitations under the License.
  */
 
+/**
+ * Generate proxy from OpenAPI interface file
+ * @module
+ */
 var swaggerParser = require('swagger-parser')
 var async = require('async')
 var logger = require('./logger')
@@ -28,24 +33,48 @@ var DOMParser = require('xmldom').DOMParser
 var XMLSerializer = require('xmldom').XMLSerializer
 var builder = require('xmlbuilder')
 
-var generatePolicy = function (route, zip, cb) {
-  var routeUrl = 'http://' + route.bind_resource.route
-  async.waterfall([
-    // check for openApi
-    function (callback) {
-      swaggerParser.parse(routeUrl + '/openApi.json', function (err, api, metadata) {
-        if (err) {
-          // TODO: Error / Warning
-          var loggerError = logger.handle_error(logger.codes.ERR_OPENAPI_NOT_FOUND, err)
-          callback(true, loggerError)
+
+function getOpenApi (routeUrl, callback) {
+  const paths = ['/openApi.json', '/openApi.yaml']
+  async.map(paths, function (path, cb) {
+    const url = routeUrl + path
+    swaggerParser.parse(url, function (err, api, metadata) {
+      if (err) {
+        if (err.message && err.message.includes('HTTP ERROR 404')) {
+          logger.log.info("OpenAPI not found at %s", url)
+          cb(null, null)  // plain 404 is to be expected
         } else {
-          callback(null, api)
+          var loggerError = logger.ERR_OPENAPI_PARSE_FAIL(err)
+          cb(loggerError)
         }
-      })
-    },
+      } else {
+        logger.log.info("OpenAPI parsed at %s", url)
+        cb(null, api)
+      }
+    })
+  },
+  function (err, specs) {
+    if (err) {
+      callback(err)
+    } else {
+      const first = specs.reduce(function (memo, value, index) {
+        return memo ? memo : value;
+      }, null)
+      callback(null, first)
+    }
+  })
+}
+
+
+var generatePolicy = function (routeUrl, zip, callback) {
+  async.waterfall([
+    getOpenApi.bind(this, routeUrl),
     function (api, callback) {
+      if (! api) {
+        callback(true)  // Just didn't find spec, nothing "went wrong"
+      }
       // Valid openApi Found -- Look for apigee Policies
-      if (api['x-apigee-policies']) {
+      else if (api['x-apigee-policies']) {
         async.each(Object.keys(api['x-apigee-policies']), function (service, cb) {
           // Perform operation on file here.
           var policy = api['x-apigee-policies'][service].type
@@ -85,15 +114,15 @@ var generatePolicy = function (route, zip, cb) {
         }, function (err) {
           // if any of the file processing produced an error, err would equal that error
           if (err) {
-            callback(true, err)
+            callback(err)
           } else {
             callback(null, api, zip)
           }
         })
       } else {
         // TODO: Error / Warning
-        var loggerError = logger.handle_error(logger.codes.ERR_POLICIES_NOT_FOUND, true)
-        callback(true, loggerError)
+        var loggerError = logger.ERR_POLICIES_NOT_FOUND()
+        callback(loggerError)
       }
     },
     function (api, zip, callback) {
@@ -113,7 +142,7 @@ var generatePolicy = function (route, zip, cb) {
               flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
             } catch (ex) {
               // do nothing, just print error to log
-              logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+              logger.ERR_INVALID_OPENAPI_SPEC(ex)
             }
           }
           else if (api['x-apigee-apply'][service].options.endPoint === 'target') {
@@ -123,14 +152,14 @@ var generatePolicy = function (route, zip, cb) {
               flowReqRes.appendChild(new DOMParser().parseFromString('<Step><Name>' + service + '</Name></Step>', 'text/xml'))
             } catch (ex) {
               // do nothing, just print error to log
-              logger.handle_error(logger.codes.ERR_INVALID_OPENAPI_SPEC, ex)
+              logger.ERR_INVALID_OPENAPI_SPEC(ex)
             }
           }
           cb(null)
         }, function (err) {
           // if any of the file processing produced an error, err would equal that error
           if (err) {
-            callback(true, err)
+            callback(err)
           }
           else {
             // Add back to zip
@@ -231,10 +260,15 @@ var generatePolicy = function (route, zip, cb) {
       callback(null, zip)
     }
   ], function (err, zip) {
-    if (err) {
-      cb(true, {})
+    if (err === true) {
+      logger.log.info("Did not find OpenAPI interface file for %s", routeUrl)
+      callback(true)  // Nothing to wrap or log with stack trace
+    } else if (err) {
+      var loggerError = logger.ERR_UAE(err)
+      callback(loggerError)
     } else {
-      cb(null, zip)
+      logger.log.info("Applying OpenAPI interface file for %s", routeUrl)
+      callback(null, zip)
     }
   })
 }

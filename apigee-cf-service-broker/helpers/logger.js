@@ -1,3 +1,4 @@
+'use strict'
 /**
  * Copyright (C) 2016 Apigee Corporation
  *
@@ -13,10 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Log messages/errors
+ * @module
+ */
+
 var log = require('bunyan').createLogger({name: 'apigee'})
 var util = require('util')
 
 var codes = {
+  ERR_UAE: 'E0000',
   ERR_REQ_JSON_SCHEMA_FAIL: 'E0010',
   ERR_REQ_INVALID_PROTOCOL: 'E0011',
   ERR_PROXY_CREATION_FAILED: 'E0020',
@@ -46,23 +54,24 @@ var codes = {
   ERR_REDIS_BINDING_DELETE_FAIL: 'E0066',
   ERR_REDIS_DELETE_GET_KEY_MISSING: 'E0067',
   ERR_CODE_COVERAGE_BADGE: 'E0070',
-  ERR_OPENAPI_NOT_FOUND: 'E0080',
+  ERR_OPENAPI_PARSE_FAIL: 'E0080',
   ERR_POLICIES_NOT_FOUND: 'E0081',
   ERR_INVALID_OPENAPI_SPEC: 'E0082'
 }
 
 var messages = {
-  E0011: 'Invalid protocol, needs to be TLS enabled. Send req over https',
+  E0000: 'Unexpected Application Error',
   E0010: 'Invalid JSON Sent to the server',
+  E0011: 'Invalid protocol, needs to be TLS enabled. Send req over https',
   E0020: 'Proxy Creation Failed',
   E0021: 'Proxy Upload Failed',
   E0022: 'Error in zipping proxy bundle',
   E0023: 'Error in reading proxy template',
-  E0024: 'Apigee returned non 200 response while fetching Virtual Hosts',
+  E0024: 'Apigee returned non-200 response while fetching Virtual Hosts',
   E0030: 'Error Authenticating to Apigee, Please check apigee credentials',
-  E0031: 'Error making reqest to Apigee',
+  E0031: 'Error making request to Apigee',
   E0032: 'Error uploading proxy to Apigee',
-  E0033: 'Error Retrieving proxy revision details from Apigee ',
+  E0033: 'Error Retrieving proxy revision details from Apigee',
   E0034: 'Error deploying proxy to Apigee',
   E0035: 'Error undeploying proxy from Apigee',
   E0036: 'Error Retrieving KVM from Apigee',
@@ -81,6 +90,7 @@ var messages = {
   E0066: 'Route Binding Delete failed',
   E0067: 'Service instance details not found in redis',
   E0070: 'Error generating code coverage badge',
+  E0080: 'Error getting OpenAPI interface file',
   E0081: 'Unable to find policies in Open API spec',
   E0082: 'Invalid Open API Spec, Check policy attachment'
 }
@@ -89,18 +99,36 @@ var getMessage = function(code) {
   return util.format('[%s] - %s', code, messages[code])
 }
 
-var handle_error = function(code, err) {
-// console log error for pcf
-  log.error({errDetails: err}, getMessage(code));
-// return the error object
-  return new Error(getMessage(code))
+function LoggerError(code, statusCode) {
+    Error.captureStackTrace(this, handle_error)
+    let line = this.stack.split('\n')[1]
+    this.topOfStack = line ? line.trim() : line
+    this.code = code
+    this.message = getMessage(code)
+    this.statusCode = statusCode || 500
+}
+util.inherits(LoggerError, Error)
+
+var handle_error = function(code, originalErr, statusCode) {
+    if (originalErr instanceof LoggerError) {
+        return originalErr
+    }
+
+    const error = new LoggerError(code, statusCode)
+
+    log.error({
+        errAt: error.topOfStack,
+        errStatusCode: statusCode,  // undefined if used default 500
+        errDetails: originalErr
+    }, error.message);
+    return error
 }
 
 
-module.exports = {
-  codes: codes,
-  messages: messages,
-  getMessage: getMessage,
-  handle_error: handle_error,
-  log: log
+module.exports.log = log;
+for (let name in codes) {
+    const code = codes[name]
+    const fn = handle_error.bind(this, code)
+    fn.code = code
+    module.exports[name] = fn
 }
