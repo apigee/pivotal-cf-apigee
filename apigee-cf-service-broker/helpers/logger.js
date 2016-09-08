@@ -68,7 +68,7 @@ var messages = {
   E0022: 'Error in zipping proxy bundle',
   E0023: 'Error in reading proxy template',
   E0024: 'Apigee returned non-200 response while fetching Virtual Hosts',
-  E0030: 'Error Authenticating to Apigee, Please check apigee credentials',
+  E0030: 'Error Authenticating to Apigee, Please check Apigee credentials',
   E0031: 'Error making request to Apigee',
   E0032: 'Error uploading proxy to Apigee',
   E0033: 'Error Retrieving proxy revision details from Apigee',
@@ -104,13 +104,16 @@ function LoggerError(code, statusCode) {
     let line = this.stack.split('\n')[1]
     this.topOfStack = line ? line.trim() : line
     this.code = code
-    this.message = getMessage(code)
+    this.description = getMessage(code)  // 'description' expected in CF response
     this.statusCode = statusCode || 500
 }
 util.inherits(LoggerError, Error)
 
 var handle_error = function(code, originalErr, statusCode) {
     if (originalErr instanceof LoggerError) {
+        if (statusCode) {
+          originalErr.statusCode = statusCode
+        }
         return originalErr
     }
 
