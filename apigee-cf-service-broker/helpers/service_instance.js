@@ -31,7 +31,14 @@ function createInstance (instance, callback) {
   // validate user has access to provided apigee org-guid-here
   mgmt_api.authenticate({org: instance.apigee_org, user: instance.apigee_user, pass: instance.apigee_pass}, function (err, data) {
     if (err) {
-      callback(err, data)
+      // Don't return 401, which is reported as failure of basic-auth to the broker
+      if (err.statusCode == 401) {
+        var loggerError = logger.ERR_APIGEE_AUTH(err, 400)
+        callback(loggerError)
+      }
+      else {
+        callback(err, data)
+      }
     } else {
       saveServiceInstance(instance, callback)
     }

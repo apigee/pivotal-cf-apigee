@@ -92,7 +92,8 @@ function deleteServiceBinding (bindReq, callback) {
           cb(err, bindRes)
         } else {
           bindDetails.proxyname = bindRes.proxyname
-          logger.log.info({bindDetails: bindDetails}, 'delete binding getBinding')
+          const maskedDetails = Object.assign({}, bindDetails, {pass: '****'})
+          logger.log.info({bindDetails: maskedDetails}, 'delete binding getBinding')
           cb(null, bindDetails)
         }
       })

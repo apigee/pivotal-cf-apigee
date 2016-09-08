@@ -105,5 +105,5 @@ cf create-service apigee-edge org myapigee -c '{"org":"<your edge org>","env":"<
 ```bash
 cf unbind-route-service <your domain> myapigee --hostname <hostname of the app>
 cf delete-service myapigee
-delete-service-broker apigee-edge
+cf delete-service-broker apigee-edge
 ```
