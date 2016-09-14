@@ -16,7 +16,7 @@ resources:
   type: git
   source:
     uri: https://github.com/apigee/pivotal-cf-apigee.git
-    branch: master
+    branch: micro-product
 - name: tile-generator-repo
   type: git
   source:
@@ -27,15 +27,17 @@ resources:
 - name: apigee-tile
   type: s3
   source:
+    endpoint: https://storage.googleapis.com
     access_key_id: {{aws-key-id}}
-    bucket: cfjgordon-apigee-tile
+    bucket: apigee-cf-svc-broker-storage.appspot.com
     regexp: .*-(?P<version>.*)\.pivotal
     secret_access_key: {{aws-key}}
 - name: tile-history
   type: s3
   source:
+    endpoint: https://storage.googleapis.com
     access_key_id: {{aws-key-id}}
-    bucket: cfjgordon-apigee-tile
+    bucket: apigee-cf-svc-broker-storage.appspot.com
     regexp: tile\-history-(?P<version>.*)\.yml
     secret_access_key: {{aws-key}}
 - name: pcf-environment
@@ -43,7 +45,7 @@ resources:
   source:
     branch: master
     pool: pcf
-    private_key: {{github-pool-private-key}} 
+    private_key: {{github-pool-private-key}}
     uri: git@github.com:cf-platform-eng/pipeline-resource-pool
 jobs:
 - name: build-tile
