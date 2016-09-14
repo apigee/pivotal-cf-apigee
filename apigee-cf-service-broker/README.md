@@ -45,9 +45,6 @@ Item | Purpose | Default
 APIGEE_REDIS_PASSPHRASE | passphrase used to encrypt data in Redis store | *no default value*, must be in manifest
 APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/` for SaaS Edge.
 APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint | `https://api.enterprise.apigee.com/v1` for SaaS Edge.
-APIGEE_PROXY_DOMAIN | Domain for API Proxies | `apigee.net` for Free SaaS accounts.
-APIGEE_PROXY_HOST_TEMPLATE | Template for generating proxy URL | `${org}-${env}.${domain}` for Free SaaS accounts.
-APIGEE_PROXY_NAME_TEMPLATE | Template for naming API Proxies in Edge | `cf-${routeName}`
 
 1. Deploy the broker to cloud foundry.
  ```bash
@@ -80,9 +77,11 @@ APIGEE_PROXY_NAME_TEMPLATE | Template for naming API Proxies in Edge | `cf-${rou
  ```
 
 1. Create service instance in cf org/space
- ```bash
- cf create-service apigee-edge org myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>"}'
- ```
+```bash
+cf create-service apigee-edge free myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>", "host":"<pattern to generate route services url>"}'
+```
+Where
+* `host` is the pattern to determine a proxy url. E.g. "${apigeeOrganization}-${apigeeEnvironment}.apigee.net" if you are using the Apigee hosted Edge, or just the hostname or IP address for a simple on-premises installation.
 
 1. Push an application that you wish to register an Edge route for, and note its url.
 
@@ -95,10 +94,10 @@ APIGEE_PROXY_NAME_TEMPLATE | Template for naming API Proxies in Edge | `cf-${rou
 
 ### Microgateway
 
-To use Edge Microgateway, specify its FQDN/host as `micro` in the `create-service` parameters. This overrides the APIGEE_PROXY_HOST_TEMPLATE, which then obviates APIGEE_PROXY_DOMAIN. For example, if it is running in Cloud Foundry as an app, it might be something like:
+To use Edge Microgateway, select the microgateway service plan and specify the edgemicro FQDN/host as `micro` in the `create-service` parameters. For example, if it is running in Cloud Foundry as an app, it might be something like:
 
 ```bash
-cf create-service apigee-edge org myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>","micro":"edgemicro-app.local.pcfdev.io"}'
+cf create-service apigee-edge microgateway myapigee -c '{"org":"<your edge org>","env":"<your edge env>","user":"<your edge user id>","pass":"<your edge password>","micro":"edgemicro-app.local.pcfdev.io"}'
 ```
 
 ## Teardown

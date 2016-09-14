@@ -44,8 +44,46 @@ var log = require('bunyan').createLogger({name: 'apigee', src: true})
 
 router.use(auth)
 
+// plan schema validation
+var planValidate = function (req, res, next) {
+  var loggerError, responseData
+  if (req.body.plan_id === 'A98CCB00-549B-458F-A627-D54C5E860519') {
+    // org plan
+    if (!req.body.parameters.hasOwnProperty('host')) {
+      res.status(400)
+      loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST
+      responseData = {
+        msg: loggerError.message
+      }
+      res.json(responseData)
+    } else {
+      next()
+    }
+  } else if (req.body.plan_id === 'D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F') {
+    // micro plan
+    if (!req.body.parameters.hasOwnProperty('micro')) {
+      res.status(400)
+      loggerError = logger.ERR_MICRO_PLAN_REQUIRES_MICRO
+      responseData = {
+        msg: loggerError.message
+      }
+      res.json(responseData)
+    } else {
+      next()
+    }
+  } else {
+    // unknown plan
+    res.status(400)
+    loggerError = logger.ERR_INVALID_SERVICE_PLAN()
+    responseData = {
+      msg: loggerError.message
+    }
+    res.json(responseData)
+  }
+}
+
 // provising a service instance
-router.put('/:instance_id', validate({body: instanceSchema.create}), function (req, res) {
+router.put('/:instance_id', planValidate, validate({body: instanceSchema.create}), function (req, res) {
   var instance = {
     instance_id: req.params.instance_id,
     service_id: req.body.service_id,

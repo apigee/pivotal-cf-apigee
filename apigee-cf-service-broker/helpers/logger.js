@@ -56,7 +56,10 @@ var codes = {
   ERR_CODE_COVERAGE_BADGE: 'E0070',
   ERR_OPENAPI_PARSE_FAIL: 'E0080',
   ERR_POLICIES_NOT_FOUND: 'E0081',
-  ERR_INVALID_OPENAPI_SPEC: 'E0082'
+  ERR_INVALID_OPENAPI_SPEC: 'E0082',
+  ERR_INVALID_SERVICE_PLAN: 'E0083',
+  ERR_ORG_PLAN_REQUIRES_HOST: 'E0084',
+  ERR_MICRO_PLAN_REQUIRES_MICRO: 'E0085'
 }
 
 var messages = {
@@ -92,7 +95,10 @@ var messages = {
   E0070: 'Error generating code coverage badge',
   E0080: 'Error getting OpenAPI interface file',
   E0081: 'Unable to find policies in Open API spec',
-  E0082: 'Invalid Open API Spec, Check policy attachment'
+  E0082: 'Invalid Open API Spec, Check policy attachment',
+  E0083: 'Unrecognized Service Plan',
+  E0084: 'Org plan requires host parameter',
+  E0085: 'Microgateway plan requires micro parameter'
 }
 
 var getMessage = function(code) {
