@@ -27,17 +27,15 @@ resources:
 - name: apigee-tile
   type: s3
   source:
-    endpoint: https://storage.googleapis.com
     access_key_id: {{aws-key-id}}
-    bucket: apigee-cf-svc-broker-storage.appspot.com
+    bucket: apigee-cf-service-broker-tile
     regexp: .*-(?P<version>.*)\.pivotal
     secret_access_key: {{aws-key}}
 - name: tile-history
   type: s3
   source:
-    endpoint: https://storage.googleapis.com
     access_key_id: {{aws-key-id}}
-    bucket: apigee-cf-svc-broker-storage.appspot.com
+    bucket: apigee-cf-service-broker-tile
     regexp: tile\-history-(?P<version>.*)\.yml
     secret_access_key: {{aws-key}}
 - name: pcf-environment

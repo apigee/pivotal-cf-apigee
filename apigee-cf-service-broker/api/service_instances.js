@@ -51,7 +51,7 @@ var planValidate = function (req, res, next) {
     // org plan
     if (!req.body.parameters.hasOwnProperty('host')) {
       res.status(400)
-      loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST
+      loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST()
       responseData = {
         msg: loggerError.message
       }
@@ -63,7 +63,7 @@ var planValidate = function (req, res, next) {
     // micro plan
     if (!req.body.parameters.hasOwnProperty('micro')) {
       res.status(400)
-      loggerError = logger.ERR_MICRO_PLAN_REQUIRES_MICRO
+      loggerError = logger.ERR_MICRO_PLAN_REQUIRES_MICRO()
       responseData = {
         msg: loggerError.message
       }
