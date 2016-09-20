@@ -39,3 +39,6 @@ credentials.yml
 dump.rdb
 #mac
 .DS_Store
+
+#tile build directory
+/product
