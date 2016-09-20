@@ -56,7 +56,7 @@ jobs:
   - task: build-apigee-tile
     config:
       platform: linux
-      image: docker:///guidowb/tile-pipeline
+      image: docker:///carloseberhardt/node-tile-pipeline
       run:
         path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/tile-build.sh
         args:
