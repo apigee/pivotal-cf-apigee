@@ -14,7 +14,7 @@ if [ -n "${HISTORY}" ]; then
 	cp ${HISTORY} ${SOURCE_DIR}/tile-history.yml
 fi
 
-(cd ${SOURCE_DIR}; zip -r resources/apigee.zip EULA.txt LICENSE README.md manifest.yml api helpers policy_templates proxy-resources schemas util node_modules package.json server.js; $TILE build)
+(cd ${SOURCE_DIR}; npm install; zip -r resources/apigee.zip EULA.txt LICENSE README.md manifest.yml api helpers policy_templates proxy-resources schemas util node_modules package.json server.js; $TILE build)
 
 
 VERSION=`grep '^version:' ${SOURCE_DIR}/tile-history.yml | sed 's/^version: //'`
