@@ -106,9 +106,40 @@ describe('Component APIs', function () {
         .set('Authorization', authHeader)
         .expect(422, done)
     })
-    it('Invalid Apigee Credentials on service instance creation should return a 407 response', function (done) {
+    it('Service instance creation should return a 201 response with dashboard_url', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
+        payload: {
+          organization_guid: 'org-guid-here',
+          plan_id: catalogData.guid.org,
+          service_id: 'service-guid-here',
+          space_guid: 'space-guid-here'
+        }
+      }
+      api.put('/v2/service_instances/' + serviceInstance.instance_id)
+        .send(serviceInstance.payload)
+        .set('Accept', 'application/json')
+        .set('Authorization', authHeader)
+        .expect(201)
+        .end(function (err, res) {
+          expect(err).equal(null)
+          expect(res.body).to.have.property('dashboard_url')
+          expect(res.body.dashboard_url).to.equal('https://enterprise.apigee.com/platform/#/')
+          done()
+        })
+    })
+  })
+
+  describe('Route Binding APIs', function () {
+    it('Invalid Auth should return 401', function (done) {
+      api.put('/v2/service_instances/:instance_id/service_bindings/:binding_id')
+        .set('Accept', 'application/json')
+        .expect(401, done)
+    })
+    it('Invalid Apigee Credentials should return a 407 response', function (done) {
+      var bindingInstance = {
+        instance_id: 'instance-guid-here',
+        binding_id: 'binding-guid-here',
         payload: {
           organization_guid: 'org-guid-here',
           plan_id: catalogData.guid.org,
@@ -123,51 +154,14 @@ describe('Component APIs', function () {
           }
         }
       }
-      api.put('/v2/service_instances/' + serviceInstance.instance_id)
-        .send(serviceInstance.payload)
+      api.put('/v2/service_instances/' + bindingInstance.instance_id + '/service_bindings/' + bindingInstance.binding_id)
+        .send(bindingInstance.payload)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
         .expect(407, done)
     })
-    it('Valid Apigee Credentials on service instance creation should return a 201 response with dashboard_url', function (done) {
-      var serviceInstance = {
-        instance_id: 'instance-guid-here',
-        payload: {
-          organization_guid: 'org-guid-here',
-          plan_id: catalogData.guid.org,
-          service_id: 'service-guid-here',
-          space_guid: 'space-guid-here',
-          parameters: {
-            host: config.get('APIGEE_PROXY_HOST_TEMPLATE'),
-            org: 'cdmo',
-            env: 'test',
-            user: 'XXXXX',
-            pass: 'XXXXXXX'
-          }
-        }
-      }
-      api.put('/v2/service_instances/' + serviceInstance.instance_id)
-        .send(serviceInstance.payload)
-        .set('Accept', 'application/json')
-        .set('Authorization', authHeader)
-        .expect(201)
-        .end(function (err, res) {
-          expect(err).equal(null)
-          expect(res.body).to.have.property('dashboard_url')
-          expect(res.body.dashboard_url).to.equal('https://enterprise.apigee.com/platform/#/cdmo')
-          done()
-        })
-    })
-  })
-
-  describe('Route Binding APIs', function () {
-    it('Invalid Auth should return 401', function (done) {
-      api.put('/v2/service_instances/:instance_id/service_bindings/:binding_id')
-        .set('Accept', 'application/json')
-        .expect(401, done)
-    })
     it('Invalid JSON req payload should return Json Schema Validation error', function (done) {
-      api.put('/v2/service_instances/12345')
+      api.put('/v2/service_instances/12345/service_bindings/67890')
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
         .send("{'invalidJSON")
@@ -188,6 +182,13 @@ describe('Component APIs', function () {
           service_id: 'service-guid-here',
           bind_resource: {
             route: 'route-url-here'
+          },
+          parameters: {
+            host: config.get('APIGEE_PROXY_HOST_TEMPLATE'),
+            org: 'cdmo',
+            env: 'test',
+            user: 'XXXXX',
+            pass: 'XXXXXXX'
           }
         }
       }
@@ -224,13 +225,6 @@ describe('Component APIs', function () {
       api.del('/v2/service_instances/:instance_id')
         .set('Accept', 'application/json')
         .expect(401, done)
-    })
-    it('Invalid Service Instance delete should return a 410 response', function (done) {
-      var serviceInstance = 'Non-Exist'
-      api.del('/v2/service_instances/' + serviceInstance)
-        .set('Accept', 'application/json')
-        .set('Authorization', authHeader)
-        .expect(410, done)
     })
     it('Valid service instance delete should delete the instance and return 200', function (done) {
       var serviceInstance = 'instance-guid-here'

@@ -35,7 +35,6 @@
     "js-yaml": "^3.5.3",
     "jszip": "^2.5.0",
     "nconf": "^0.8.2",
-    "redis": "^2.4.2",
     "request": "^2.67.0",
     "swagger-parser": "^3.4.0",
     "xmlbuilder": "^4.2.1",
@@ -48,7 +47,6 @@
     "istanbul-cobertura-badger": "^1.2.1",
     "mocha": "^2.4.5",
     "nock": "^7.0.2",
-    "redis-mock": "^0.5.1",
     "should": "^8.2.1",
     "standard": "^5.4.1",
     "supertest": "^1.1.0"

@@ -16,12 +16,11 @@
  */
 
 /**
- * CRUD datastore functions for provisioning and binding
+ * Catalog data and GUIDs
  * @module
  */
 
 var config = require('../helpers/config')
-var datastoreImpl = require('./datastore_' + config.get('datastore'))
 
 const ORG_GUID = 'A98CCB00-549B-458F-A627-D54C5E860519';
 const MICRO_GUID = 'D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F';
@@ -74,10 +73,10 @@ function getServiceCatalog () {
   ]
 }
 
-module.exports = Object.assign({
+module.exports = {
   guid: Object.freeze({
     org: ORG_GUID,
     micro: MICRO_GUID
   }),
   getServiceCatalog: getServiceCatalog
-}, datastoreImpl)
+}

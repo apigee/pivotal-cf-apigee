@@ -99,6 +99,7 @@ function getProxyRevision (proxyData, callback) {
       callback(loggerError)
     } else {
       body = JSON.parse(body)
+      console.log(body)
       var revision = body.revision.pop()
       callback(null, revision)
     }

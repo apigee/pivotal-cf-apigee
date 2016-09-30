@@ -31,23 +31,22 @@ var openApi = require('./open_api.js')
 
 
 // create proxy in edge org
-function createProxy (bindDetails, callback) {
-  const bindReq = bindDetails.bindReq
-  var proxyHostTemplate = bindDetails.host || config.get('APIGEE_PROXY_HOST_TEMPLATE')
+function createProxy (bindReq, callback) {
+  var proxyHostTemplate = bindReq.host || config.get('APIGEE_PROXY_HOST_TEMPLATE')
   var proxyName = template(config.get('APIGEE_PROXY_NAME_TEMPLATE'), {
     routeName: bindReq.bind_resource.route.replace(/\/+/g,'_')  // route can be host.domain/path
   })
 
-  if (bindDetails.micro) {
-      proxyHostTemplate = bindDetails.micro
+  if (bindReq.micro) {
+      proxyHostTemplate = bindReq.micro
       proxyName = 'edgemicro_' + proxyName
   }
 
   var union = Object.assign({
     domain: config.get('APIGEE_PROXY_DOMAIN'),
     proxyname: proxyName,
-    basepath: '/' + bindDetails.bindReq.binding_id
-  }, bindDetails)
+    basepath: '/' + bindReq.binding_id
+  }, bindReq)
 
   uploadProxy(union, function (err, data) {
     if (err) {
@@ -79,7 +78,7 @@ function uploadProxy (proxyData, callback) {
  * @param proxyData - Union of properties required for this function, and `mgmt_api.getVirtualHosts`
  * @param proxyData.proxyname
  * @param proxyData.basepath
- * @param proxyData.bindReq
+ * @param proxyData.bind_resource.route
  */
 function getZip (proxyData, callback) {
   fs.readFile('./proxy-resources/apiproxy.zip', function (err, data) {
@@ -106,7 +105,7 @@ function getZip (proxyData, callback) {
           var proxyNameTemplate = zip.file('apiproxy/cf-proxy.xml').asText()
           zip.file('apiproxy/cf-proxy.xml', proxyNameTemplate.replace(re2, proxyData.proxyname))
           var targetNameTemplate = zip.file('apiproxy/targets/default.xml').asText()
-          var dummyTargetUrl = 'http://' + proxyData.bindReq.bind_resource.route  // Actual is X-Cf-Forwarded-Url header
+          var dummyTargetUrl = 'http://' + proxyData.bind_resource.route  // Actual is X-Cf-Forwarded-Url header
           zip.file('apiproxy/targets/default.xml', targetNameTemplate.replace(re4, dummyTargetUrl))
           // Check for open Api & add policy support
           openApi.generatePolicy(dummyTargetUrl, zip, function(err, updatedZip) {

@@ -28,7 +28,6 @@ var defaults = {
     APIGEE_PROXY_DOMAIN: 'apigee.net',
     APIGEE_PROXY_HOST_TEMPLATE: '${org}-${env}.${domain}',
     APIGEE_PROXY_NAME_TEMPLATE: 'cf-${routeName}',
-    datastore: 'redis',
     auth: 'staticauth'
 }
 

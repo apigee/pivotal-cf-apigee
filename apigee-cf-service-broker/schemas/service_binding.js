@@ -16,26 +16,18 @@
  */
 
 /**
- * Schema sent from CF when a user selects a service plan
+ * Schema sent from CF when a user binds a route
  * @module
  */
 
-var createServiceInstance = {
+var bindRouteService = {
   type: 'object',
   properties: {
-    organization_guid: {
-      type: 'string',
-      required: true
-    },
     plan_id: {
       type: 'string',
       required: true
     },
     service_id: {
-      type: 'string',
-      required: true
-    },
-    space_guid: {
       type: 'string',
       required: true
     },
@@ -46,22 +38,10 @@ var createServiceInstance = {
         org: {type: 'string', required: true},
         env: {type: 'string', required: true}
       }
-    },
-    accepts_incomplete: {
-      type: 'boolean',
-      required: false
     }
   }
 }
 
-// schema sent from CF when a user wants to upgrade service plan
-var updateServiceInstance = {
-  type: 'object',
-  properties: {
-  }
-}
-
 module.exports = {
-  create: createServiceInstance,
-  update: updateServiceInstance
+  bind: bindRouteService
 }
