@@ -23,6 +23,9 @@
 var config = require('../helpers/config')
 var datastoreImpl = require('./datastore_' + config.get('datastore'))
 
+const ORG_GUID = 'A98CCB00-549B-458F-A627-D54C5E860519';
+const MICRO_GUID = 'D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F';
+
 // service catalog - TODO: this should be configurable
 function getServiceCatalog () {
   return [
@@ -44,7 +47,7 @@ function getServiceCatalog () {
       plan_updateable: true,
       plans: [
         {
-          id: 'A98CCB00-549B-458F-A627-D54C5E860519',
+          id: ORG_GUID,
           name: 'org',
           description: 'Apigee Edge for Route Services',
           metadata: {
@@ -53,7 +56,7 @@ function getServiceCatalog () {
           free: true
         },
         {
-          id: 'D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F',
+          id: MICRO_GUID,
           name: 'microgateway',
           description: 'Apigee Edge microgateway for Route Services',
           metadata: {
@@ -72,5 +75,9 @@ function getServiceCatalog () {
 }
 
 module.exports = Object.assign({
+  guid: Object.freeze({
+    org: ORG_GUID,
+    micro: MICRO_GUID
+  }),
   getServiceCatalog: getServiceCatalog
 }, datastoreImpl)

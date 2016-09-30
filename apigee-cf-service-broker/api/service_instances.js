@@ -37,6 +37,7 @@ var router = express.Router()
 var validate = require('express-jsonschema').validate
 var instanceSchema = require('../schemas/service_instance')
 var auth = require('../helpers/auth')(config)
+var catalogData = require('../helpers/catalog_data')
 var service_instance = require('../helpers/service_instance')
 var service_binding = require('../helpers/service_binding')
 var logger = require('../helpers/logger')
@@ -47,7 +48,7 @@ router.use(auth)
 // plan schema validation
 var planValidate = function (req, res, next) {
   var loggerError, responseData
-  if (req.body.plan_id === 'A98CCB00-549B-458F-A627-D54C5E860519') {
+  if (req.body.plan_id === catalogData.guid.org) {
     // org plan
     if (!req.body.parameters.hasOwnProperty('host')) {
       res.status(400)
@@ -59,7 +60,7 @@ var planValidate = function (req, res, next) {
     } else {
       next()
     }
-  } else if (req.body.plan_id === 'D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F') {
+  } else if (req.body.plan_id === catalogData.guid.micro) {
     // micro plan
     if (!req.body.parameters.hasOwnProperty('micro')) {
       res.status(400)

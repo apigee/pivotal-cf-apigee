@@ -28,9 +28,9 @@ var mgmt_api = require('./mgmt_api')
 var proxy = require('./edge_proxy')
 var service_instance = require('./service_instance')
 
-var saveBinding = require('./datastore').saveBinding
-var deleteBinding = require('./datastore').deleteBinding
-var getBinding = require('./datastore').getBinding
+var saveBinding = require('./catalog_data').saveBinding
+var deleteBinding = require('./catalog_data').deleteBinding
+var getBinding = require('./catalog_data').getBinding
 
 
 // See bindReq objects created in calls from api/service_instances

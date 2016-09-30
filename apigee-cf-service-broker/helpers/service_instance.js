@@ -20,9 +20,9 @@
  * @module
  */
 
-var saveServiceInstance = require('./datastore').saveServiceInstance
-var getServiceInstance = require('./datastore').getServiceInstance
-var deleteServiceInstance = require('./datastore').deleteServiceInstance
+var saveServiceInstance = require('./catalog_data').saveServiceInstance
+var getServiceInstance = require('./catalog_data').getServiceInstance
+var deleteServiceInstance = require('./catalog_data').deleteServiceInstance
 var mgmt_api = require('./mgmt_api')
 var logger = require('./logger')
 
