@@ -25,6 +25,7 @@ var server = require('../server')
 var port = 8000
 var api = supertest('http://localhost:' + port)
 var app
+var catalogData = require('../helpers/catalog_data')
 var config = require('../helpers/config')
 
 //require('./helpers/api_mocks.js')
@@ -105,15 +106,16 @@ describe('Component APIs', function () {
         .set('Authorization', authHeader)
         .expect(422, done)
     })
-    it('Invalid Apigee Credentials on service instance creation should return a 401 response', function (done) {
+    it('Invalid Apigee Credentials on service instance creation should return a 407 response', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
         payload: {
           organization_guid: 'org-guid-here',
-          plan_id: 'plan-guid-here',
+          plan_id: catalogData.guid.org,
           service_id: 'service-guid-here',
           space_guid: 'space-guid-here',
           parameters: {
+            host: config.get('APIGEE_PROXY_HOST_TEMPLATE'),
             org: 'org-name-here',
             env: 'env-name-here',
             user: 'apigee-user-here',
@@ -125,17 +127,18 @@ describe('Component APIs', function () {
         .send(serviceInstance.payload)
         .set('Accept', 'application/json')
         .set('Authorization', authHeader)
-        .expect(401, done)
+        .expect(407, done)
     })
     it('Valid Apigee Credentials on service instance creation should return a 201 response with dashboard_url', function (done) {
       var serviceInstance = {
         instance_id: 'instance-guid-here',
         payload: {
           organization_guid: 'org-guid-here',
-          plan_id: 'plan-guid-here',
+          plan_id: catalogData.guid.org,
           service_id: 'service-guid-here',
           space_guid: 'space-guid-here',
           parameters: {
+            host: config.get('APIGEE_PROXY_HOST_TEMPLATE'),
             org: 'cdmo',
             env: 'test',
             user: 'XXXXX',
@@ -181,7 +184,7 @@ describe('Component APIs', function () {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',
         payload: {
-          plan_id: 'plan-guid-here',
+          plan_id: catalogData.guid.org,
           service_id: 'service-guid-here',
           bind_resource: {
             route: 'route-url-here'

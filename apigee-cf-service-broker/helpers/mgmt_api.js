@@ -85,6 +85,7 @@ function getProxyRevision (proxyData, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
+      err.url = options.url
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
       callback(loggerError)
     } else if (res.statusCode == 401) {
@@ -119,6 +120,8 @@ function importProxy (proxyData, zipBuffer, callback) {
   }
   request.post(options, function (err, httpResponse, body) {
     if (err) {
+      err.url = options.url
+      err.qs = options.qs
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
       callback(loggerError)
     } else if (httpResponse.statusCode !== 201) {
@@ -188,6 +191,7 @@ function getVirtualHosts (proxyData, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
+      err.url = options.url
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
       callback(loggerError)
     } else if (res.statusCode !== 200) {
@@ -207,6 +211,7 @@ function authenticate (authOptions, callback) {
   }
   request.get(options, function (err, res, body) {
     if (err) {
+      err.url = options.url
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
       callback(loggerError)
     } else if (res.statusCode !== 200) {

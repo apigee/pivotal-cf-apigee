@@ -53,10 +53,7 @@ var planValidate = function (req, res, next) {
     if (!req.body.parameters.hasOwnProperty('host')) {
       res.status(400)
       loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST()
-      responseData = {
-        msg: loggerError.message
-      }
-      res.json(responseData)
+      res.json(loggerError)
     } else {
       next()
     }
@@ -65,10 +62,7 @@ var planValidate = function (req, res, next) {
     if (!req.body.parameters.hasOwnProperty('micro')) {
       res.status(400)
       loggerError = logger.ERR_MICRO_PLAN_REQUIRES_MICRO()
-      responseData = {
-        msg: loggerError.message
-      }
-      res.json(responseData)
+      res.json(loggerError)
     } else {
       next()
     }
@@ -76,15 +70,12 @@ var planValidate = function (req, res, next) {
     // unknown plan
     res.status(400)
     loggerError = logger.ERR_INVALID_SERVICE_PLAN()
-    responseData = {
-      msg: loggerError.message
-    }
-    res.json(responseData)
+    res.json(loggerError)
   }
 }
 
 // provising a service instance
-router.put('/:instance_id', planValidate, validate({body: instanceSchema.create}), function (req, res) {
+router.put('/:instance_id', validate({body: instanceSchema.create}), planValidate, function (req, res) {
   var instance = {
     instance_id: req.params.instance_id,
     service_id: req.body.service_id,

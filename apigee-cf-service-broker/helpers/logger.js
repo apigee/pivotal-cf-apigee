@@ -129,7 +129,7 @@ var handle_error = function(code, originalErr, statusCode) {
         errAt: error.topOfStack,
         errStatusCode: statusCode,  // undefined if used default 500
         errDetails: originalErr
-    }, error.message);
+    }, error.description);
     return error
 }
 

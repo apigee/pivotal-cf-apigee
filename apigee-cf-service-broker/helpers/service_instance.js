@@ -33,7 +33,7 @@ function createInstance (instance, callback) {
     if (err) {
       // Don't return 401, which is reported as failure of basic-auth to the broker
       if (err.statusCode == 401) {
-        var loggerError = logger.ERR_APIGEE_AUTH(err, 400)
+        var loggerError = logger.ERR_APIGEE_AUTH(err, 407)
         callback(loggerError)
       }
       else {
