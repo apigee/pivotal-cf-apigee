@@ -45,8 +45,8 @@ var log = require('bunyan').createLogger({name: 'apigee', src: true})
 router.use(auth)
 
 // plan schema validation
-var planValidate = function (req, res, next) {
-  var loggerError, responseData
+function planValidate (req, res, next) {
+  var loggerError
   if (req.body.plan_id === catalogData.guid.org) {
     // org plan
     if (!req.body.parameters.hasOwnProperty('host')) {
@@ -69,6 +69,21 @@ var planValidate = function (req, res, next) {
     // unknown plan
     res.status(400)
     loggerError = logger.ERR_INVALID_SERVICE_PLAN()
+    res.json(loggerError)
+  }
+}
+
+function authValidate (req, res, next) {
+  const params = req.body.parameters;
+  if (params.user && params.pass) {
+    next()
+  } else if (params.basic) {
+    next()
+  } else if (params.bearer) {
+    next()
+  } else {
+    res.status(400)
+    var loggerError = logger.ERR_MISSING_AUTH()
     res.json(loggerError)
   }
 }
@@ -96,7 +111,7 @@ router.delete('/:instance_id', function (req, res) {
 // payload {"service_id":"5E3F917B-9225-4BE4-802F-8F1491F714C0","plan_id":"D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F","bind_resource":{"route":"rot13.apigee-cloudfoundry.com"}}
 // response should be route_service_url	string	A URL to which Cloud Foundry should proxy requests for the bound route.
 router.put('/:instance_id/service_bindings/:binding_id',
-    validate({body: bindingSchema.bind}), planValidate, function (req, res) {
+    validate({body: bindingSchema.bind}), planValidate, authValidate, function (req, res) {
   // use instance_id to retrieve org and environment for proxy
   var bindReq = {
     instance_id: req.params.instance_id,
@@ -108,6 +123,8 @@ router.put('/:instance_id/service_bindings/:binding_id',
     env: req.body.parameters.env,
     user: req.body.parameters.user,
     pass: req.body.parameters.pass,
+    basic: req.body.parameters.basic,
+    bearer: req.body.parameters.bearer,
     micro: req.body.parameters.micro,
     host: req.body.parameters.host
   }

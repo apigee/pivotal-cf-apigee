@@ -45,21 +45,15 @@ var codes = {
   ERR_APIGEE_PROXY_NOT_FOUND: 'E00310',
   ERR_KVM_SERVICE_DELETE_FAIL: 'E0040',
   ERR_KVM_BINDING_DELETE_FAIL: 'E0041',
-  ERR_REDIS: 'E0060',
-  ERR_REDIS_SERVICE_GET_KEY_MISSING: 'E0061',
-  ERR_REDIS_SERVICE_DELETE_FAIL: 'E0062',
-  ERR_REDIS_SERVICE_SAVE_FAIL: 'E0063',
-  ERR_REDIS_BINDING_SAVE_FAILED: 'E0064',
-  ERR_REDIS_BINDING_GET_KEY_MISSING: 'E0065',
-  ERR_REDIS_BINDING_DELETE_FAIL: 'E0066',
-  ERR_REDIS_DELETE_GET_KEY_MISSING: 'E0067',
   ERR_CODE_COVERAGE_BADGE: 'E0070',
   ERR_OPENAPI_PARSE_FAIL: 'E0080',
   ERR_POLICIES_NOT_FOUND: 'E0081',
   ERR_INVALID_OPENAPI_SPEC: 'E0082',
   ERR_INVALID_SERVICE_PLAN: 'E0083',
   ERR_ORG_PLAN_REQUIRES_HOST: 'E0084',
-  ERR_MICRO_PLAN_REQUIRES_MICRO: 'E0085'
+  ERR_MICRO_PLAN_REQUIRES_MICRO: 'E0085',
+  ERR_MISSING_AUTH: 'E0086',
+  ERR_APIGEE_AUTH_BEARER_FAILED: 'E0087'
 }
 
 var messages = {
@@ -84,21 +78,15 @@ var messages = {
   E00310: 'Error proxy not found in Apigee',
   E0040: 'Error deleting service from Apigee KVM',
   E0041: 'Error deleting binding from Apigee KVM',
-  E0060: 'Unable to connect to redis',
-  E0061: 'Service instance details not found in redis',
-  E0062: 'Service Instance Deletion Failed',
-  E0063: 'Service Instance Saving Failed',
-  E0064: 'Route Binding Save Failed',
-  E0065: 'Service instance details not found in redis',
-  E0066: 'Route Binding Delete failed',
-  E0067: 'Service instance details not found in redis',
   E0070: 'Error generating code coverage badge',
   E0080: 'Error getting OpenAPI interface file',
   E0081: 'Unable to find policies in Open API spec',
   E0082: 'Invalid Open API Spec, Check policy attachment',
   E0083: 'Unrecognized Service Plan',
   E0084: 'Org plan requires host parameter',
-  E0085: 'Microgateway plan requires micro parameter'
+  E0085: 'Microgateway plan requires micro parameter',
+  E0086: 'Missing authorization ("bearer" or "basic" or "user"&"pass")',
+  E0087: 'Error Authenticating to Apigee. Try refreshing Bearer token'
 }
 
 var getMessage = function(code) {

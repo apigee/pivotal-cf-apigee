@@ -31,7 +31,7 @@ var proxy = require('./edge_proxy')
 function createServiceBinding (bindReq, callback) {
   async.waterfall([
     function (cb) {
-      mgmt_api.authenticate({org: bindReq.org, user: bindReq.user, pass: bindReq.pass}, function (err, data) {
+      mgmt_api.authenticate(bindReq, function (err, data) {
         if (err) {
           // Don't return 401, which is reported as failure of basic-auth to the broker
           if (err.statusCode == 401) {

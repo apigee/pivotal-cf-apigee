@@ -52,10 +52,20 @@ function orgEnv(obj, ...rest) {
 }
 */
 
-function auth(obj) {
-  return {
-    user: obj.user,
-    pass: obj.pass
+function auth(options, obj) {
+  if (obj.user && obj.pass) {
+    options.auth = {
+      user: obj.user,
+      pass: obj.pass
+    }
+  } else if (obj.basic) {
+    options.headers = {
+      'Authorization': 'Basic ' + obj.basic
+    }
+  } else {
+    options.auth = {
+      bearer: obj.bearer
+    }
   }
 }
 
@@ -80,9 +90,9 @@ function orgEnv() {
 
 function getProxyRevision (proxyData, callback) {
   var options = {
-    url: org(proxyData, 'apis', proxyData.proxyname),
-    auth: auth(proxyData)
+    url: org(proxyData, 'apis', proxyData.proxyname)
   }
+  auth(options, proxyData)
   request.get(options, function (err, res, body) {
     if (err) {
       err.url = options.url
@@ -116,9 +126,9 @@ function importProxy (proxyData, zipBuffer, callback) {
     qs: {
       action: 'import',
       name: proxyData.proxyname
-    },
-    auth: auth(proxyData)
+    }
   }
+  auth(options, proxyData)
   request.post(options, function (err, httpResponse, body) {
     if (err) {
       err.url = options.url
@@ -147,9 +157,9 @@ function deployProxy (proxyData, callback) {
         callback(loggerError)
     } else {
       var options = {
-        url: deployments(proxyData, revision),
-        auth: auth(proxyData)
+        url: deployments(proxyData, revision)
       }
+      auth(options, proxyData)
       request.post(options, function (err, res, body) {
         if (err) {
           var loggerError = logger.ERR_APIGEE_DEPLOY_PROXY(err)
@@ -170,9 +180,9 @@ function undeployProxy (proxyData, callback) {
         callback(loggerError)
     } else {
       var options = {
-        url: deployments(proxyData, revision),
-        auth: auth(proxyData)
+        url: deployments(proxyData, revision)
       }
+      auth(options, proxyData)
       request.del(options, function (err, res, body) {
         if (err) {
           var loggerError = logger.ERR_APIGEE_UNDEPLOY_PROXY_FAILED(err)
@@ -187,9 +197,9 @@ function undeployProxy (proxyData, callback) {
 
 function getVirtualHosts (proxyData, callback) {
   var options = {
-    url: orgEnv(proxyData, 'virtualhosts'),
-    auth: auth(proxyData)
+    url: orgEnv(proxyData, 'virtualhosts')
   }
+  auth(options, proxyData)
   request.get(options, function (err, res, body) {
     if (err) {
       err.url = options.url
@@ -207,16 +217,21 @@ function getVirtualHosts (proxyData, callback) {
 
 function authenticate (authOptions, callback) {
   var options = {
-    url: org(authOptions),
-    auth: auth(authOptions)
+    url: org(authOptions)
   }
+  auth(options, authOptions)
   request.get(options, function (err, res, body) {
     if (err) {
       err.url = options.url
       var loggerError = logger.ERR_APIGEE_REQ_FAILED(err)
       callback(loggerError)
     } else if (res.statusCode !== 200) {
-      var loggerError = logger.ERR_APIGEE_AUTH(body, res.statusCode)
+      var loggerError
+      if (res.statusCode == 401 && authOptions.bearer) {
+        loggerError = logger.ERR_APIGEE_AUTH_BEARER_FAILED(body, res.statusCode)
+      } else {
+        loggerError = logger.ERR_APIGEE_AUTH(body, res.statusCode)
+      }
       callback(loggerError)
     } else {
       callback(null, body)
