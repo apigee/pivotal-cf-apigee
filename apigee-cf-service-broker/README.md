@@ -123,9 +123,9 @@ Each bind attempt requires authorization with Edge, passed as additional paramet
 
 1. Get or update the authorization token using the Apigee SSO CLI script
 ```bash
-get_token
+ get_token
 ```
-You may be prompted for your Apigee Edge username and password, and an MFA token, if you have MFA enabled for the organization. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
+ You may be prompted for your Apigee Edge username and password, and an MFA token, if you have MFA enabled for the organization. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
 
 1. Bind the route-service to Apigee with the domain and hostname, carefully using quotes and command expansion:
  ```bash
