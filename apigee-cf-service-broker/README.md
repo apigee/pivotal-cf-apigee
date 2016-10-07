@@ -121,11 +121,10 @@ Each bind attempt requires authorization with Edge, passed as additional paramet
 
 1. First, get the URL of the app/route to bind. `cf routes` lists the host and domain separately; `cf apps` combines them into a FQDN, listed under "urls". For example, if the app's hostname is `test-app`, then the resulting FQDN is `test-app.local.pcfdev.io`
 
-1. Get or update the authorization token using the Apigee SSO CLI script
+1. Get or update the authorization token using the Apigee SSO CLI script. You may be prompted for your Apigee Edge username and password, and an MFA token, if you have MFA enabled for the organization. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory):
 ```bash
  get_token
 ```
- You may be prompted for your Apigee Edge username and password, and an MFA token, if you have MFA enabled for the organization. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
 
 1. Bind the route-service to Apigee with the domain and hostname, carefully using quotes and command expansion:
  ```bash
