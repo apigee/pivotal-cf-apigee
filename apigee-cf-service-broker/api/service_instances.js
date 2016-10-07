@@ -49,13 +49,13 @@ function planValidate (req, res, next) {
   var loggerError
   if (req.body.plan_id === catalogData.guid.org) {
     // org plan
-    if (!req.body.parameters.hasOwnProperty('host')) {
-      res.status(400)
-      loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST()
-      res.json(loggerError)
-    } else {
+    // if (!req.body.parameters.hasOwnProperty('host')) {
+    //   res.status(400)
+    //   loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST()
+    //   res.json(loggerError)
+    // } else {
       next()
-    }
+    // }
   } else if (req.body.plan_id === catalogData.guid.micro) {
     // micro plan
     if (!req.body.parameters.hasOwnProperty('micro')) {

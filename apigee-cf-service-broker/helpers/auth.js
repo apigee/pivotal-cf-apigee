@@ -19,7 +19,7 @@
  * Authentication middleware
  *
  * @example
- * var auth = require('../helpers/auth')(config.get('cf_broker').auth.method)
+ * var auth = require('../helpers/auth')(config)
  * router.use(auth)
  *
  * @module
