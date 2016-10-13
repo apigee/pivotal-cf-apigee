@@ -98,7 +98,7 @@ APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${ro
 
 #### Installing tile
 
-TBD
+See http://docs.apigee.com/api-services/content/install-and-configure-apigee-service-broker
 
 ### <a name="instance"></a>Create service instance
 
