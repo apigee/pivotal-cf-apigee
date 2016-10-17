@@ -12,7 +12,7 @@
     "app"
   ],
   "author": "Anil Sagar <anil614sagar@gmail.com> (https://in.linkedin.com/in/anilsagar/)",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "body-parser": "^1.15.0",
     "express": "^4.13.3"
