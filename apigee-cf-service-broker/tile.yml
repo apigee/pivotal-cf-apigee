@@ -5,7 +5,7 @@
 name: apigee-cf-service-broker # By convention lowercase with dashes
 icon_file: resources/apigee.png
 label: Apigee
-description: POC service broker for Apigee Edge
+description: Route Services service broker for Apigee Edge
 
 # Specify the packages to be included in your tile.
 # The format of the section to include depends on the type
@@ -21,9 +21,6 @@ packages:
     command: node server.js
     buildpack: nodejs_buildpack
     path: resources/apigee.zip
-  auto_services:
-  - name: p-redis
-    plan: shared-vm
   enable_global_access_to_plans: true
 
 # Include stemcell criteria if you don't want to accept the default.
@@ -31,10 +28,10 @@ packages:
 # strongly recommend you leave this alone so that your tile always
 # runs with the latest stemcell.
 #
-stemcell_criteria:
-#   os: ubuntu-trusty
-#   requires_cpi: false
-  version: '3232.4'
+#stemcell_criteria:
+#  os: ubuntu-trusty
+#  requires_cpi: false
+#  version: '3232.4'
 
 # Add properties you want to pass to your applications.
 # Properties specified here will not be configurable by the user.
@@ -57,23 +54,28 @@ forms:
   label: Apigee Edge Tile
   description: Custom Properties for Apigee Edge
   properties:
-  - name: apigee_redis_passphrase
-    type: string
-    label: Broker Passphrase
-    description: Passphrase used to encrypt redis datastore
-    default: secret
   - name: apigee_dashboard_url
     type: string
     label: Dashboard URL
-    description: URL to Apigee dashboard
+    description: URL for Apigee Edge management UI
     default: https://enterprise.apigee.com/platform/#/
-  - name: apigee_proxy_host
-    type: string
-    label: Apigee Proxy Host
-    description: Domain of Apigee proxy host
-    default: apigee.net
   - name: apigee_mgmt_api_url
     type: string
     label: Apigee Management API URL
-    description: URL to the Apigee management API
+    description: Apigee Edge Management API endpoint
     default: https://api.enterprise.apigee.com/v1
+  - name: apigee_proxy_domain
+    type: string
+    label: Apigee Proxy Domain
+    description: Domain for proxy host template
+    default: apigee.net
+  - name: apigee_proxy_host_template
+    type: string
+    label: Apigee Proxy Host Template
+    description: ES6 template literal for generated proxy host. Note that without any placeholders, will be used as-is.
+    default: ${org}-${env}.${domain}
+  - name: APIGEE_PROXY_NAME_TEMPLATE
+    type: string
+    label: Apigee Proxy Name Template
+    description: ES6 template literal for generated proxy name
+    default: cf-${routeName}
