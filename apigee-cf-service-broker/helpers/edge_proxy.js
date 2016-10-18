@@ -54,7 +54,7 @@ function createProxy (bindReq, callback) {
       callback(loggerError)
     } else {
       var proxyUrlRoot = template(proxyHostTemplate, union)
-      bindReq.proxyURL = 'https://' + proxyUrlRoot + '/' + bindReq.binding_id
+      bindReq.proxyURL = 'https://' + proxyUrlRoot + '/' + bindReq.binding_id + '/'
       bindReq.proxyname = proxyName
       logger.log.info('route proxy url:', bindReq.proxyURL, '->', bindReq.proxyname)
       callback(null, bindReq)  // bindReq request plus added results becomes bindRes response
