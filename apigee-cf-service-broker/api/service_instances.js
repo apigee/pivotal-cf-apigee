@@ -93,12 +93,12 @@ function deriveAction (params) {
     action = params.action.toString()
   }
   else {
-    if (params.micro) {
+    // if (params.micro) {
       action = ''
-    }
-    else {
-      action = 'proxy bind'
-    }
+    // }
+    // else {
+    //   action = 'proxy bind'
+    // }
   }
   action = action.toLowerCase().split(/[\s,]+/)
   return {

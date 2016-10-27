@@ -127,11 +127,12 @@ Each bind attempt requires authorization with Edge, passed as additional paramet
  ```
  You may be prompted for your Apigee Edge username and password, and an MFA token, if you have MFA enabled for the organization. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
 
-1. Bind the route-service to Apigee with the domain and hostname, carefully using quotes and command expansion:
+1. Create a proxy for the route and bind that proxy as the route-service to Apigee with the domain and hostname, carefully using quotes and command expansion:
  ```bash
 cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
    -c '{"org":"<your edge org>","env":"<your edge env>",
-       "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'"}'
+       "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
+       "action":"proxy bind"}'
  ```
 
 1. Log into Edge and note that the route has been created, and that requests to your app are being routed through Edge. You will find a proxy named using the pattern specified by the APIGEE_PROXY_NAME_TEMPLATE variable and deployed to the environment specified when you created your service instance. Entering trace on that proxy and sending requests to your app will show the traffic routing through the proxy. You can now configure standard Apigee Edge policies on that proxy.
