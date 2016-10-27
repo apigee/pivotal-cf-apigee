@@ -33,33 +33,55 @@ var openApi = require('./open_api.js')
 // create proxy in edge org
 function createProxy (bindReq, callback) {
   var proxyHostTemplate = bindReq.host || config.get('APIGEE_PROXY_HOST_TEMPLATE')
-  var proxyName = template(config.get('APIGEE_PROXY_NAME_TEMPLATE'), {
-    routeName: bindReq.bind_resource.route.replace(/\/+/g,'_')  // route can be host.domain/path
+  var mangledName = bindReq.proxyname || template(config.get('APIGEE_PROXY_NAME_TEMPLATE'), {
+    route: bindReq.bind_resource.route
   })
+  // Regex of allowed characters (obviously case insensitive) according to API docs
+  mangledName = mangledName.replace(/[^A-Z0-9._\-$ %]+/ig, '_')  // route can be host.domain/path
 
   if (bindReq.micro) {
       proxyHostTemplate = bindReq.micro
-      proxyName = 'edgemicro_' + proxyName
+      mangledName = 'edgemicro_' + mangledName
   }
 
   var union = Object.assign({
     domain: config.get('APIGEE_PROXY_DOMAIN'),
-    proxyname: proxyName,
-    basepath: '/' + bindReq.binding_id
+    proxyname: mangledName,
+    basepath: '/' + bindReq.bind_resource.route
   }, bindReq)
 
-  uploadProxy(union, function (err, data) {
-    if (err) {
-      var loggerError = logger.ERR_PROXY_UPLOAD_FAILED(err)
-      callback(loggerError)
-    } else {
+  var bindResponse = function(deployRes) {
+    if (bindReq.action.bind) {
       var proxyUrlRoot = template(proxyHostTemplate, union)
-      bindReq.proxyURL = 'https://' + proxyUrlRoot + '/' + bindReq.binding_id
-      bindReq.proxyname = proxyName
+      bindReq.proxyURL = 'https://' + proxyUrlRoot + union.basepath
+      bindReq.proxyname = union.proxyname
       logger.log.info('route proxy url:', bindReq.proxyURL, '->', bindReq.proxyname)
       callback(null, bindReq)  // bindReq request plus added results becomes bindRes response
     }
-  })
+    else {
+      var detail = "proxy name: " + union.proxyname + ", revision: " + deployRes.revision
+      if (deployRes.statusCode != 200 && deployRes.statusCode != 201) {
+        detail += ", detail: " + deployRes.body.message
+      }
+      var loggerError = logger.INFO_PROXY_CREATED_STOP(null, null, detail)
+      callback(loggerError)
+    }
+  }
+
+  if (bindReq.action.proxy) {
+    uploadProxy(union, function (err, deployRes) {
+      if (err) {
+        var loggerError = logger.ERR_PROXY_UPLOAD_FAILED(err)
+        callback(loggerError)
+      } else {
+        logger.log.info(deployRes)
+        bindResponse(deployRes)
+      }
+    })
+  }
+  else {
+    bindResponse()
+  }
 }
 
 // should just get route details here, so we have access to parameters (add features)

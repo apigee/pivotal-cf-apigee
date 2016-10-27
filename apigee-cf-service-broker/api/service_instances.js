@@ -48,14 +48,13 @@ router.use(auth)
 function planValidate (req, res, next) {
   var loggerError
   if (req.body.plan_id === catalogData.guid.org) {
-    // org plan
-    // if (!req.body.parameters.hasOwnProperty('host')) {
-    //   res.status(400)
-    //   loggerError = logger.ERR_ORG_PLAN_REQUIRES_HOST()
-    //   res.json(loggerError)
-    // } else {
+    if (req.body.parameters.hasOwnProperty('micro')) {
+      res.status(400)
+      loggerError = logger.ERR_NOT_MICRO_PLAN()
+      res.json(loggerError)
+    } else {
       next()
-    // }
+    }
   } else if (req.body.plan_id === catalogData.guid.micro) {
     // micro plan
     if (!req.body.parameters.hasOwnProperty('micro')) {
@@ -88,6 +87,39 @@ function authValidate (req, res, next) {
   }
 }
 
+function deriveAction (params) {
+  var action
+  if (params.action) {
+    action = params.action.toString()
+  }
+  else {
+    if (params.micro) {
+      action = ''
+    }
+    else {
+      action = 'proxy bind'
+    }
+  }
+  action = action.toLowerCase().split(/[\s,]+/)
+  return {
+    proxy: action.indexOf('proxy') >= 0,
+    bind: action.indexOf('bind') >= 0
+  }
+}
+
+function actionValidate(req, res, next) {
+  const action = deriveAction(req.body.parameters)
+  if (action.proxy || action.bind) {
+    next()
+  }
+  else {
+    res.status(400)
+    var loggerError = logger.ERR_MISSING_SUPPORTED_ACTION()
+    res.json(loggerError)
+  }
+}
+
+
 // provising a service instance
 router.put('/:instance_id', function (req, res) {
   // TODO instance-specific dashboard_url
@@ -111,7 +143,7 @@ router.delete('/:instance_id', function (req, res) {
 // payload {"service_id":"5E3F917B-9225-4BE4-802F-8F1491F714C0","plan_id":"D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F","bind_resource":{"route":"rot13.apigee-cloudfoundry.com"}}
 // response should be route_service_url	string	A URL to which Cloud Foundry should proxy requests for the bound route.
 router.put('/:instance_id/service_bindings/:binding_id',
-    validate({body: bindingSchema.bind}), planValidate, authValidate, function (req, res) {
+    validate({body: bindingSchema.bind}), planValidate, authValidate, actionValidate, function (req, res) {
   // use instance_id to retrieve org and environment for proxy
   var bindReq = {
     instance_id: req.params.instance_id,
@@ -119,6 +151,7 @@ router.put('/:instance_id/service_bindings/:binding_id',
     service_id: req.body.service_id,
     plan_id: req.body.plan_id,
     bind_resource: req.body.bind_resource,
+    action: deriveAction(req.body.parameters),
     org: req.body.parameters.org,
     env: req.body.parameters.env,
     user: req.body.parameters.user,

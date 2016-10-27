@@ -63,7 +63,7 @@ APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.a
 APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint | `https://api.enterprise.apigee.com/v1`
 APIGEE_PROXY_DOMAIN | Domain for proxy host template | `apigee.net`
 APIGEE_PROXY_HOST_TEMPLATE | ES6 template literal for generated proxy host. (Note that without any placeholders, will be used as-is.) | `${org}-${env}.${domain}`
-APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${routeName}`
+APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${route}`
 
 
 1. Deploy the broker.
@@ -107,7 +107,7 @@ A CF service typically offers several variations, known as *service plans*. For 
 Service plan | Purpose | Required `bind-route-service` parameter
 ---- | ---- | ----
 `org` | Apigee public or private cloud |
-`microgateway` | Apigee Edge Microgateway | `micro`: FQDN of microgateway
+`microgateway` | Apigee Edge Microgateway | `micro`: FQDN of microgateway <br> `action`: `"proxy"` or `"bind"`
 
 The service instance is created for the CF org/space by specifying the desired service plan and a name for the instance. For example, for the service name `myapigee` using the `org` plan:
 ```bash
@@ -152,17 +152,28 @@ To use Edge Microgateway, select the `microgateway` service plan when creating t
 cf create-service apigee-edge microgateway myapigee
 ```
 
-When binding, specify the its FQDN as `micro`. In this example, the Microgateway is also installed as an app with the hostname `edgemicro-app`:
+The proxy must be created as a separate step, and then loaded by Microgateway instances before binding. The proxy can be created manually, but to have the broker do it, specify `"action":"proxy"`. Also specify the Microgateway's FQDN as `micro`. In this example, the Microgateway is also installed as an app with the hostname `edgemicro-app`:
 ```bash
 cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
    -c '{"org":"<your edge org>","env":"<your edge env>",
        "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
-       "micro":"edgemicro-app.local.pcfdev.io"}'
+       "micro":"edgemicro-app.local.pcfdev.io",
+       "action":"proxy"}'
 ```
 
-The proxies created by the bind for Microgateway have an additional `edgemicro_` at the beginning of their name, a general requirement unrelated to Cloud Foundry and service brokers. Another general requirement is that the proxy is part of a published API Product; a change you must make manually.
+Cloud Foundry will report an error during the binding, since the bind was not attempted. But the message returned should indicate that the proxy was created, which you can check with the Edge management UI or API. The proxies created by the bind for Microgateway have an additional `edgemicro_` at the beginning of their name, a general requirement unrelated to Cloud Foundry and service brokers.
 
-If the version of Microgateway does not support automatic configuration reload, you must restart Microgateway to fetch the newly created proxy and updated Product configuration.
+Then reload the configuration on the Microgateway instance(s).
+
+To bind, make the same call with `"action":"bind"`
+```bash
+cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
+   -c '{"org":"<your edge org>","env":"<your edge env>",
+       "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
+       "micro":"edgemicro-app.local.pcfdev.io",
+       "action":"bind"}'
+```
+
 
 ### Unbind route service
 

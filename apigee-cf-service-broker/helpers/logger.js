@@ -53,7 +53,10 @@ var codes = {
   ERR_ORG_PLAN_REQUIRES_HOST: 'E0084',
   ERR_MICRO_PLAN_REQUIRES_MICRO: 'E0085',
   ERR_MISSING_AUTH: 'E0086',
-  ERR_APIGEE_AUTH_BEARER_FAILED: 'E0087'
+  ERR_APIGEE_AUTH_BEARER_FAILED: 'E0087',
+  ERR_MISSING_SUPPORTED_ACTION: 'E0088',
+  ERR_NOT_MICRO_PLAN: 'E0089',
+  INFO_PROXY_CREATED_STOP: 'I0001'
 }
 
 var messages = {
@@ -84,26 +87,32 @@ var messages = {
   E0082: 'Invalid Open API Spec, Check policy attachment',
   E0083: 'Unrecognized Service Plan',
   E0084: 'Org plan requires host parameter',
-  E0085: 'Microgateway plan requires micro parameter',
+  E0085: 'Microgateway plan requires "micro" parameter',
   E0086: 'Missing authorization ("bearer" or "basic" or "user"&"pass")',
-  E0087: 'Error Authenticating to Apigee. Try refreshing Bearer token'
+  E0087: 'Error Authenticating to Apigee. Try refreshing Bearer token',
+  E0088: 'Missing at least one supported "action": "proxy" or "bind"',
+  E0089: 'Not a Microgateway plan: "micro" parameter invalid',
+  I0001: 'Proxy created; as requested, no binding attempted'
 }
 
 var getMessage = function(code) {
   return util.format('[%s] - %s', code, messages[code])
 }
 
-function LoggerError(code, statusCode) {
+function LoggerError(code, statusCode, detailMessage) {
     Error.captureStackTrace(this, handle_error)
     let line = this.stack.split('\n')[1]
     this.topOfStack = line ? line.trim() : line
     this.code = code
     this.description = getMessage(code)  // 'description' expected in CF response
+    if (detailMessage) {
+      this.description += ': ' + detailMessage;
+    }
     this.statusCode = statusCode || 500
 }
 util.inherits(LoggerError, Error)
 
-var handle_error = function(code, originalErr, statusCode) {
+var handle_error = function(code, originalErr, statusCode, detailMessage) {
     if (originalErr instanceof LoggerError) {
         if (statusCode) {
           originalErr.statusCode = statusCode
@@ -111,7 +120,7 @@ var handle_error = function(code, originalErr, statusCode) {
         return originalErr
     }
 
-    const error = new LoggerError(code, statusCode)
+    const error = new LoggerError(code, statusCode, detailMessage)
 
     log.error({
         errAt: error.topOfStack,

@@ -27,7 +27,7 @@ var defaults = {
     APIGEE_MGMT_API_URL: 'https://api.enterprise.apigee.com/v1',
     APIGEE_PROXY_DOMAIN: 'apigee.net',
     APIGEE_PROXY_HOST_TEMPLATE: '${org}-${env}.${domain}',
-    APIGEE_PROXY_NAME_TEMPLATE: 'cf-${routeName}',
+    APIGEE_PROXY_NAME_TEMPLATE: 'cf-${route}',
     auth: 'staticauth'
 }
 

@@ -165,7 +165,15 @@ function deployProxy (proxyData, callback) {
           var loggerError = logger.ERR_APIGEE_DEPLOY_PROXY(err)
           callback(loggerError)
         } else {
-          callback(null, res)
+          try {
+            body = JSON.parse(body)
+          } catch (x) {
+          }
+          callback(null, {
+            revision: revision,
+            statusCode: res.statusCode,
+            body: body
+          })
         }
       })
     }

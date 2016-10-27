@@ -200,7 +200,7 @@ describe('Component APIs', function () {
         .end(function (err, res) {
           expect(err).equal(null)
           expect(res.body).to.have.property('route_service_url')
-          expect(res.body.route_service_url).to.equal('https://cdmo-test.apigee.net/binding-guid-here')
+          expect(res.body.route_service_url).to.equal('https://cdmo-test.apigee.net/route-url-here')
           done()
         })
     })
