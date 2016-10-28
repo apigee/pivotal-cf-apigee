@@ -1,3 +1,7 @@
 # pivotal-cf-apigee
+
 [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker)
-& [Sample Code](sample-api)
+
+[Add-ons for Edge Microgateway in Cloud Foundry](microgateway-addons)
+
+[Sample Code](sample-api)
