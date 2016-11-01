@@ -18,16 +18,6 @@
 /**
  * Implementation of [service broker API for CF](http://docs.cloudfoundry.org/services/api.html)
  *
- * @example
- * sample provisioning request:
- * {
- *   "service_id"        : "5E3F917B-9225-4BE4-802F-8F1491F714C0",
- *   "plan_id"           : "D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F",
- *   "organization_guid" : "885e653c-1e90-4a09-bc2e-5cbb39ceccf1",
- *   "space_guid"        : "ab17b10a-6765-4c3e-b00f-4f8358c6b185",
- *   "parameters"        : {"org" : "cdmo"}
- * }
- *
  * @module
  */
 
@@ -87,34 +77,45 @@ function authValidate (req, res, next) {
   }
 }
 
+const verbs = ['proxy', 'bind']
+
 function deriveAction (params) {
-  var action
-  if (params.action) {
-    action = params.action.toString()
+  const action = params.action ? params.action.toString() : ''
+  const ret = {
+    any: false,
+    errors: []
   }
-  else {
-    // if (params.micro) {
-      action = ''
-    // }
-    // else {
-    //   action = 'proxy bind'
-    // }
-  }
-  action = action.toLowerCase().split(/[\s,]+/)
-  return {
-    proxy: action.indexOf('proxy') >= 0,
-    bind: action.indexOf('bind') >= 0
-  }
+  verbs.forEach(function (verb) {
+    ret[verb] = false
+  })
+  action.split(/[\s,]+/).forEach(function (value) {
+    const lower = value.toLowerCase()
+    if (verbs.indexOf(lower) >= 0) {
+      ret.any = true
+      ret[lower] = true
+    }
+    else if (value) {
+      ret.errors.push(value)
+    }
+  })
+  return ret
 }
+
+const quoteAction = (value) => '"' + value + '"'
 
 function actionValidate(req, res, next) {
   const action = deriveAction(req.body.parameters)
-  if (action.proxy || action.bind) {
+  if (action.errors.length) {
+    res.status(400)
+    var loggerError = logger.ERR_SPECIFIED_UNSUPPORTED_ACTION(null, null, action.errors.map(quoteAction).join(', '))
+    res.json(loggerError)
+  }
+  else if (action.any) {
     next()
   }
   else {
     res.status(400)
-    var loggerError = logger.ERR_MISSING_SUPPORTED_ACTION()
+    var loggerError = logger.ERR_MISSING_SUPPORTED_ACTION(null, null, verbs.map(quoteAction).join(' or '))
     res.json(loggerError)
   }
 }

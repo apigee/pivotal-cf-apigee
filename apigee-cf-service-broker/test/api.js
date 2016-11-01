@@ -150,7 +150,8 @@ describe('Component APIs', function () {
             org: 'org-name-here',
             env: 'env-name-here',
             user: 'apigee-user-here',
-            pass: 'apigee-pass-here'
+            pass: 'apigee-pass-here',
+            action: 'proxy bind'
           }
         }
       }
@@ -188,7 +189,8 @@ describe('Component APIs', function () {
             org: 'cdmo',
             env: 'test',
             user: 'XXXXX',
-            pass: 'XXXXXXX'
+            pass: 'XXXXXXX',
+            action: 'proxy bind'
           }
         }
       }
