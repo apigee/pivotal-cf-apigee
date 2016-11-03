@@ -18,7 +18,7 @@ Note that simply copying everything in the directory includes copying the `plugi
 
 ### Manifest
 
-The manifest sets the memory at `256M`, enough for a simple workload.
+The manifest sets the memory at `512M`, enough for a small workload with several proxies and products.
 
 ### Start script
 
