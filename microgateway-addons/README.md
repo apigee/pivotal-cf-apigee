@@ -17,10 +17,10 @@ Performing these Edge Microgateway steps will give you the configuration files n
 1. Locate the following, which you'll need when setting up this integration:
  - Your Edge Microgateway installation directory.
  
-     When you use npm with the global option (`npm install -g edgemicro`), the software is installed in `[prefix]/lib/node_modules/edgemicro`. You can find the value of `[prefix]` with this command:
+     When you use npm with the global option (`npm install -g edgemicro`), the software is installed in `[prefix]/lib/node_modules/edgemicro`. From the command line, you can get to this directory with the following:
 
      ```
-npm config get prefix
+cd $(npm config get prefix)/lib/node_modules/edgemicro
 ```
  - The `[org]-[env]-config.yaml` file for your Edge Microgateway organization and environment.
  
