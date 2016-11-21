@@ -34,7 +34,7 @@ Node installed locally, if necessary.
 
  The broker will create the (reverse) proxy on Apigee Edge for the app's route. This requires authenticating with Edge; ideally this is done with an authorization token, generated with scripts in the [Apigee SSO CLI bundle](http://docs.apigee.com/api-services/content/using-oauth2-security-apigee-edge-management-api#installingacurlandgettokenutilities). Plain username and password may also be used if necessary.
 
-With Cloud Foundry, a *service broker* provides a catalog of services, and performs tasks to tie those services with applications and their routes. This broker only supports route services, to use Apigee as a reverse proxy for applications, and follows the standard route service flow:
+With Cloud Foundry, a *service broker* provides a catalog of services, and performs tasks to tie those services with applications and their routes. This broker only supports route services, to use Apigee as a reverse proxy for applications, and follows the standard route service flow.
 
 Some steps are slightly different when [using Microgateway](#microgateway)
 
@@ -72,7 +72,7 @@ APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${ro
 1. Log in to the Cloud Foundry instance where you'll be installing the Apigee service broker.
 
  ```
-cf login -a <your.endpoint> -u <username> -o <organization> -s space
+cf login -a <your.endpoint> -u <username> -o <organization> -s <space>
 ```
 
 1. Deploy the Apigee service broker from the source in this repository.
@@ -118,7 +118,7 @@ A CF service typically offers several variations, known as *service plans*. For 
 
 Service plan | Purpose | Required `bind-route-service` parameter
 ---- | ---- | ----
-`org` | Apigee public or private cloud |
+`org` | Apigee public or private cloud |  <br> `action`: `"proxy"` or `"bind"`
 `microgateway` | Apigee Edge Microgateway | `micro`: FQDN of microgateway <br> `action`: `"proxy"` or `"bind"`
 
 The service instance is created for the CF org/space by specifying the desired service plan and a name for the instance. For example, for the service name `myapigee` using the `org` plan:
@@ -139,14 +139,14 @@ Each bind attempt requires authorization with Edge, passed as additional paramet
  ```bash
  get_token
  ```
- You may be prompted for your Apigee Edge username and password, and an MFA token if you have MFA enabled for the organization. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
+ You may be prompted for your Apigee Edge username and password, and an MFA token. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
 
 1. Bind the app's route to the Apigee service instance with the domain and hostname, carefully using quotes and command expansion:
  ```bash
 cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
 -c '{"org":"<your edge org>","env":"<your edge env>",
-    "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
-    "action":"proxy bind"}'
+      "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
+      "action":"proxy bind"}'
 ```
 
 1. Log into Edge and note that the route has been created, and that requests to your app are being routed through Edge. 
