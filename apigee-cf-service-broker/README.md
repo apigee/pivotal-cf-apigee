@@ -71,7 +71,7 @@ APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${ro
 
 1. Log in to the Cloud Foundry instance where you'll be installing the Apigee service broker.
 
- ```
+ ```bash
 cf login -a <your.endpoint> -u <username> -o <organization> -s <space>
 ```
 
@@ -169,13 +169,14 @@ Instead of a `bearer` token, credentials can also be expressed as
 ## <a name="microgateway"></a>Microgateway
 
 To use Edge Microgateway, select the `microgateway` service plan when creating the service instance.
+
 ```bash
 cf create-service apigee-edge microgateway myapigee
 ```
 
 The proxy must be created as a separate step, and then loaded by Microgateway instances before binding. The proxy can be created manually, but to have the broker do it, specify "action":"proxy". Also specify the Microgateway's FQDN as micro. In this example, the Microgateway is also installed as an app with the hostname edgemicro-app:
 
-```
+```bash
 cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
    -c '{"org":"<your edge org>","env":"<your edge env>",
        "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
@@ -185,7 +186,7 @@ cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
 
 Cloud Foundry will report an error during the binding, since the bind was not attempted. But the message returned should indicate that the proxy was created, which you can check with the Edge management UI or API. The proxies created by the bind for Microgateway have an additional edgemicro_ at the beginning of their name, a general requirement unrelated to Cloud Foundry and service brokers.
 
-Then reload the configuration on the Microgateway instance(s).
+Wait for the configuration to reload on the Edge Microgateway instance(s) before binding. You might have to wait 5 to 10 minutes. When it has reloaded, the console will list the proxy you just created.
 
 To bind, make the same call with "action":"bind"
 
