@@ -15,7 +15,7 @@ Performing these Edge Microgateway steps will give you the configuration files n
 ## Instructions
 
 1. Locate the following, which you'll need when setting up this integration:
- - Your Edge Microgateway installation directory. This will be the directory that contains the startmicro file.
+ - Your Edge Microgateway installation directory.
  
      When you use npm with the global option (`npm install -g edgemicro`), the software is installed in `[prefix]/lib/node_modules/edgemicro`. You can find the value of `[prefix]` with this command:
 
@@ -34,7 +34,7 @@ npm config get prefix
   - A manifest.yml file. This is a sample Cloud Foundry manifest to run as edgemicro-app.
   
      The manifest sets the memory at 512M, enough for a small workload with several proxies and products.
-  - A startmicro file. You might need to replace a startmicro file already in the directory.
+  - A startmicro file.
 
      The start script extracts organization/environment from the `[org]-[env]-cache-config.yaml` file to launch the Edge Microgateway for that configuration.
 
