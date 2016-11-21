@@ -45,7 +45,8 @@ npm config get prefix
  
      This is a plugin to enable Edge Microgateway to act as Cloud Foundry route-service.     
 3. Edit the `package.json` so that the new startmicro script is used. The relevant section should read:
-```
+
+ ```
  "scripts": {
     "start": "./startmicro",
 ```
