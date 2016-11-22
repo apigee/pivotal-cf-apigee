@@ -78,4 +78,4 @@ forms:
     type: string
     label: Apigee Proxy Name Template
     description: ES6 template literal for generated proxy name
-    default: cf-${routeName}
+    default: cf-${route}
