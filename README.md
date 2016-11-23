@@ -1,6 +1,6 @@
 # Cloud Foundry and Apigee Edge Integration
 
-This repository includes code you can use to integrate Apigee Edge with Cloud Foundry (including Pivotal and open source instances). Using this integration, you can proxy your Cloud Foundry apps with proxies hosted on either [Apigee Edge in the cloud]() or [Edge Microgateway]().
+This repository includes code you can use to integrate Apigee Edge with Cloud Foundry (including Pivotal and open source instances). Using this integration, you can proxy your Cloud Foundry apps with proxies hosted on either [Apigee Edge in the cloud](http://docs.apigee.com/api-services/content/what-apigee-edge) or [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway).
 
 For a sample Cloud Foundry app for testing this integration, see [Sample Code](sample-api).
 
@@ -13,16 +13,16 @@ The integrations below are enabled. See the following for suggested processes an
 
 - **Open source Cloud Foundry** and **Apigee Edge Microgateway**
  1. See [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker) for 
-     - Prerequisites 
-     - Installing the Apigee service broker
+     - [Prerequisites](apigee-cf-service-broker#step-1-ensure-you-have-the-prerequisites)
+     - [Installing the Apigee service broker](apigee-cf-service-broker#step-2-install-the-apigee-service-broker-from-source)
  1. See [Add-ons for Edge Microgateway in Cloud Foundry](microgateway-addons) for adding a required plugin to Edge Microgateway, then adding Edge Microgateway as an app to Cloud Foundry.
- 1.  See [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker#step-3-create-an-instance-of-the-apigee-service) for creating and binding a Edge Microgateway proxy to a Cloud Foundry route. 
+ 1. See [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker#microgateway) for creating and binding an Edge Microgateway proxy to a Cloud Foundry route. 
 
 - **Open source Cloud Foundry** and **Apigee Edge (public and private cloud)**
  1. See [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker) for 
-     - Prerequisites 
-     - Installing the Apigee service broker
- 1.  See [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker#step-3-create-an-instance-of-the-apigee-service) for creating and binding a Edge Microgateway proxy to a Cloud Foundry route. 
+     - [Prerequisites](apigee-cf-service-broker#step-1-ensure-you-have-the-prerequisites)
+     - [Installing the Apigee service broker](apigee-cf-service-broker#step-2-install-the-apigee-service-broker-from-source)
+ 1.  See [Cloud Foundry Service Broker for Apigee](apigee-cf-service-broker#step-3-create-an-instance-of-the-apigee-service) for creating and binding an Edge Microgateway proxy to a Cloud Foundry route. 
 
 - **Pivotal Cloud Foundry** and **Apigee Edge (public and private cloud)**
 
