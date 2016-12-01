@@ -6,9 +6,9 @@ To do that, with these instructions you turn your Edge Microgateway installation
 
 When you run Edge Microgateway as a Cloud Foundry app, you shorten the distance between a proxy running on Edge Microgateway and a Cloud Foundry app bound to it. This shortened distance can increase performance.
 
-## Prerequisites
+## Prerequisites 
 
-Apigee Edge Microgateway version 2.3.0 or later. [Install](http://docs.apigee.com/microgateway/latest/edge-microgateway-installation), [configure](http://docs.apigee.com/microgateway/latest/edge-microgateway-tutorial), and [start](http://docs.apigee.com/microgateway/latest/edge-microgateway-tutorial#part3operateedgemicrogateway-1startedgemicrogateway) it (at least once) for your Apigee organization and environment first. Edge Microgateway doesn't need to be running to configure integration.
+Apigee Edge Microgateway version 2.3.0 or later. [Install](http://docs.apigee.com/microgateway/latest/installing-edge-microgateway), [configure](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway), and [start](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#part3operateedgemicrogateway-1startedgemicrogateway) it (at least once) for your Apigee organization and environment first. Edge Microgateway doesn't need to be running to configure integration.
 
 Performing these Edge Microgateway steps will give you the configuration files necessary to configure the plugin.
 
