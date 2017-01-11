@@ -4,33 +4,36 @@ groups:
   - build-tile
   - claim-pcf
   - deploy-tile
-  - deployment-tests
   - remove-tile
   - release-pcf
 - name: manual
   jobs:
-  - claim-pcf
-  - manual-cleanup-and-release
+  - manual-release-pcf
+
 resources:
-- name: apigee-tile-repo
+- name: version
+  type: semver
+  source:
+    bucket: {{bucket-name}}
+    key: current-version
+    access_key_id: {{aws-key-id}}
+    secret_access_key: {{aws-key}}
+    initial_version: 2.0.0
+
+- name: tile-repo
   type: git
   source:
-    uri: https://github.com/apigee/pivotal-cf-apigee.git
+    uri: https://github.com/JaredGordon/pivotal-cf-apigee.git
     branch: micro-product
-- name: tile-generator-repo
-  type: git
-  source:
-    branch: master
-    ignore_paths:
-    - sample
-    uri: http://github.com/cf-platform-eng/tile-generator.git
-- name: apigee-tile
+
+- name: broker-tile
   type: s3
   source:
     access_key_id: {{aws-key-id}}
     bucket: apigee-cf-service-broker-tile
     regexp: .*-(?P<version>.*)\.pivotal
     secret_access_key: {{aws-key}}
+
 - name: tile-history
   type: s3
   source:
@@ -38,144 +41,82 @@ resources:
     bucket: apigee-cf-service-broker-tile
     regexp: tile\-history-(?P<version>.*)\.yml
     secret_access_key: {{aws-key}}
+
 - name: pcf-environment
   type: pool
   source:
     branch: master
     pool: pcf
     private_key: {{github-pool-private-key}}
-    uri: git@github.com:cf-platform-eng/pipeline-resource-pool
+    uri: git@github.com:cf-platform-eng/pipeline-resource-pool-v2
+
 jobs:
+
 - name: build-tile
+  serial_groups: [version]
   plan:
   - aggregate:
-    - get: tile-generator-repo
-    - get: apigee-tile-repo
+    - get: tile-repo
       trigger: true
+    - get: version
     - get: tile-history
-  - task: build-apigee-tile
-    config:
-      platform: linux
-      image: docker:///carloseberhardt/node-tile-pipeline
-      run:
-        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/tile-build.sh
-        args:
-        - tile-generator-repo
-        - apigee-tile-repo/apigee-cf-service-broker
-        - tile-history
-        - apigee-tile
-      inputs:
-      - name: tile-generator-repo
-        path: ""
-      - name: apigee-tile-repo
-        path: ""
-      - name: tile-history
-        path: ""
-      outputs:
-      - name: apigee-tile
-        path: ""
+  - task: build-tile
+    file: tile-repo/apigee-cf-service-broker/ci/build-tile/task.yml
   - put: tile-history
+    params: {file: tile-history-new/*.yml}
+  - put: broker-tile
     params:
-      from: apigee-tile/tile-history-.*\.yml
-  - put: apigee-tile
-    params:
-      from: apigee-tile/.*\.pivotal
+      file: broker-tile/*.pivotal
+
 - name: claim-pcf
+  serial_groups: [version]
   plan:
   - aggregate:
-    - get: apigee-tile
+    - get: broker-tile
+      trigger: true
       passed:
       - build-tile
-      trigger: true
-    - put: pcf-environment
-      params:
-        acquire: true
+  - put: pcf-environment
+    params:
+      acquire: true
+
 - name: deploy-tile
   plan:
   - aggregate:
-    - get: tile-generator-repo
-    - get: apigee-tile
+    - get: broker-tile
       passed:
       - claim-pcf
       trigger: true
     - get: pcf-environment
       passed:
       - claim-pcf
-    - get: apigee-tile-repo
-  - task: run-deploy-tile
-    config:
-      platform: linux
-      image: docker:///guidowb/tile-pipeline
-      run:
-        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-deploytile.sh
-        args:
-        - tile-generator-repo
-        - apigee-tile-repo
-        - apigee-tile
-        - pcf-environment
-      inputs:
-      - name: tile-generator-repo
-        path: ""
-      - name: pcf-environment
-        path: ""
-      - name: apigee-tile
-        path: ""
-      - name: apigee-tile-repo
-        path: ""
-- name: deployment-tests
-  plan:
-  - aggregate:
-    - get: tile-generator-repo
-    - get: pcf-environment
-      passed:
-      - deploy-tile
-      trigger: true
-    - get: apigee-tile-repo
-  - task: run-deployment-tests
-    config:
-      platform: linux
-      image: docker:///guidowb/tile-pipeline
-      run:
-        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-deploymenttests.sh
-        args:
-        - tile-generator-repo
-        - pcf-environment
-      inputs:
-      - name: tile-generator-repo
-        path: ""
-      - name: pcf-environment
-        path: ""
-      - name: apigee-tile-repo
-        path: ""
+    - get: tile-repo
+    - get: version
+  - task: deploy-tile
+    file: tile-repo/kafka-broker/ci/deploy-tile/task.yml
+    on_failure:
+      aggregate:
+      - put: pcf-environment
+        params:
+          release: pcf-environment
+
 - name: remove-tile
   plan:
   - aggregate:
-    - get: tile-generator-repo
-    - get: apigee-tile
+    - get: tile-repo
+    - get: broker-tile
     - get: pcf-environment
       passed:
-      - deployment-tests
+        - deploy-tile
       trigger: true
-    - get: apigee-tile-repo
   - task: remove-tile
-    config:
-      platform: linux
-      image: docker:///guidowb/tile-pipeline
-      run:
-        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-removetile.sh
-        args:
-        - tile-generator-repo
-        - apigee-tile
-        - pcf-environment
-      inputs:
-      - name: tile-generator-repo
-        path: ""
-      - name: pcf-environment
-        path: ""
-      - name: apigee-tile
-        path: ""
-      - name: apigee-tile-repo
-        path: ""
+    file: tile-repo/apigee-cf-service-broker/ci/remove-tile/task.yml
+    on_failure:
+      aggregate:
+      - put: pcf-environment
+        params:
+          release: pcf-environment"
+
 - name: release-pcf
   plan:
   - get: pcf-environment
@@ -185,36 +126,12 @@ jobs:
   - put: pcf-environment
     params:
       release: pcf-environment
-- name: manual-cleanup-and-release
+
+- name: manual-release-pcf
   plan:
-  - aggregate:
-    - get: tile-generator-repo
-    - get: apigee-tile
-      passed:
-      - claim-pcf
-    - get: pcf-environment
-      passed:
-      - claim-pcf
-    - get: apigee-tile-repo
-  - task: remove-tile
-    config:
-      platform: linux
-      image: docker:///guidowb/tile-pipeline
-      run:
-        path: apigee-tile-repo/apigee-cf-service-broker/ci/scripts/run-removetile.sh
-        args:
-        - tile-generator-repo
-        - apigee-tile
-        - pcf-environment
-      inputs:
-      - name: tile-generator-repo
-        path: ""
-      - name: pcf-environment
-        path: ""
-      - name: apigee-tile
-        path: ""
-      - name: apigee-tile-repo
-        path: ""
+  - get: pcf-environment
+    passed:
+    - claim-pcf
   - put: pcf-environment
     params:
       release: pcf-environment

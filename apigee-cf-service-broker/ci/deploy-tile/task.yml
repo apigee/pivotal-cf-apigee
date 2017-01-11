@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cfplatformeng/tile-generator}
+
+inputs:
+- name: broker-tile
+- name: version
+- name: pcf-environment
+- name: apigee-tile-repo
+
+run:
+  path: apigee-tile-repo/apigee-cf-service-broker/ci/deploy-tile/task.sh

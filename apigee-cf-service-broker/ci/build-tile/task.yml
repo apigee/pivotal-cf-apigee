@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: cfplatformeng/tile-generator}
+
+inputs:
+- name: apigee-tile-repo
+- name: version
+- name: tile-history
+
+outputs:
+- name: broker-tile
+- name: tile-history-new
+
+run:
+  path: apigee-tile-repo/apigee-cf-service-broker/ci/build-tile/task.sh
