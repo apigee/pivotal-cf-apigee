@@ -6,7 +6,7 @@ image_resource:
   source: {repository: cfplatformeng/tile-generator}
 
 inputs:
-- name: apigee-tile-repo
+- name: tile-repo
 - name: version
 - name: tile-history
 
@@ -15,4 +15,4 @@ outputs:
 - name: tile-history-new
 
 run:
-  path: apigee-tile-repo/apigee-cf-service-broker/ci/build-tile/task.sh
+  path: tile-repo/apigee-cf-service-broker/ci/build-tile/task.sh

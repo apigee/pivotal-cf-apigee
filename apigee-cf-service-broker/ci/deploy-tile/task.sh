@@ -35,7 +35,7 @@ pcf is-installed "${PRODUCT}" "${VERSION}"
 echo
 
 echo "Configuring product ${PRODUCT}"
-pcf configure "${PRODUCT}" "../apigee-tile-repo/apigee-cf-service-broker/ci/missing-properties.yml"
+pcf configure "${PRODUCT}" "../tile-repo/apigee-cf-service-broker/ci/missing-properties.yml"
 echo
 
 echo "Applying Changes"

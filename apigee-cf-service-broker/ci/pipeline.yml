@@ -14,17 +14,17 @@ resources:
 - name: version
   type: semver
   source:
-    bucket: {{bucket-name}}
+    bucket: apigee-cf-service-broker-tile
     key: current-version
     access_key_id: {{aws-key-id}}
     secret_access_key: {{aws-key}}
-    initial_version: 2.0.0
+    initial-version: 2.1.0
 
 - name: tile-repo
   type: git
   source:
     uri: https://github.com/JaredGordon/pivotal-cf-apigee.git
-    branch: micro-product
+    branch: master
 
 - name: broker-tile
   type: s3

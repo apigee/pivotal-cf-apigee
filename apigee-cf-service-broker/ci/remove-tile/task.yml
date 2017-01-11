@@ -11,4 +11,4 @@ inputs:
 - name: pcf-environment
 
 run:
-  path: apigee-tile-repo/apigee-cf-service-broker/ci/remove-tile/task.sh
+  path: tile-repo/apigee-cf-service-broker/ci/remove-tile/task.sh
