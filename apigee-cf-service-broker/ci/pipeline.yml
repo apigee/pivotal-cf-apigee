@@ -93,7 +93,7 @@ jobs:
     - get: tile-repo
     - get: version
   - task: deploy-tile
-    file: tile-repo/kafka-broker/ci/deploy-tile/task.yml
+    file: tile-repo/apigee-cf-service-broker/ci/deploy-tile/task.yml
     on_failure:
       aggregate:
       - put: pcf-environment
