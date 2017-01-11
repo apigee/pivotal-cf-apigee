@@ -31,7 +31,7 @@ resources:
   type: s3
   source:
     access_key_id: {{aws-key-id}}
-    bucket: {{bucket-name}}
+    bucket: apigee-cf-service-broker-tile
     regexp: .*-(?P<version>.*)\.zip
     secret_access_key: {{aws-key}}
 

@@ -1,7 +1,10 @@
 #!/bin/sh -ex
 
 ver=`more version/number`
-(cd tile-repo/apigee-cf-service-broker; npm install; zip -r resources/apigee.zip EULA.txt LICENSE README.md manifest.yml api helpers policy_templates proxy-resources schemas util node_modules package.json server.js; tile build ${ver})
+
+cd tile-repo/apigee-cf-service-broker
+cp ../broker-zip/*.zip resources/
+tile build ${ver}
 
 file=`ls product/*.pivotal`
 filename=$(basename "${file}")
