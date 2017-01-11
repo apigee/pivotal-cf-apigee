@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: node, tag: "7.4.0"}
+
+inputs:
+- name: tile-repo
+- name: version
+
+outputs:
+- name: broker-zip
+
+run:
+  path: tile-repo/apigee-cf-service-broker/ci/build-broker/task.sh
