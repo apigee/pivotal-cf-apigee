@@ -16,6 +16,12 @@
 # limitations under the License.
 #
 
+node_vcap='(() => {
+var vcap = require("./vcap");
+var cred = vcap.services.findCredentialsWithKeys("org", "env", "key", "secret")[0];
+return cred ? `-o ${cred.org} -e ${cred.env} -k ${cred.key} -s ${cred.secret}` : "";
+})()'
+
 regex="([^\/]+)-([^-]+)-cache-config.yaml"
 node_yaml='(() => {
 var yaml = require("js-yaml");
@@ -24,22 +30,30 @@ var doc  = yaml.safeLoad(fs.readFileSync(process.argv[1], "utf8"));
 return `-k ${doc.analytics.key} -s ${doc.analytics.secret}`;
 })()'
 
-for file in ~/.edgemicro/*; do
-    if [[ $file =~ $regex ]]; then
-        org=${BASH_REMATCH[1]}
-        env=${BASH_REMATCH[2]}
-        key_secret=$(node -p "$node_yaml" "$file")
-        if [[ $? -eq 0 ]]; then
-            break
-        else
-            echo ERROR: cannot read key/secret from $file
-            exit 1
-        fi
-    fi
-done
+oeks=$(node -p "$node_vcap")
+if [[ -n "$oeks" ]]; then
+    echo "Credentials found in VCAP_SERVICES"
+else
 
-if [[ -z "$org" ]]; then
-    echo ERROR: {org}-{env}-cache-config.yaml not found in ~/.edgemicro
+    for file in ~/.edgemicro/*; do
+        if [[ $file =~ $regex ]]; then
+            org=${BASH_REMATCH[1]}
+            env=${BASH_REMATCH[2]}
+            key_secret=$(node -p "$node_yaml" "$file")
+            if [[ $? -eq 0 ]]; then
+                oeks="-o $org -e $env $key_secret"
+                break
+            else
+                echo "ERROR: cannot read key/secret from $file"
+                exit 1
+            fi
+        fi
+    done
+
+fi
+
+if [[ -z "$oeks" ]]; then
+    echo "ERROR: {org}-{env}-cache-config.yaml not found in ~/.edgemicro"
     exit 1
 fi
 
@@ -49,6 +63,4 @@ else
     port="--port $PORT"
 fi
 
-args="-o $org -e $env $key_secret $port $@"
-#echo $args
-NODE_TLS_REJECT_UNAUTHORIZED=0 ./cli/edgemicro start $args
+NODE_TLS_REJECT_UNAUTHORIZED=0 ./cli/edgemicro start $oeks $port "$@"
