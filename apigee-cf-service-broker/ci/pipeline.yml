@@ -24,7 +24,7 @@ resources:
 - name: tile-repo
   type: git
   source:
-    uri: https://github.com/JaredGordon/pivotal-cf-apigee.git
+    uri: https://github.com/apigee/pivotal-cf-apigee.git
     branch: master
 
 - name: broker-zip
