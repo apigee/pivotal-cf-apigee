@@ -129,7 +129,7 @@ cf service myapigee
 
 ## <a name="bind"></a>Step 4: Bind the CF app's route to the Apigee service
 
-In this step, you bind a Cloud Foundry app's route (its address in Cloud Foundry) to the Apigee service instance you created. That way, requests to the app will be forwarded first to an Edge proxy. The bind-route-service command creates the proxy for you and binds the route to it.
+In this step, you bind a Cloud Foundry app's route (its address in Cloud Foundry) to the Apigee service instance you created. That way, requests to the app will be forwarded first to an Edge proxy. The `bind-route-service` command creates the proxy for you and binds the route to it.
 
 Each bind attempt requires authorization with Edge, passed as additional parameters to the `cf` bind command.
 
@@ -152,20 +152,10 @@ cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
 1. Log into Edge and note that the route has been created, and that requests to your app are being routed through Edge. 
 
  You will find a proxy whose name matches the pattern specified by the APIGEE_PROXY_NAME_TEMPLATE variable you specified in the manifest. The proxy has been deployed to the environment you specified when you created your service instance. 
- 
- > Note that the `bind-route-service` command currently generates an API proxy whose target endpoint is reached via HTTP, rather than HTTPS. If you prefer to use HTTPS, be sure to change the protocol by editing the proxy using the following instructions.
 
- > 1. With the generated proxy open, click the Develop tab on the right.
+ > If your newly-generated API proxy will be connecting to its target via HTTPS, be sure to read [Setting the target connection protocol](#target) for information on setting the protocol.
 
- > 1. In the Navigator on the left, under Target Endpoints, locate the default endpoint.
-
- > 1. In the Code window in the middle, locate the HTTPTargetConnection element's URL child element.
-
- > 1. Change the URL element's value so that it specifies `https` rather than `http`.
-
- > 1. Click Save.
-
- In the Edge management console, begin tracing that proxy, then send requests to your app. Trace will show the traffic routing through the proxy. 
+ In the Edge management console, begin tracing the proxy, then send requests to your app. Trace will show the traffic routing through the proxy. 
  
  You can now configure standard Apigee Edge policies on that proxy.
 
@@ -198,6 +188,8 @@ cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
 
 Cloud Foundry will report an error during the binding, since the bind was not attempted. But the message returned should indicate that the proxy was created, which you can check with the Edge management UI or API. The proxies created by the bind for Microgateway have an additional edgemicro_ at the beginning of their name, a general requirement unrelated to Cloud Foundry and service brokers.
 
+> If your newly-generated API proxy will be connecting to its target via HTTPS, be sure to read [Setting the target connection protocol](#target) for information on setting the protocol.
+
 Wait for the configuration to reload on the Edge Microgateway instance(s) before binding. You might have to wait 5 to 10 minutes. When it has reloaded, the console will list the proxy you just created.
 
 To bind, make the same call with "action":"bind"
@@ -224,3 +216,20 @@ cf unbind-route-service local.pcfdev.io myapigee --hostname test-app
 cf delete-service myapigee
 cf delete-service-broker apigee-edge
 ```
+
+
+## <a name="target"></a>Setting the target connection protocol
+
+The `bind-route-service` command currently generates an API proxy whose target endpoint is reached via HTTP, rather than HTTPS. If you prefer to use HTTPS, be sure to change the protocol by editing the proxy using the following instructions.
+
+1. In the Apigee Edge management console, locate the generated proxy and open it.
+
+1. With the generated proxy open, click the Develop tab on the right.
+
+1. In the Navigator on the left, under Target Endpoints, locate the default endpoint.
+
+1. In the Code window in the middle, locate the HTTPTargetConnection element's URL child element.
+
+1. Change the URL element's value so that it specifies `https` rather than `http`.
+
+1. Click Save.
