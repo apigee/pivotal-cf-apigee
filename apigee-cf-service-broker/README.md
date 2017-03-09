@@ -159,7 +159,7 @@ cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
  
  You can now configure standard Apigee Edge policies on that proxy.
 
-### Auhorization security
+### Authorization security
 
 The broker does not store any data; it requires credentials and other parameters for each individual `cf` command.
 
