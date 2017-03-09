@@ -131,7 +131,7 @@ cf service myapigee
 
 In this step, you bind a Cloud Foundry app's route (its address in Cloud Foundry) to the Apigee service instance you created. That way, requests to the app will be forwarded first to an Edge proxy. The bind-route-service command creates the proxy for you and binds the route to it.
 
-> Note that the `bind-route-service` command currently generates an API proxy whose target endpoint is reach via HTTP, rather than HTTPS. If you prefer to use HTTPS, be sure to change the protocol by editing the proxy using the following instructions.
+> Note that the `bind-route-service` command currently generates an API proxy whose target endpoint is reached via HTTP, rather than HTTPS. If you prefer to use HTTPS, be sure to change the protocol by editing the proxy using the following instructions.
 
 > 1. In a browser, go to the Apigee Edge management console.
 
@@ -143,7 +143,7 @@ In this step, you bind a Cloud Foundry app's route (its address in Cloud Foundry
 
 > 1. In the Code window in the middle, locate the HTTPTargetConnection element's URL child element.
 
-> 1. Change the URL elements value so that it specifies https rather than http.
+> 1. Change the URL element's value so that it specifies `https` rather than `http`.
 
 > 1. Click Save.
 
