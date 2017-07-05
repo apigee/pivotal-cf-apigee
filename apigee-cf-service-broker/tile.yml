@@ -6,7 +6,8 @@ name: apigee-cf-service-broker # By convention lowercase with dashes
 icon_file: resources/apigee.png
 label: Apigee
 description: Route Services service broker for Apigee Edge
-
+metadata_version: 1.8               # Optional, defaults to 1.5
+#
 # Specify the packages to be included in your tile.
 # The format of the section to include depends on the type
 # of package you are describing. For fragments of each type
