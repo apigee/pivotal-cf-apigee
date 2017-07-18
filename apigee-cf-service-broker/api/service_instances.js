@@ -120,6 +120,30 @@ function actionValidate(req, res, next) {
   }
 }
 
+function deriveProtocol(params){
+  //default to https if no protocol is provided
+  const proto = params.protocol ? params.protocol.toString().trim().toLowerCase() : 'https'
+  const ret = {}
+  if (proto === "http" || proto === "https"){
+    ret.protocol = proto
+  }
+  else if (params.protocol){
+    ret.error = params.protocol.toString()
+  }
+  return ret
+}
+
+function protocolValidate(req, res, next){
+  const proto = deriveProtocol(req.body.parameters)
+  if ("error" in proto) {
+    res.status(400)
+    var loggerError = logger.ERR_INVALID_TARGET_PROTOCOL(null, null, '"' + proto.error + '". A valid "protocol" is either "http" or "https".')
+    res.json(loggerError)
+  }
+  else {
+    next()
+  }
+ }
 
 // provising a service instance
 router.put('/:instance_id', function (req, res) {
@@ -144,7 +168,7 @@ router.delete('/:instance_id', function (req, res) {
 // payload {"service_id":"5E3F917B-9225-4BE4-802F-8F1491F714C0","plan_id":"D4D617E1-B4F9-49C7-91C8-52AB9DE8C18F","bind_resource":{"route":"rot13.apigee-cloudfoundry.com"}}
 // response should be route_service_url	string	A URL to which Cloud Foundry should proxy requests for the bound route.
 router.put('/:instance_id/service_bindings/:binding_id',
-    validate({body: bindingSchema.bind}), planValidate, authValidate, actionValidate, function (req, res) {
+    validate({body: bindingSchema.bind}), planValidate, authValidate, actionValidate, protocolValidate, function (req, res) {
   // use instance_id to retrieve org and environment for proxy
   var bindReq = {
     instance_id: req.params.instance_id,
@@ -160,7 +184,8 @@ router.put('/:instance_id/service_bindings/:binding_id',
     basic: req.body.parameters.basic,
     bearer: req.body.parameters.bearer,
     micro: req.body.parameters.micro,
-    host: req.body.parameters.host
+    host: req.body.parameters.host,
+    protocol: deriveProtocol(req.body.parameters).protocol
   }
   // create proxy in org that handles the url (bind_resource.route) and dynamically sets target
   service_binding.create(bindReq, function (err, result) {

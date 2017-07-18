@@ -94,6 +94,7 @@ describe('Component APIs', function () {
         })
     })
   })
+
   describe('Service Instance APIs', function () {
     it('Invalid Auth should return 401', function (done) {
       api.put('/v2/service_instances/:instance_id')
@@ -136,7 +137,7 @@ describe('Component APIs', function () {
         .set('Accept', 'application/json')
         .expect(401, done)
     })
-    it('Invalid Apigee Credentials should return a 407 response', function (done) {
+    it('Invalid Apigee Credentials should return a 407 response - http', function (done) {
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',
@@ -151,7 +152,8 @@ describe('Component APIs', function () {
             env: 'env-name-here',
             user: 'apigee-user-here',
             pass: 'apigee-pass-here',
-            action: 'proxy bind'
+            action: 'proxy bind',
+            protocol: 'http'
           }
         }
       }
@@ -161,6 +163,7 @@ describe('Component APIs', function () {
         .set('Authorization', authHeader)
         .expect(407, done)
     })
+
     it('Invalid JSON req payload should return Json Schema Validation error', function (done) {
       api.put('/v2/service_instances/12345/service_bindings/67890')
         .set('Accept', 'application/json')
@@ -174,7 +177,8 @@ describe('Component APIs', function () {
           done()
         })
     })
-    it('Valid Auth on route binding API should return 201 with route_service_url', function (done) {
+
+    it('Valid Auth on route binding API should return 201 with route_service_url - defaults to https', function (done) {
       var bindingInstance = {
         instance_id: 'instance-guid-here',
         binding_id: 'binding-guid-here',
@@ -190,7 +194,8 @@ describe('Component APIs', function () {
             env: 'test',
             user: 'XXXXX',
             pass: 'XXXXXXX',
-            action: 'proxy bind'
+            action: 'proxy bind',
+//            protocol: 'http'
           }
         }
       }
@@ -206,7 +211,35 @@ describe('Component APIs', function () {
           done()
         })
     })
+    it('Invalid Protocol on route binding API should return a 400', function(done) {
+      var bindingInstance = {
+              instance_id: 'instance-guid-here',
+              binding_id: 'binding-guid-here',
+              payload: {
+                plan_id: catalogData.guid.org,
+                service_id: 'service-guid-here',
+                bind_resource: {
+                  route: 'route-url-here'
+                },
+                parameters: {
+                  host: config.get('APIGEE_PROXY_HOST_TEMPLATE'),
+                  org: 'cdmo',
+                  env: 'test',
+                  user: 'XXXXX',
+                  pass: 'XXXXXXX',
+                  action: 'proxy bind',
+                  protocol: 'htYp'
+                }
+              }
+            }
+            api.put('/v2/service_instances/' + bindingInstance.instance_id + '/service_bindings/' + bindingInstance.binding_id)
+              .send(bindingInstance.payload)
+              .set('Accept', 'application/json')
+              .set('Authorization', authHeader)
+              .expect(400, done)
+    })
   })
+
   describe('Delete Route Binding & Delete Service Instance', function () {
     it('Invalid Auth should return 401 on route binding deletion', function (done) {
       api.put('/v2/service_instances/:instance_id/service_bindings/:binding_id')
@@ -234,6 +267,7 @@ describe('Component APIs', function () {
         .set('Authorization', authHeader)
         .expect(200, done)
     })
+
   })
   after(function (done) {   // eslint-disable-line
     this.timeout(0)
