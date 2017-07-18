@@ -51,6 +51,7 @@ var codes = {
   ERR_MICRO_PLAN_REQUIRES_MICRO: 'E0085',
   ERR_MISSING_AUTH: 'E0086',
   ERR_APIGEE_AUTH_BEARER_FAILED: 'E0087',
+  ERR_INVALID_TARGET_PROTOCOL: 'E0088',
   INFO_PROXY_CREATED_STOP: 'I0001'
 }
 
@@ -82,6 +83,7 @@ var messages = {
   E0085: 'Microgateway plan requires "micro" parameter',
   E0086: 'Missing authorization ("bearer" or "basic" or "user"&"pass")',
   E0087: 'Error Authenticating to Apigee. Try refreshing Bearer token',
+  E0088: 'Invalid target web "protocol"',
   I0001: 'Proxy created; as requested, no binding attempted'
 }
 
