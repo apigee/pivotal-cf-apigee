@@ -54,57 +54,57 @@ These instructions assume a local [PCF Dev](https://pivotal.io/pcf-dev) environm
  ```
 
 1. Load dependencies and test (requires that Node.js is installed).
- ```bash
- npm install
- npm test
- ```
+    ```bash
+    npm install
+    npm test
+    ```
 
 1. Edit the manifest to set required variables and override defaults as appropriate for your environment and Apigee Edge account.
 
- Item | Purpose | Default (for SaaS Edge)
----- | ---- | ----
-APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/`
-APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint | `https://api.enterprise.apigee.com/v1`
-APIGEE_PROXY_DOMAIN | Domain for proxy host template | `apigee.net`
-APIGEE_PROXY_HOST_TEMPLATE | ES6 template literal for generated proxy host. (Note that without any placeholders, will be used as-is.) | `${org}-${env}.${domain}`
-APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${route}`
+    Item | Purpose | Default (for SaaS Edge)
+    ---- | ---- | ----
+    APIGEE_DASHBOARD_URL | URL for Apigee Edge management UI | `https://enterprise.apigee.com/platform/#/`
+    APIGEE_MGMT_API_URL | Apigee Edge Management API endpoint | `https://api.enterprise.apigee.com/v1`
+    APIGEE_PROXY_DOMAIN | Domain for proxy host template | `apigee.net`
+    APIGEE_PROXY_HOST_TEMPLATE | ES6 template literal for generated proxy host. (Note that without any placeholders, will be used as-is.) | `${org}-${env}.${domain}`
+    APIGEE_PROXY_NAME_TEMPLATE | ES6 template literal for generated proxy | `cf-${route}`
 
 1. Log in to the Cloud Foundry instance where you'll be installing the Apigee service broker.
 
- ```bash
-cf login -a <your.endpoint> -u <username> -o <organization> -s <space>
-```
+    ```bash
+    cf login -a <your.endpoint> -u <username> -o <organization> -s <space>
+    ```
 
 1. Deploy the Apigee service broker from the source in this repository.
- ```bash
- cf push
- ```
-   Make a note of the broker app's URL, which you'll use to create the service broker later. Here's an example:
- ```
- urls: apigee-cf-service-broker.local.pcfdev.io
- ```
+    ```bash
+    cf push
+    ```
+    Make a note of the broker app's URL, which you'll use to create the service broker later. Here's an example:
+    ```
+    urls: apigee-cf-service-broker.local.pcfdev.io
+    ```
 
 1. Choose a user name and password and store them as environment variables for the broker app. Then restage the broker app to load those variables.
 
- Communication with the broker is protected with a user name and password (to prevent unauthorized access to the broker app from other sources). These credentials are specified when the broker is created, and then used for each call. However, validating those credentials is the responsibility of the broker app, which does not have those credentials provided by the runtime.
+    Communication with the broker is protected with a user name and password (to prevent unauthorized access to the broker app from other sources). These credentials are specified when the broker is created, and then used for each call. However, validating those credentials is the responsibility of the broker app, which does not have those credentials provided by the runtime.
    
- ```bash
-cf set-env apigee-cf-service-broker SECURITY_USER_NAME <pick a username>
-cf set-env apigee-cf-service-broker SECURITY_USER_PASSWORD <pick a password>
-cf restage apigee-cf-service-broker
- ```
+    ```bash
+    cf set-env apigee-cf-service-broker SECURITY_USER_NAME <pick a username>
+    cf set-env apigee-cf-service-broker SECURITY_USER_PASSWORD <pick a password>
+    cf restage apigee-cf-service-broker
+    ```
 
 1. Use the credentials you just established, along with the URL for the broker app, to create the service broker in Cloud Foundry.
- ```bash
-cf create-service-broker apigee-edge <security user name> <security user password> https://apigee-cf-service-broker.local.pcfdev.io
- ```
+    ```bash
+    cf create-service-broker apigee-edge <security user name> <security user password> https://apigee-cf-service-broker.local.pcfdev.io
+    ```
 
 1. Publish the service broker in your Cloud Foundry marketplace.
- ```bash
-cf enable-service-access apigee-edge
-cf marketplace
-cf marketplace -s apigee-edge
- ```
+    ```bash
+    cf enable-service-access apigee-edge
+    cf marketplace
+    cf marketplace -s apigee-edge
+    ```
 
 The Apigee service broker should now be available for you to create instances and bind to an Apigee-hosted proxy.
 
@@ -136,28 +136,28 @@ Each bind attempt requires authorization with Edge, passed as additional paramet
 1. First, get the URL of the app/route to bind. `cf routes` lists the host and domain separately; `cf apps` combines them into a FQDN, listed under "urls". For example, if the app's hostname is `test-app`, then the resulting FQDN is `test-app.local.pcfdev.io`.
 
 1. Get or update the authorization token using the Apigee SSO CLI script.
- ```bash
- get_token
- ```
- You may be prompted for your Apigee Edge username and password, and an MFA token. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
+    ```bash
+    get_token
+    ```
+    You may be prompted for your Apigee Edge username and password, and an MFA token. This updates the token in the `~/.sso-cli/valid_token.dat` file (if that subdirectory exists -- otherwise the file is placed in the current working directory)
 
 1. Bind the app's route to the Apigee service instance with the domain and hostname, carefully using quotes and command expansion:
- ```bash
-cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
--c '{"org":"<your edge org>","env":"<your edge env>",
+    ```bash
+    cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
+    -c '{"org":"<your edge org>","env":"<your edge env>",
       "bearer":"'$(cat ~/.sso-cli/valid_token.dat)'",
       "action":"proxy bind"}'
-```
+    ```
 
 1. Log into Edge and note that the route has been created, and that requests to your app are being routed through Edge. 
 
- You will find a proxy whose name matches the pattern specified by the APIGEE_PROXY_NAME_TEMPLATE variable you specified in the manifest. The proxy has been deployed to the environment you specified when you created your service instance. 
+    You will find a proxy whose name matches the pattern specified by the APIGEE_PROXY_NAME_TEMPLATE variable you specified in the manifest. The proxy has been deployed to the environment you specified when you created your service instance. 
 
- > If your newly-generated API proxy will be connecting to its target via HTTPS, be sure to read [Setting the target connection protocol](#target) for information on setting the protocol.
+    > If your newly-generated API proxy will be connecting to its target via HTTPS, be sure to read [Setting the target connection protocol](#target) for information on setting the protocol.
 
- In the Edge management console, begin tracing the proxy, then send requests to your app. Trace will show the traffic routing through the proxy. 
+    In the Edge management console, begin tracing the proxy, then send requests to your app. Trace will show the traffic routing through the proxy. 
  
- You can now configure standard Apigee Edge policies on that proxy.
+    You can now configure standard Apigee Edge policies on that proxy.
 
 ### Authorization security
 
