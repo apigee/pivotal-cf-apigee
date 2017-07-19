@@ -213,7 +213,7 @@ cf delete-service-broker apigee-edge
 ```
 
 ## bind-route-service reference
-Use the `bind-route-service` command, which for the Apigee service follows this form (be sure to use quotes and command expansion, as shown here):
+Use the `bind-route-service` command to generate an API proxy on Apigee Edge and to bind the Apigee Cloud Foundry service to the proxy. The command this form (be sure to use quotes and command expansion, as shown here):
     
 ```bash
 cf bind-route-service <your-app-domain> <service-instance> [--hostname <hostname>] \
