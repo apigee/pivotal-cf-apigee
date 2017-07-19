@@ -143,7 +143,7 @@ Each bind attempt requires authorization with Edge, passed as additional paramet
 
 1. Bind the app's route to the Apigee service instance with the domain and hostname.
 
-    Use the [`bind-route-service`](#bind-route-service-reference) command. The following example does two things: it creates an API proxy on the `myorg` org and `test` environment, then binds the Apigee route service to the proxy. The protocol parameter specifies the protocol through which the proxy will be called. To do its works, this command authenticates with Apigee Edge using the token in the specified .dat file:
+    Use the [`bind-route-service`](#bind-route-service-reference) command. The following example does two things: it creates an API proxy on the `myorg` org and `test` environment, then binds the Apigee route service to the proxy. The protocol parameter specifies the protocol through which the proxy's target endpoint will be called. To do its works, this command authenticates with Apigee Edge using the token in the specified .dat file:
     ```bash
     cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
     -c '{"org":"myorg","env":"test",
@@ -172,7 +172,7 @@ The proxy must be created as a separate step, and then loaded by Microgateway in
 
 In this example, the Microgateway is also installed as an app with the hostname edgemicro-app:
 
-Use the [`bind-route-service`](#bind-route-service-reference) command. The following example creates an API proxy on the `myorg` org and `test` environment. The protocol parameter specifies the protocol through which the proxy will be called. To do its works, this command authenticates with Apigee Edge using the token in the specified .dat file:
+Use the [`bind-route-service`](#bind-route-service-reference) command. The following example creates an API proxy on the `myorg` org and `test` environment. The protocol parameter specifies the protocol through which the proxy's target endpoint will be called. To do its works, this command authenticates with Apigee Edge using the token in the specified .dat file:
 
 ```bash
 cf bind-route-service local.pcfdev.io myapigee --hostname test-app \
@@ -231,4 +231,4 @@ Parameter | Purpose | Allowed Values
 `env` | Apigee Edge environment to which the API proxy is (or will be) deployed | Your environment.
 `bearer` | Path to a file containing an authentication token valid for your organization | An authentication token, such as one generated with Apigee's get_token command. The broker does not store any data; it requires credentials and other parameters for each individual `cf` command. Instead of a `bearer` token, credentials can also be expressed as:<ul><li>`basic`: standard HTTP Base-64 encoded username and password for `Authorization: Basic`. Note that this is *not encrypted* and easily converted to clear text. But a jumble of digits and letters may provide some protection in case of momentary exposure (but no better than if the password is already a jumble of digits, letters, and symbols)</li><li>username and password in clear text</li></ul>
 `action` | A value specifying whether to create or bind an API proxy | `proxy` to generate an API proxy; `bind` to bind the service with the proxy; `proxy bind` to generate the proxy and bind with a single command.
-`protocol` | The protocol through which the proxy should be accessed by Cloud Foundry | `http` or `https`; default is `https`.
+`protocol` | The protocol through which the proxy's target endpoint should be accessed by Cloud Foundry | `http` or `https`; default is `https`.
