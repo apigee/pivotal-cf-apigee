@@ -47,11 +47,11 @@ If you're a Cloud Foundry administrator, you can install a service broker as an 
 These instructions assume a local [PCF Dev](https://pivotal.io/pcf-dev) environment, at the domain `local.pcfdev.io`. If you're using another kind of Cloud Foundry host, be sure to adjust URLs accordingly.
 
 1. Clone this github project to get the service broker source you'll need.
- ```bash
- cd <your working directory>
- git clone https://github.com/apigee/pivotal-cf-apigee.git
- cd pivotal-cf-apigee/apigee-cf-service-broker
- ```
+    ```bash
+    cd <your working directory>
+    git clone https://github.com/apigee/pivotal-cf-apigee.git
+    cd pivotal-cf-apigee/apigee-cf-service-broker
+    ```
 
 1. Load dependencies and test (requires that Node.js is installed).
     ```bash
