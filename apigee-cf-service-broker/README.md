@@ -59,7 +59,8 @@ These instructions assume a local [PCF Dev](https://pivotal.io/pcf-dev) environm
     npm test
     ```
 
-1. Edit the manifest to set required variables and override defaults as appropriate for your environment and Apigee Edge account.
+1. Edit the manifest to set required variables and override defaults as appropriate for your environment and Apigee Edge account (`${var}` syntax is not supported on manifest.yml files. In order to set that kind of value you must use CLI `cf set-env` after the app is pushed)
+
 
     Item | Purpose | Default (for SaaS Edge)
     ---- | ---- | ----
